@@ -3,76 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StoryHub | Aesthetic Cloud</title>
+    <title>StoryHub | Your Creative Cloud</title>
+    <!-- FontAwesome icons ke liye -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* AAPKA PURANA DESIGN WAPAS */
-        :root { --primary: #0095f6; --bg: #ffffff; --border: #dbdbdb; --text: #262626; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
-        
-        .navbar { 
-            background: white; padding: 0 20px; display: flex; justify-content: space-between; 
-            align-items: center; border-bottom: 1px solid var(--border); 
-            position: sticky; top: 0; z-index: 100; height: 60px; 
-        }
-        .nav-brand { font-size: 24px; font-weight: bold; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        .container { max-width: 600px; margin: 0 auto; padding: 20px 10px; }
-        
-        .card { background: white; border: 1px solid var(--border); border-radius: 3px; margin-bottom: 24px; }
-        .card-padding { padding: 16px; }
-
-        input, textarea { 
-            width: 100%; padding: 10px; margin: 10px 0; 
-            border: 1px solid #efefef; border-radius: 4px; 
-            background: #fafafa; box-sizing: border-box; 
-        }
-        
-        button { 
-            background: var(--primary); color: white; border: none; 
-            padding: 7px 16px; border-radius: 4px; font-weight: 600; 
-            cursor: pointer; width: 100%; font-size: 14px;
-        }
-
-        .post-header { display: flex; align-items: center; padding: 14px; font-weight: 600; border-bottom: 1px solid #efefef; }
-        .feed-avatar { width: 32px; height: 32px; border-radius: 50%; margin-right: 12px; border: 1px solid var(--border); }
-        
-        .story-body { padding: 16px; }
-        .story-title { font-size: 18px; font-weight: bold; margin: 0 0 8px 0; }
-        .story-text { font-size: 14px; line-height: 1.5; white-space: pre-wrap; color: #262626; }
+        /* AAPKA PURANA STYLING WAPAS - Black Nav bar aur bade fonts */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #fafafa; color: #333; }
+        .navbar { background-color: #333; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .navbar h1 { margin: 0; font-size: 28px; }
+        .pfp { width: 50px; height: 50px; border-radius: 50%; border: 3px solid white; cursor: pointer; transition: transform 0.2s; object-fit: cover; }
+        .pfp:hover { transform: scale(1.1); }
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .form-section, .story-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 30px; border: 1px solid #eaeaea; }
+        h2 { margin-top: 0; color: #444; }
+        input, textarea, select { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; transition: border-color 0.3s; }
+        input:focus, textarea:focus, select:focus { border-color: #007bff; outline: none; }
+        button { padding: 15px 30px; background-color: #007bff; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background-color 0.3s, transform 0.1s; width: 100%; }
+        button:hover { background-color: #0056b3; }
+        button:active { transform: scale(0.98); }
+        .story-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .category-badge { background-color: #e1f5fe; color: #0277bd; padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: 600; text-transform: uppercase; }
+        .story-content { line-height: 1.8; color: #555; white-space: pre-wrap; }
+        .delete-btn { background: none; border: none; color: #ff6b6b; cursor: pointer; font-size: 20px; width: auto; padding: 0; }
+        .delete-btn:hover { color: #dc3545; }
+        #authSection { text-align: center; margin-top: 100px; }
+        #profileMenu { display: none; background-color: #333; color: white; position: absolute; top: 80px; right: 30px; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center; }
+        #profileMenu button { background-color: #ff6b6b; margin-top: 15px; }
+        @media (max-width: 600px) { .navbar { padding: 15px; } .container { margin: 20px auto; } }
     </style>
 </head>
 <body>
 
+<!-- Black Navbar -->
 <div class="navbar">
-    <div class="nav-brand">StoryHub 🚀</div>
-    <div id="navUser" style="font-size: 14px; font-weight: 600;"></div>
+    <h1>StoryHub <i class="fas fa-rocket"></i></h1>
+    <div style="display:flex; align-items:center; gap:15px;">
+        <span id="welcomeText" style="display:none;">Hi, <span id="userNameDisplay"></span></span>
+        <img id="navPfp" class="pfp" style="display:none;" onclick="toggleProfileMenu()">
+    </div>
+</div>
+
+<!-- Profile Context Menu -->
+<div id="profileMenu">
+    <h3>Profile Options</h3>
+    <p>Logged in as: <b id="menuUsername"></b></p>
+    <button onclick="logOut()"><i class="fas fa-sign-out-alt"></i> Logout</button>
 </div>
 
 <div class="container">
-    <!-- Login Card -->
-    <div class="card" id="authBox">
-        <div class="card-padding">
-            <h2 style="text-align:center; margin-top:0;">Login</h2>
-            <input id="u_name" placeholder="Username">
-            <button onclick="appLogin()">Log In</button>
-        </div>
+    <!-- 1. Authentication Section (Ab bhi local storage se chalta hai) -->
+    <div id="authSection" class="form-section">
+        <i class="fas fa-user-circle fa-5x" style="color: #007bff; margin-bottom: 20px;"></i>
+        <h2>Welcome, Storyteller!</h2>
+        <p>Set a username to identify yourself in the hub.</p>
+        <input type="text" id="username" placeholder="Choose your pen name..." maxlength="15">
+        <button onclick="setProfile()"><i class="fas fa-sign-in-alt"></i> Enter StoryHub</button>
     </div>
 
-    <!-- Create Post Card -->
-    <div class="card" id="postBox" style="display:none;">
-        <div class="card-padding">
-            <input id="p_title" placeholder="Title (optional)">
-            <textarea id="p_content" rows="3" placeholder="Write your story..."></textarea>
-            <button id="postBtn" onclick="handlePost()">Share Story</button>
+    <!-- 2. Main Content Section (Pehle jaisa structure) -->
+    <div id="mainSection" style="display: none;">
+        <div class="form-section">
+            <h2>Share Your Creative Spark</h2>
+            <select id="storyCategory">
+                <option value="Fiction">Fiction</option>
+                <option value="Mystery">Mystery</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Real Life">Real Life</option>
+                <option value="General">General</option>
+            </select>
+            <input type="text" id="storyTitle" placeholder="Give it a title (optional)">
+            <textarea id="storyContent" placeholder="Pour your heart out here..." rows="6"></textarea>
+            <button id="postBtn" onclick="addStory()"><i class="fas fa-paper-plane"></i> Publish Story</button>
         </div>
-    </div>
 
-    <div id="postFeed">
-        <p style="text-align: center; color: #8e8e8e;">Connecting to cloud...</p>
+        <h2>Explore Recent Stories</h2>
+        <div id="storiesContainer">
+            <p style="text-align: center; color: #888; font-size: 1.2rem;">Loading stories from the cloud...</p>
+        </div>
     </div>
 </div>
 
 <script type="module">
+    // Firebase Cloud Logic (Sirf push aur load ke liye)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -90,56 +102,105 @@
     const db = getDatabase(app);
     const postsRef = ref(db, 'posts');
 
-    let user = localStorage.getItem("storyUser");
+    // AAPKA PURANA PROFILE LOGIC WAPAS
+    let currentUser = localStorage.getItem('hubUser');
 
-    window.appLogin = () => {
-        let n = document.getElementById("u_name").value.trim();
-        if(n) { localStorage.setItem("storyUser", n); location.reload(); }
-    };
+    function checkLogin() {
+        if (currentUser) {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('mainSection').style.display = 'block';
+            
+            document.getElementById('userNameDisplay').innerText = currentUser;
+            document.getElementById('menuUsername').innerText = currentUser;
+            document.getElementById('welcomeText').style.display = 'inline';
 
-    window.handlePost = async () => {
-        let t = document.getElementById("p_title").value;
-        let c = document.getElementById("p_content").value;
-        if(!c) return alert("Write something first!");
+            let pfpUrl = `https://ui-avatars.com/api/?name=${currentUser}&size=128&background=random&color=fff&bold=true`;
+            document.getElementById('navPfp').src = pfpUrl;
+            document.getElementById('navPfp').style.display = 'block';
+        } else {
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('mainSection').style.display = 'none';
+        }
+    }
+    checkLogin(); // Page load par check karein
 
-        document.getElementById("postBtn").innerText = "Sharing...";
+    window.setProfile = function() {
+        let name = document.getElementById('username').value.trim();
+        if (name) {
+            localStorage.setItem('hubUser', name);
+            currentUser = name;
+            location.reload(); // Reload refresh karega aur naya data load karega
+        } else {
+            alert('Username is required!');
+        }
+    }
+
+    // CLOUD ADD STORY
+    window.addStory = async function() {
+        let title = document.getElementById('storyTitle').value;
+        let content = document.getElementById('storyContent').value;
+        let category = document.getElementById('storyCategory').value;
+        let btn = document.getElementById('postBtn');
+
+        if (!content) return alert('Story content is required!');
+
+        btn.disabled = true; btn.innerText = "Publishing...";
+
         await push(postsRef, {
-            user: user,
-            title: t,
-            content: c,
+            user: currentUser,
+            title: title || 'Untitled Story',
+            content: content,
+            category: category,
             time: serverTimestamp()
         });
 
-        document.getElementById("p_title").value = "";
-        document.getElementById("p_content").value = "";
-        document.getElementById("postBtn").innerText = "Share Story";
-    };
+        document.getElementById('storyTitle').value = '';
+        document.getElementById('storyContent').value = '';
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Publish Story';
+    }
 
-    onValue(postsRef, (snap) => {
-        let html = "";
-        let data = snap.val();
-        if(data) {
-            Object.values(data).reverse().forEach(p => {
+    // REAL-TIME FEED (Aapke purane design mein render hoga)
+    onValue(postsRef, (snapshot) => {
+        const storiesContainer = document.getElementById('storiesContainer');
+        let html = '';
+        const data = snapshot.val();
+        
+        if (data) {
+            // Data ko array mein badlein aur reverse karein (taaki naya upar dikhe)
+            Object.keys(data).reverse().forEach(key => {
+                let story = data[key];
+                let deleteButton = (story.user === currentUser) ? 
+                    `<button class="delete-btn" onclick="alert('For cloud-safety, only admins can permanent delete from Realtime Database GUI.')"><i class="fas fa-trash-alt"></i></button>` : '';
+
                 html += `
-                <div class="card">
-                    <div class="post-header">
-                        <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
-                        ${p.user}
+                    <div class="story-card">
+                        <div class="story-header">
+                            <div>
+                                <span class="category-badge">${story.category}</span>
+                                <h3 style="margin: 10px 0 0 0; color: #2c3e50;">${story.title}</h3>
+                                <p style="font-size:14px; color:#888; margin: 5px 0;">by <b>${story.user}</b></p>
+                            </div>
+                            ${deleteButton}
+                        </div>
+                        <div class="story-content">${story.content}</div>
                     </div>
-                    <div class="story-body">
-                        ${p.title ? `<div class="story-title">${p.title}</div>` : ''}
-                        <div class="story-text">${p.content}</div>
-                    </div>
-                </div>`;
+                `;
             });
+            storiesContainer.innerHTML = html;
+        } else {
+            storiesContainer.innerHTML = '<p style="text-align: center; color: #888; font-size: 1.2rem; margin-top: 50px;">Be the first storyteller! Write something above.</p>';
         }
-        document.getElementById("postFeed").innerHTML = html || "<p style='text-align:center'>No stories yet.</p>";
     });
 
-    if(user) {
-        document.getElementById("authBox").style.display = "none";
-        document.getElementById("postBox").style.display = "block";
-        document.getElementById("navUser").innerText = user;
+    // Profile Menu Functions (Bina Firebase config ke bahar)
+    window.toggleProfileMenu = function() {
+        let menu = document.getElementById('profileMenu');
+        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+    }
+
+    window.logOut = function() {
+        localStorage.removeItem('hubUser');
+        location.reload();
     }
 </script>
 </body>
