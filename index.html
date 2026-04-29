@@ -3,143 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StoryHub Pro+ | Cloud Version</title>
+    <title>StoryHub | Live Cloud</title>
     <style>
         :root { --primary: #0095f6; --bg: #fafafa; --border: #dbdbdb; --text: #262626; }
         body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
-        .navbar { background: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 55px; box-sizing: border-box; }
-        .nav-brand { font-size: 1.2rem; font-weight: bold; cursor: pointer; }
+        .navbar { background: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 60px; box-sizing: border-box; }
         .container { max-width: 500px; margin: 20px auto; padding: 0 10px; }
-        .card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
-        button { padding: 10px 20px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
-        button.secondary { background: #efefef; color: black; }
+        .card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        button { padding: 10px 20px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; width: 100%; }
         .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; }
-        .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; }
-        .category-badge { display: inline-block; background: #e0f1ff; color: #0073cc; font-size: 10px; padding: 3px 8px; border-radius: 12px; margin-bottom: 10px; font-weight: bold; text-transform: uppercase; }
+        .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; background: #eee; }
+        .story-content { line-height: 1.5; white-space: pre-wrap; color: #444; }
     </style>
 </head>
 <body>
 
 <div class="navbar">
-    <div class="nav-brand" onclick="location.reload()">StoryHub 🚀</div>
+    <div style="font-weight:bold; font-size:1.2rem;">StoryHub 🚀</div>
     <div id="navUser"></div>
 </div>
 
 <div class="container">
-    <!-- Login Section -->
+    <!-- Login -->
     <div class="card" id="authBox">
-        <h3>Login to Post</h3>
-        <input id="u_name" placeholder="Enter Your Name">
-        <button onclick="appLogin()" style="width:100%">Enter StoryHub</button>
+        <h3>Welcome!</h3>
+        <input id="u_name" placeholder="Enter your name to start writing">
+        <button onclick="appLogin()">Join StoryHub</button>
     </div>
 
-    <!-- Create Post Section -->
+    <!-- Create Post -->
     <div class="card" id="postBox" style="display:none;">
-        <input id="p_title" placeholder="Story Title">
-        <select id="p_cat">
-            <option value="General">Select Category</option>
-            <option value="Fiction">Fiction</option>
-            <option value="Comedy">Comedy</option>
-            <option value="Horror">Horror</option>
-        </select>
-        <textarea id="p_content" rows="3" placeholder="What's the story?"></textarea>
-        <button id="submitBtn" onclick="handlePost()" style="width: 100%;">Post to Cloud ☁️</button>
+        <input id="p_title" placeholder="Give your story a title...">
+        <textarea id="p_content" rows="4" placeholder="Share your thoughts with the world..."></textarea>
+        <button id="postBtn" onclick="handlePost()">Post Story ☁️</button>
     </div>
 
-    <h4>Global Stories Feed</h4>
-    <div id="postFeed">Loading stories...</div>
+    <div id="postFeed">Connecting to cloud...</div>
 </div>
 
-<!-- Firebase Scripts -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getDatabase, ref, push, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // Aapka Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyCzq2CZZhYFAh0hO-WoSb15yQGMb_9ECK8",
         authDomain: "devrahul-storyhub.firebaseapp.com",
+        databaseURL: "https://devrahul-storyhub-default-rtdb.firebaseio.com/",
         projectId: "devrahul-storyhub",
         storageBucket: "devrahul-storyhub.firebasestorage.app",
         messagingSenderId: "889951778018",
-        appId: "1:889951778018:web:7a01d97f72c016601d1abb",
-        measurementId: "G-YGGR3NRYYT"
+        appId: "1:889951778018:web:7a01d97f72c016601d1abb"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const postsCol = collection(db, "posts");
+    const db = getDatabase(app);
+    const postsRef = ref(db, 'posts');
 
-    let currentUser = localStorage.getItem("currentUser");
+    let user = localStorage.getItem("storyUser");
 
-    // Login function
+    // Login
     window.appLogin = () => {
-        let name = document.getElementById("u_name").value.trim();
-        if(name) {
-            localStorage.setItem("currentUser", name);
-            location.reload();
-        } else {
-            alert("Please enter a name");
-        }
+        let n = document.getElementById("u_name").value.trim();
+        if(n) { localStorage.setItem("storyUser", n); location.reload(); }
     };
 
-    // Post story function
+    // Post
     window.handlePost = async () => {
-        let title = document.getElementById("p_title").value;
-        let content = document.getElementById("p_content").value;
-        let cat = document.getElementById("p_cat").value;
-        let btn = document.getElementById("submitBtn");
+        let t = document.getElementById("p_title").value;
+        let c = document.getElementById("p_content").value;
+        if(!c) return alert("Please write something!");
 
-        if(!content) return alert("Please write something");
+        document.getElementById("postBtn").disabled = true;
+        document.getElementById("postBtn").innerText = "Uploading...";
 
-        btn.disabled = true;
-        btn.innerText = "Posting...";
+        await push(postsRef, {
+            user: user,
+            title: t,
+            content: c,
+            time: serverTimestamp()
+        });
 
-        try {
-            await addDoc(postsCol, {
-                user: currentUser,
-                title: title,
-                content: content,
-                category: cat,
-                timestamp: Date.now()
-            });
-            document.getElementById("p_title").value = "";
-            document.getElementById("p_content").value = "";
-            btn.disabled = false;
-            btn.innerText = "Post to Cloud ☁️";
-        } catch (e) {
-            alert("Error: Check if Firestore is in Test Mode");
-            btn.disabled = false;
-        }
+        document.getElementById("p_title").value = "";
+        document.getElementById("p_content").value = "";
+        document.getElementById("postBtn").disabled = false;
+        document.getElementById("postBtn").innerText = "Post Story ☁️";
     };
 
-    // Real-time Feed load
-    const q = query(postsCol, orderBy("timestamp", "desc"));
-    onSnapshot(q, (snapshot) => {
+    // Load Data
+    onValue(postsRef, (snap) => {
         let html = "";
-        snapshot.forEach(doc => {
-            let p = doc.data();
-            html += `
-            <div class="card">
-                <div class="post-header">
-                    <img src="https://ui-avatars.com/api/?name=${p.user}" class="feed-avatar">
-                    ${p.user}
-                </div>
-                <div class="category-badge">${p.category || 'General'}</div>
-                <h3>${p.title || ''}</h3>
-                <p style="white-space:pre-wrap">${p.content}</p>
-            </div>`;
-        });
-        document.getElementById("postFeed").innerHTML = html || "No stories yet. Be the first!";
+        let data = snap.val();
+        if(data) {
+            Object.values(data).reverse().forEach(p => {
+                html += `<div class="card">
+                    <div class="post-header">
+                        <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
+                        ${p.user}
+                    </div>
+                    <h3 style="margin-top:0">${p.title || 'Untitled Story'}</h3>
+                    <div class="story-content">${p.content}</div>
+                </div>`;
+            });
+        }
+        document.getElementById("postFeed").innerHTML = html || "No stories yet. Be the first to write!";
     });
 
-    // Check login state
-    if(currentUser) {
+    if(user) {
         document.getElementById("authBox").style.display = "none";
         document.getElementById("postBox").style.display = "block";
-        document.getElementById("navUser").innerHTML = `<b>${currentUser}</b> <button class="secondary" onclick="localStorage.removeItem('currentUser');location.reload()" style="padding:5px 10px; font-size:12px; margin-left:10px;">Logout</button>`;
+        document.getElementById("navUser").innerHTML = Bilkul fikar mat kijiye, ye **`null`** isliye dikh raha hai kyunki aapka database abhi khali hai (usmein koi data nahi hai) aur aapne direct database ka link browser mein khol diya hai.
+
+Iska matlab ye hai ki aapka **Realtime Database** setup ho gaya hai! ab bas ise website se connect karke pehli story post karni hai.
+
+Niche diye gaye steps follow karke apni GitHub file ko update karein:
+
+### Step 1: GitHub par Code Update Karein
+GitHub par `index.html` ko edit karein aur pura code hata kar ye wala daal dein. Maine ismein aapka **databaseURL** pehle hi set kar diya hai:
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryHub | Live Cloud</title>
+    <style>
+        :root { --primary: #0095f6; --bg: #fafafa; --border: #dbdbdb; --text: #262626; }
+        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+        .navbar { background: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 60px; box-sizing: border-box; }
+        .container { max-width: 500px; margin: 20px auto; padding: 0 10px; }
+        .card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        button { padding: 10px 20px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; width: 100%; }
+        .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; }
+        .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; background: #eee; }
+        .story-content { line-height: 1.5; white-space: pre-wrap; color: #444; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div style="font-weight:bold; font-size:1.2rem;">StoryHub 🚀</div>
+    <div id="navUser"></div>
+</div>
+
+<div class="container">
+    <!-- Login -->
+    <div class="card" id="authBox">
+        <h3>Welcome!</h3>
+        <input id="u_name" placeholder="Enter your name to start writing">
+        <button onclick="appLogin()">Join StoryHub</button>
+    </div>
+
+    <!-- Create Post -->
+    <div class="card" id="postBox" style="display:none;">
+        <input id="p_title" placeholder="Give your story a title...">
+        <textarea id="p_content" rows="4" placeholder="Share your thoughts with the world..."></textarea>
+        <button id="postBtn" onclick="handlePost()">Post Story ☁️</button>
+    </div>
+
+    <div id="postFeed">Connecting to cloud...</div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "[https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js](https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js)";
+    import { getDatabase, ref, push, onValue, serverTimestamp } from "[https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js](https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js)";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCzq2CZZhYFAh0hO-WoSb15yQGMb_9ECK8",
+        authDomain: "devrahul-storyhub.firebaseapp.com",
+        databaseURL: "[https://devrahul-storyhub-default-rtdb.firebaseio.com/](https://devrahul-storyhub-default-rtdb.firebaseio.com/)",
+        projectId: "devrahul-storyhub",
+        storageBucket: "devrahul-storyhub.firebasestorage.app",
+        messagingSenderId: "889951778018",
+        appId: "1:889951778018:web:7a01d97f72c016601d1abb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const postsRef = ref(db, 'posts');
+
+    let user = localStorage.getItem("storyUser");
+
+    // Login
+    window.appLogin = () => {
+        let n = document.getElementById("u_name").value.trim();
+        if(n) { localStorage.setItem("storyUser", n); location.reload(); }
+    };
+
+    // Post
+    window.handlePost = async () => {
+        let t = document.getElementById("p_title").value;
+        let c = document.getElementById("p_content").value;
+        if(!c) return alert("Please write something!");
+
+        document.getElementById("postBtn").disabled = true;
+        document.getElementById("postBtn").innerText = "Uploading...";
+
+        await push(postsRef, {
+            user: user,
+            title: t,
+            content: c,
+            time: serverTimestamp()
+        });
+
+        document.getElementById("p_title").value = "";
+        document.getElementById("p_content").value = "";
+        document.getElementById("postBtn").disabled = false;
+        document.getElementById("postBtn").innerText = "Post Story ☁️";
+    };
+
+    // Load Data
+    onValue(postsRef, (snap) => {
+        let html = "";
+        let data = snap.val();
+        if(data) {
+            Object.values(data).reverse().forEach(p => {
+                html += `<div class="card">
+                    <div class="post-header">
+                        <img src="[https://ui-avatars.com/api/?name=$](https://ui-avatars.com/api/?name=$){p.user}&background=random" class="feed-avatar">
+                        ${p.user}
+                    </div>
+                    <h3 style="margin-top:0">${p.title || 'Untitled Story'}</h3>
+                    <div class="story-content">${p.content}</div>
+                </div>`;
+            });
+        }
+        document.getElementById("postFeed").innerHTML = html || "No stories yet. Be the first to write!";
+    });
+
+    if(user) {
+        document.getElementById("authBox").style.display = "none";
+        document.getElementById("postBox").style.display = "block";
+        document.getElementById("navUser").innerHTML = `Hi, <b>${user}</b>`;
     }
 </script>
 </body>
