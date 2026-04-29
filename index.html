@@ -16,7 +16,6 @@
         button.secondary { background: #efefef; color: black; }
         .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; }
         .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; }
-        .category-badge { display: inline-block; background: #e0f1ff; color: #0073cc; font-size: 10px; padding: 3px 8px; border-radius: 12px; margin-bottom: 10px; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -27,14 +26,12 @@
 </div>
 
 <div class="container">
-    <!-- Login Section -->
     <div class="card" id="authBox">
         <h3>Login to Post</h3>
         <input id="u_name" placeholder="Enter Your Name">
         <button onclick="appLogin()" style="width:100%">Enter StoryHub</button>
     </div>
 
-    <!-- Create Post Section -->
     <div class="card" id="postBox" style="display:none;">
         <input id="p_title" placeholder="Story Title">
         <select id="p_cat">
@@ -51,95 +48,77 @@
     <div id="postFeed">Loading stories...</div>
 </div>
 
-<!-- Firebase Scripts -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     // Aapka Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyCzq2CZZhYFAh0hO-WoSb15yQGMb_9ECK8",
         authDomain: "devrahul-storyhub.firebaseapp.com",
+        databaseURL: "https://devrahul-storyhub-default-rtdb.firebaseio.com/",
         projectId: "devrahul-storyhub",
         storageBucket: "devrahul-storyhub.firebasestorage.app",
         messagingSenderId: "889951778018",
-        appId: "1:889951778018:web:7a01d97f72c016601d1abb",
-        measurementId: "G-YGGR3NRYYT"
+        appId: "1:889951778018:web:7a01d97f72c016601d1abb"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const postsCol = collection(db, "posts");
+    const db = getDatabase(app);
+    const postsRef = ref(db, 'posts');
 
     let currentUser = localStorage.getItem("currentUser");
 
-    // Login function
     window.appLogin = () => {
         let name = document.getElementById("u_name").value.trim();
         if(name) {
             localStorage.setItem("currentUser", name);
             location.reload();
-        } else {
-            alert("Please enter a name");
         }
     };
 
-    // Post story function
     window.handlePost = async () => {
         let title = document.getElementById("p_title").value;
         let content = document.getElementById("p_content").value;
         let cat = document.getElementById("p_cat").value;
-        let btn = document.getElementById("submitBtn");
-
+        
         if(!content) return alert("Please write something");
 
-        btn.disabled = true;
-        btn.innerText = "Posting...";
-
-        try {
-            await addDoc(postsCol, {
-                user: currentUser,
-                title: title,
-                content: content,
-                category: cat,
-                timestamp: Date.now()
-            });
-            document.getElementById("p_title").value = "";
-            document.getElementById("p_content").value = "";
-            btn.disabled = false;
-            btn.innerText = "Post to Cloud ☁️";
-        } catch (e) {
-            alert("Error: Check if Firestore is in Test Mode");
-            btn.disabled = false;
-        }
+        await push(postsRef, {
+            user: currentUser,
+            title: title,
+            content: content,
+            category: cat,
+            timestamp: Date.now()
+        });
+        
+        document.getElementById("p_title").value = "";
+        document.getElementById("p_content").value = "";
     };
 
-    // Real-time Feed load
-    const q = query(postsCol, orderBy("timestamp", "desc"));
-    onSnapshot(q, (snapshot) => {
+    onValue(postsRef, (snapshot) => {
         let html = "";
-        snapshot.forEach(doc => {
-            let p = doc.data();
-            html += `
-            <div class="card">
-                <div class="post-header">
-                    <img src="https://ui-avatars.com/api/?name=${p.user}" class="feed-avatar">
-                    ${p.user}
-                </div>
-                <div class="category-badge">${p.category || 'General'}</div>
-                <h3>${p.title || ''}</h3>
-                <p style="white-space:pre-wrap">${p.content}</p>
-            </div>`;
-        });
-        document.getElementById("postFeed").innerHTML = html || "No stories yet. Be the first!";
+        const data = snapshot.val();
+        if(data) {
+            Object.values(data).reverse().forEach(p => {
+                html += `
+                <div class="card">
+                    <div class="post-header">
+                        <img src="https://ui-avatars.com/api/?name=${p.user}" class="feed-avatar">
+                        ${p.user}
+                    </div>
+                    <h3>${p.title || ''}</h3>
+                    <p style="white-space:pre-wrap">${p.content}</p>
+                </div>`;
+            });
+        }
+        document.getElementById("postFeed").innerHTML = html || "No stories yet!";
     });
 
-    // Check login state
     if(currentUser) {
         document.getElementById("authBox").style.display = "none";
         document.getElementById("postBox").style.display = "block";
-        document.getElementById("navUser").innerHTML = `<b>${currentUser}</b> <button class="secondary" onclick="localStorage.removeItem('currentUser');location.reload()" style="padding:5px 10px; font-size:12px; margin-left:10px;">Logout</button>`;
+        document.getElementById("navUser").innerHTML = `<b>${currentUser}</b>`;
     }
 </script>
 </body>
