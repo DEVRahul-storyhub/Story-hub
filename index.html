@@ -3,166 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StoryHub - Likho Dil ki Baat | Social Narrative Platform</title>
+    <title>StoryHub - Likho Dil ki Baat</title>
     <style>
         :root { 
             --primary: #0095f6; 
-            --primary-hover: #1877f2;
             --bg: #fafafa; 
             --border: #dbdbdb; 
             --text: #262626; 
-            --shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
-
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            margin: 0; 
-            background: var(--bg); 
-            color: var(--text); 
-            line-height: 1.5;
-        }
-
-        /* Navbar */
+        body { font-family: system-ui; margin: 0; background: var(--bg); color: var(--text); }
         .navbar { 
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 0 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid var(--border); 
-            position: sticky; 
-            top: 0; 
-            z-index: 100; 
-            height: 60px; 
+            background: white; padding: 0 20px; display: flex; justify-content: space-between; 
+            align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 60px; 
         }
-        .nav-brand { font-size: 1.4rem; font-weight: 800; cursor: pointer; letter-spacing: -0.5px; }
-        
-        /* Layout */
         .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
-        
-        .card { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 12px; 
-            border: 1px solid var(--border); 
-            margin-bottom: 20px; 
-            transition: transform 0.2s ease;
-        }
-
-        /* Inputs & Buttons */
-        input, textarea, select { 
-            width: 100%; padding: 12px; margin: 8px 0; 
-            border: 1px solid var(--border); border-radius: 8px; 
-            box-sizing: border-box; font-family: inherit; font-size: 14px;
-        }
-        input:focus, textarea:focus { outline: 1px solid var(--primary); border-color: var(--primary); }
-
-        button { 
-            padding: 10px 20px; border: none; border-radius: 8px; 
-            background: var(--primary); color: white; font-weight: 600; 
-            cursor: pointer; transition: 0.2s;
-        }
-        button:hover { background: var(--primary-hover); }
+        .card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
+        button { padding: 10px 20px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; }
         button.secondary { background: #efefef; color: black; }
-        button.danger { background: #fee2e2; color: #dc2626; font-size: 12px; margin-top: 10px; }
-        button.danger:hover { background: #fecaca; }
-
-        /* Filter Bar */
-        .filter-bar {
-            display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px;
-            scrollbar-width: none;
-        }
-        .filter-chip {
-            white-space: nowrap; padding: 6px 15px; border-radius: 20px;
-            background: white; border: 1px solid var(--border); font-size: 13px; cursor: pointer;
-        }
-        .filter-chip.active { background: var(--text); color: white; border-color: var(--text); }
-
-        /* Post Styles */
-        .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; cursor: pointer; }
-        .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; border: 1px solid #eee; }
-        .category-badge { 
-            display: inline-block; background: #e0f1ff; color: #0073cc; 
-            font-size: 10px; padding: 3px 8px; border-radius: 12px; 
-            margin-bottom: 8px; font-weight: bold; text-transform: uppercase; 
-        }
-        .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; border-top: 1px solid #efefef; border-bottom: 1px solid #efefef; }
-        .like-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 10px 0; display: flex; align-items: center; gap: 6px; color: #262626; }
-
-        /* Modal */
-        .modal { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: white; z-index: 1000; overflow-y: auto; 
-        }
-        .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 20px; }
-        .grid-item { aspect-ratio: 1/1; background: #eee; overflow: hidden; }
-        .grid-item img { width: 100%; height: 100%; object-fit: cover; }
+        .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; }
+        .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; }
+        .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; }
+        .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; }
+        .filter-chip { white-space: nowrap; padding: 6px 15px; border-radius: 20px; background: white; border: 1px solid var(--border); cursor: pointer; }
+        .filter-chip.active { background: var(--text); color: white; }
     </style>
 </head>
 <body>
 
 <div class="navbar">
-    <div class="nav-brand" onclick="location.reload()">StoryHub - Likho Dil ki Baat 📝</div>
-    <div id="navUser">
-        <button onclick="document.getElementById('u_name').focus()">Login</button>
-    </div>
+    <div style="font-weight:800;">StoryHub 📝</div>
+    <div id="navUser"></div>
 </div>
 
 <div class="container">
+    <!-- Auth Box -->
     <div class="card" id="authBox">
-        <h2 style="margin-top:0">Welcome Back</h2>
-        <input id="u_name" placeholder="Username">
-        <input id="u_pass" type="password" placeholder="Password">
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+        <h2>Login / Sign Up</h2>
+        <input id="u_name" placeholder="Username (No space)">
+        <input id="u_pass" type="password" placeholder="Password (Min 6 chars)">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <button onclick="appLogin()">Login</button>
             <button class="secondary" onclick="appSignup()">Sign Up</button>
         </div>
     </div>
 
+    <!-- Post Box -->
     <div class="card" id="postBox" style="display:none;">
-        <input id="p_title" placeholder="Catchy Title (Optional)">
+        <input id="p_title" placeholder="Title">
         <select id="p_cat">
-            <option value="General">General Category</option>
+            <option value="General">General</option>
             <option value="Comedy">Comedy</option>
             <option value="Fiction">Fiction</option>
             <option value="Horror">Horror</option>
-            <option value="Romantic">Romantic</option>
-            <option value="Education">Education</option>
         </select>
-        <textarea id="p_content" rows="3" placeholder="Share your story..."></textarea>
-        <label style="font-size: 12px; color: #666;">Add Photo:</label>
+        <textarea id="p_content" rows="3" placeholder="Apni kahani likho..."></textarea>
         <input type="file" id="p_file" accept="image/*">
-        <button onclick="handlePost()" style="width: 100%; margin-top: 10px;">Post Story</button>
+        <button onclick="handlePost()" style="width:100%">Post Story</button>
     </div>
 
     <div class="filter-bar" id="categoryFilters">
         <div class="filter-chip active" onclick="filterFeed('All', this)">All</div>
-        <div class="filter-chip" onclick="filterFeed('Comedy', this)">Comedy</div>
-        <div class="filter-chip" onclick="filterFeed('Fiction', this)">Fiction</div>
-        <div class="filter-chip" onclick="filterFeed('Horror', this)">Horror</div>
-        <div class="filter-chip" onclick="filterFeed('Romantic', this)">Romantic</div>
     </div>
 
-    <div id="postFeed">Syncing with cloud...</div>
+    <div id="postFeed">Loading stories...</div>
 </div>
 
-<div id="profileModal" class="modal">
-    <div style="padding: 20px; max-width: 600px; margin: auto;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <button class="secondary" onclick="closeModal('profileModal')">← Back</button>
-            <b id="profileTitle">Profile</b>
-            <div style="width: 60px;"></div>
-        </div>
-        <div id="profileContent"></div>
-    </div>
-</div>
-
-<!-- Firebase SDKs -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+    // APNI CONFIG YAHAN RAKHEIN
     const firebaseConfig = {
         apiKey: "AIzaSyCzq2CZZhYFAh0hO-WoSb15yQGMb_9ECK8",
         authDomain: "devrahul-storyhub.firebaseapp.com",
@@ -175,180 +87,115 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const auth = getAuth(app);
     const postsRef = ref(db, 'posts');
 
-    // --- Utilities ---
-    const safeGet = (key) => JSON.parse(localStorage.getItem(key) || "[]");
-    const escapeHTML = (str) => {
-        if (!str) return "";
-        let div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    };
-
-    let currentUser = localStorage.getItem("currentUser");
+    let currentUser = null;
     let currentFilter = "All";
-    let allCloudPosts = [];
 
-    // --- Auth Logic (Using LocalStorage as per your logic) ---
-    window.appSignup = () => {
-        let u = document.getElementById("u_name").value.trim();
-        let p = document.getElementById("u_pass").value;
-        if(u.length < 3) return alert("Username too short");
-        let users = safeGet("users");
-        if(users.find(x => x.username === u)) return alert("User exists");
-        users.push({username: u, password: p});
-        localStorage.setItem("users", JSON.stringify(users));
-        alert("Account Created! You can now login.");
-    };
-
-    window.appLogin = () => {
-        let u = document.getElementById("u_name").value.trim();
-        let p = document.getElementById("u_pass").value;
-        let users = safeGet("users");
-        let found = users.find(x => x.username === u && x.password === p);
-        if(!found) return alert("Invalid Credentials");
-        localStorage.setItem("currentUser", u);
-        location.reload();
-    };
-
-    // --- Cloud Post Logic ---
-    window.handlePost = () => {
-        let t = document.getElementById("p_title").value;
-        let cat = document.getElementById("p_cat").value;
-        let c = document.getElementById("p_content").value;
-        let f = document.getElementById("p_file").files[0];
+    // --- AUTH LOGIC ---
+    window.appSignup = async () => {
+        const u = document.getElementById("u_name").value.trim();
+        const p = document.getElementById("u_pass").value;
+        if(u.length < 3) return alert("Username chota hai");
         
-        if(!c && !f) return alert("Please write something or add a photo");
-
-        if(f) {
-            let r = new FileReader();
-            r.onload = () => saveToCloud(t, cat, c, r.result);
-            r.readAsDataURL(f);
-        } else saveToCloud(t, cat, c, "");
+        try {
+            const res = await createUserWithEmailAndPassword(auth, u + "@storyhub.com", p);
+            await updateProfile(res.user, { displayName: u });
+            alert("Account ban gaya!");
+        } catch (e) { alert(e.message); }
     };
 
-    async function saveToCloud(t, cat, c, img) {
-        await push(postsRef, { 
-            user: currentUser, 
-            title: t, 
-            category: cat, 
-            content: c, 
-            image: img, 
-            likes: [],
+    window.appLogin = async () => {
+        const u = document.getElementById("u_name").value.trim();
+        const p = document.getElementById("u_pass").value;
+        try {
+            await signInWithEmailAndPassword(auth, u + "@storyhub.com", p);
+        } catch (e) { alert("Galat details!"); }
+    };
+
+    window.appLogout = () => signOut(auth);
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            document.getElementById("authBox").style.display = "none";
+            document.getElementById("postBox").style.display = "block";
+            document.getElementById("navUser").innerHTML = `<b>${user.displayName}</b> <button onclick="appLogout()" class="secondary" style="padding:5px">Logout</button>`;
+        } else {
+            currentUser = null;
+            document.getElementById("authBox").style.display = "block";
+            document.getElementById("postBox").style.display = "none";
+            document.getElementById("navUser").innerHTML = "";
+        }
+    });
+
+    // --- POST LOGIC ---
+    window.handlePost = () => {
+        const t = document.getElementById("p_title").value;
+        const cat = document.getElementById("p_cat").value;
+        const c = document.getElementById("p_content").value;
+        const file = document.getElementById("p_file").files[0];
+
+        if(!c && !file) return alert("Kuch toh likho!");
+
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = () => savePost(t, cat, c, reader.result);
+            reader.readAsDataURL(file);
+        } else {
+            savePost(t, cat, c, "");
+        }
+    };
+
+    async function savePost(t, cat, c, img) {
+        await push(postsRef, {
+            user: currentUser.displayName,
+            uid: currentUser.uid, // Security ke liye UID zaroori hai
+            title: t,
+            category: cat,
+            content: c,
+            image: img,
             timestamp: Date.now()
         });
-        document.getElementById("p_title").value = "";
         document.getElementById("p_content").value = "";
         document.getElementById("p_file").value = "";
     }
 
-    // --- Real-time Feed Rendering ---
-    onValue(postsRef, (snapshot) => {
-        const data = snapshot.val();
-        allCloudPosts = [];
+    // --- FEED LOGIC ---
+    onValue(postsRef, (snap) => {
+        const data = snap.val();
+        let html = "";
         if(data) {
-            allCloudPosts = Object.keys(data).map(key => ({
-                ...data[key],
-                id: key
-            })).reverse();
+            const posts = Object.keys(data).map(k => ({...data[k], id: k})).reverse();
+            posts.forEach(p => {
+                if(currentFilter !== "All" && p.category !== currentFilter) return;
+                html += `
+                <div class="card">
+                    <div class="post-header">
+                        <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
+                        <span>${p.user}</span>
+                    </div>
+                    <small style="color:blue">${p.category}</small>
+                    <h3>${p.title || ""}</h3>
+                    <p style="white-space:pre-wrap">${p.content}</p>
+                    ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
+                    ${currentUser && p.uid === currentUser.uid ? `<button onclick="delPost('${p.id}')" style="background:red; font-size:10px">Delete</button>` : ""}
+                </div>`;
+            });
         }
-        renderFeed();
+        document.getElementById("postFeed").innerHTML = html || "No stories yet.";
     });
 
-    window.filterFeed = (category, el) => {
-        currentFilter = category;
+    window.delPost = (id) => { if(confirm("Delete karein?")) remove(ref(db, `posts/${id}`)); };
+
+    window.filterFeed = (cat, el) => {
+        currentFilter = cat;
         document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
-        renderFeed();
+        // Feed automatically updates due to onValue
     };
-
-    window.renderFeed = () => {
-        let posts = allCloudPosts;
-        if(currentFilter !== "All") {
-            posts = posts.filter(p => p.category === currentFilter);
-        }
-
-        let html = "";
-        posts.forEach(p => {
-            let likesCount = p.likes ? (Array.isArray(p.likes) ? p.likes.length : Object.keys(p.likes).length) : 0;
-            let isLiked = p.likes && Object.values(p.likes).includes(currentUser);
-            
-            html += `
-            <div class="card">
-                <div class="post-header" onclick="openProfile('${p.user}')">
-                    <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
-                    <span>${p.user}</span>
-                </div>
-                <div class="category-badge">${p.category || 'General'}</div>
-                ${p.title ? `<h3 style="margin:5px 0">${escapeHTML(p.title)}</h3>` : ""}
-                <p style="white-space:pre-wrap; margin-top:5px;">${escapeHTML(p.content)}</p>
-                ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <button class="like-btn" onclick="likePost('${p.id}')">
-                        ${isLiked ? '❤️' : '🤍'} ${likesCount}
-                    </button>
-                    ${p.user === currentUser ? `<button class="danger" onclick="delPost('${p.id}')">Delete</button>` : ""}
-                </div>
-            </div>`;
-        });
-        document.getElementById("postFeed").innerHTML = html || `<div style="text-align:center; padding:40px; color:#888;">No stories in ${currentFilter} yet.</div>`;
-    };
-
-    window.likePost = (id) => {
-        if(!currentUser) return alert("Login to like posts!");
-        const post = allCloudPosts.find(x => x.id === id);
-        let likes = post.likes || {};
-        
-        // Simple toggle logic for Firebase
-        const userLikeKey = Object.keys(likes).find(key => likes[key] === currentUser);
-        if(userLikeKey) {
-            remove(ref(db, `posts/${id}/likes/${userLikeKey}`));
-        } else {
-            push(ref(db, `posts/${id}/likes`), currentUser);
-        }
-    };
-
-    window.delPost = (id) => {
-        if(confirm("Delete this story from cloud?")) {
-            remove(ref(db, `posts/${id}`));
-        }
-    };
-
-    window.openProfile = (u) => {
-        let posts = allCloudPosts.filter(x => x.user === u);
-        document.getElementById("profileModal").style.display = "block";
-        let grid = posts.map(p => `
-            <div class="grid-item">
-                ${p.image ? `<img src="${p.image}">` : `<div style="padding:10px; font-size:11px; color:#666;">${escapeHTML(p.content.slice(0,50))}...</div>`}
-            </div>
-        `).join("");
-        
-        document.getElementById("profileContent").innerHTML = `
-            <div style="text-align:center; padding: 30px 0;">
-                <img src="https://ui-avatars.com/api/?name=${u}&size=100&background=random" style="border-radius:50%; border: 4px solid white; box-shadow: var(--shadow);">
-                <h2 style="margin: 10px 0 5px 0;">${u}</h2>
-                <div style="color: #666; font-size: 14px;">${posts.length} Stories Shared</div>
-            </div>
-            <div class="profile-grid">${grid}</div>`;
-    };
-
-    window.closeModal = (id) => { document.getElementById(id).style.display = "none"; };
-
-    // Initial check
-    if(currentUser) {
-        document.getElementById("authBox").style.display = "none";
-        document.getElementById("postBox").style.display = "block";
-        document.getElementById("navUser").innerHTML = `
-            <div style="display:flex; align-items:center; gap:10px;">
-                <div style="cursor:pointer; display:flex; align-items:center; gap:8px;" onclick="openProfile('${currentUser}')">
-                    <img src="https://ui-avatars.com/api/?name=${currentUser}&size=32&background=random" style="border-radius:50%; width:30px;">
-                    <span style="font-weight:600; font-size:14px;">${currentUser}</span>
-                </div>
-                <button onclick="localStorage.removeItem('currentUser');location.reload()" class="secondary" style="padding: 5px 10px; font-size:12px;">Logout</button>
-            </div>
-        `;
-    }
 </script>
+
 </body>
 </html>
