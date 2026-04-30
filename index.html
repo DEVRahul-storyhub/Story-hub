@@ -18,7 +18,7 @@
         .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; border: 1px solid #eee; }
         .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; border-top: 1px solid #efefef; border-bottom: 1px solid #efefef; }
 
-        /* Fixed Comment Styles */
+        /* Comment Styles */
         .comment-box { margin-top: 15px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
         .comment-list { margin-bottom: 10px; }
         .comment-item { font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start; }
@@ -97,17 +97,18 @@
     window.appSignup = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
+        if(!u || p.length < 6) return alert("Username aur Password (6 chars) sahi bharein!");
         try {
             const res = await createUserWithEmailAndPassword(auth, u + "@storyhub.com", p);
             await updateProfile(res.user, { displayName: u });
             location.reload();
-        } catch (e) { alert(e.message); }
+        } catch (e) { alert("Error: Email already exists or connection issue."); }
     };
 
     window.appLogin = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
-        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch (e) { alert("Invalid login!"); }
+        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch (e) { alert("Login failed! Username/Password check karein."); }
     };
 
     window.appLogout = () => signOut(auth).then(() => location.reload());
@@ -147,7 +148,8 @@
             if (p.comments) {
                 Object.keys(p.comments).forEach(cId => {
                     const c = p.comments[cId];
-                    const isMyComment = currentUser && c.user === currentUser.displayName;
+                    // Security Check: Agar UID match hogi tabhi delete dikhega
+                    const isMyComment = currentUser && c.uid === currentUser.uid;
                     commentsHtml += `
                         <div class="comment-item">
                             <div class="comment-content">
@@ -188,6 +190,7 @@
 
         const commentData = {
             user: currentUser.displayName,
+            uid: currentUser.uid, // <-- Step 2: Added UID for security
             text: text,
             timestamp: Date.now()
         };
@@ -195,8 +198,7 @@
         try {
             await push(ref(db, `posts/${postId}/comments`), commentData);
             input.value = "";
-            // Render automatically triggers via onValue
-        } catch (e) { alert("Error posting comment!"); }
+        } catch (e) { alert("Permission Error: Rules update karein!"); }
     };
 
     window.deleteComment = (postId, commentId) => {
@@ -234,13 +236,13 @@
         document.getElementById("profileModal").style.display = "block";
         let grid = ups.map(p => `
             <div class="grid-item" onclick="viewPost('${p.id}')">
-                ${p.image ? `<img src="${p.image}">` : `<div style="padding:10px; font-size:10px;">${p.content.slice(0,30)}...</div>`}
+                ${p.image ? `<img src="${p.image}">` : `<div style="padding:10px; font-size:10px; color:#999;">${p.content.slice(0,30)}...</div>`}
             </div>`).join("");
         document.getElementById("profileContent").innerHTML = `
             <div style="text-align:center; padding: 20px 0;">
                 <img src="https://ui-avatars.com/api/?name=${u}&size=80&background=random" style="border-radius:50%">
-                <h2>${u}</h2>
-                <p>${ups.length} Stories</p>
+                <h2 style="margin:10px 0 5px 0">${u}</h2>
+                <p style="color:#8e8e8e; margin:0">${ups.length} Stories</p>
             </div>
             <div class="profile-grid">${grid}</div>`;
     };
