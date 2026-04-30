@@ -5,42 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StoryHub - Likho Dil ki Baat</title>
     <style>
-        :root { 
-            --primary: #0095f6; 
-            --bg: #fafafa; 
-            --border: #dbdbdb; 
-            --text: #262626; 
-        }
-
+        :root { --primary: #0095f6; --bg: #fafafa; --border: #dbdbdb; --text: #262626; }
         body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); line-height: 1.5; }
-
-        .navbar { 
-            background: white; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 60px; 
-        }
+        .navbar { background: white; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 60px; }
         .nav-brand { font-size: 1.4rem; font-weight: 800; cursor: pointer; }
-
         .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
-        .card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
-
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
+        .card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; position: relative; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
         button { padding: 10px 20px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; }
         button.secondary { background: #efefef; color: black; }
-
         .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; cursor: pointer; }
         .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; border: 1px solid #eee; }
         .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; border-top: 1px solid #efefef; border-bottom: 1px solid #efefef; }
 
-        /* Comment Styling */
+        /* Fixed Comment Styles */
         .comment-box { margin-top: 15px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
-        .comment-list { max-height: 150px; overflow-y: auto; margin-bottom: 10px; }
-        .comment-item { font-size: 13px; margin-bottom: 5px; }
-        .comment-user { font-weight: 700; margin-right: 6px; }
-        .comment-input-area { display: flex; gap: 8px; }
-        .comment-input-area input { margin: 0; padding: 8px; border-radius: 20px; font-size: 13px; }
-        .comment-input-area button { padding: 0 15px; border-radius: 20px; font-size: 12px; }
+        .comment-list { margin-bottom: 10px; }
+        .comment-item { font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .comment-content { flex: 1; }
+        .comment-user { font-weight: 700; margin-right: 6px; color: #262626; }
+        .comment-text { color: #444; }
+        .comment-input-area { display: flex; gap: 8px; align-items: center; }
+        .comment-input-area input { margin: 0; padding: 10px 15px; border-radius: 25px; font-size: 13px; background: #f8f8f8; }
+        .comment-input-area button { padding: 8px 18px; border-radius: 25px; font-size: 12px; }
+        .del-com { font-size: 10px; color: #ff4d4d; cursor: pointer; margin-left: 10px; opacity: 0.6; }
+        .del-com:hover { opacity: 1; }
 
-        /* Profile Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; overflow-y: auto; }
         .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 20px; }
         .grid-item { aspect-ratio: 1/1; background: #eee; overflow: hidden; cursor: pointer; border: 1px solid #f0f0f0; }
@@ -55,7 +45,6 @@
 </div>
 
 <div class="container">
-    <!-- Auth -->
     <div class="card" id="authBox">
         <h2 style="margin-top:0">Swagat Hai!</h2>
         <input id="u_name" placeholder="Username">
@@ -66,7 +55,6 @@
         </div>
     </div>
 
-    <!-- Post Area -->
     <div class="card" id="postBox" style="display:none;">
         <textarea id="p_content" rows="2" placeholder="Kuch likhiye..."></textarea>
         <input type="file" id="p_file" accept="image/*">
@@ -76,7 +64,6 @@
     <div id="postFeed">Syncing stories...</div>
 </div>
 
-<!-- Profile Modal -->
 <div id="profileModal" class="modal">
     <div style="padding: 20px; max-width: 600px; margin: auto;">
         <button class="secondary" onclick="closeModal('profileModal')">← Back</button>
@@ -86,7 +73,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -106,7 +93,7 @@
     let currentUser = null;
     let allPosts = [];
 
-    // --- AUTH FUNCTIONS ---
+    // --- AUTH ---
     window.appSignup = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
@@ -131,18 +118,20 @@
             document.getElementById("authBox").style.display = "none";
             document.getElementById("postBox").style.display = "block";
             document.getElementById("navUser").innerHTML = `
-                <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="openProfile('${user.displayName}')">
-                    <img src="https://ui-avatars.com/api/?name=${user.displayName}&background=random" style="width:30px; border-radius:50%">
-                    <span style="font-weight:600">${user.displayName}</span>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="cursor:pointer; display:flex; align-items:center; gap:5px;" onclick="openProfile('${user.displayName}')">
+                        <img src="https://ui-avatars.com/api/?name=${user.displayName}&background=random" style="width:30px; border-radius:50%">
+                        <span style="font-weight:600">${user.displayName}</span>
+                    </div>
                     <button onclick="appLogout()" class="secondary" style="padding:4px 8px; font-size:11px">Logout</button>
                 </div>`;
             fetchPosts();
         } else {
-            document.getElementById("postFeed").innerHTML = "<p style='text-align:center; padding:20px;'>Login karke stories aur comments dekhein!</p>";
+            document.getElementById("postFeed").innerHTML = "<p style='text-align:center; padding:20px;'>Login karein stories dekhne ke liye!</p>";
         }
     });
 
-    // --- STORIES & COMMENTS ---
+    // --- DATA FETCHING ---
     function fetchPosts() {
         onValue(ref(db, 'posts'), (snap) => {
             const data = snap.val();
@@ -154,11 +143,19 @@
     window.renderFeed = () => {
         let html = "";
         allPosts.forEach(p => {
-            // Comments list render karna
             let commentsHtml = "";
-            if(p.comments) {
-                Object.values(p.comments).forEach(c => {
-                    commentsHtml += `<div class="comment-item"><span class="comment-user">${c.user}:</span>${c.text}</div>`;
+            if (p.comments) {
+                Object.keys(p.comments).forEach(cId => {
+                    const c = p.comments[cId];
+                    const isMyComment = currentUser && c.user === currentUser.displayName;
+                    commentsHtml += `
+                        <div class="comment-item">
+                            <div class="comment-content">
+                                <span class="comment-user">${c.user}</span>
+                                <span class="comment-text">${c.text}</span>
+                            </div>
+                            ${isMyComment ? `<span class="del-com" onclick="deleteComment('${p.id}', '${cId}')">Delete</span>` : ""}
+                        </div>`;
                 });
             }
 
@@ -172,9 +169,9 @@
                 ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
                 
                 <div class="comment-box">
-                    <div class="comment-list" id="list-${p.id}">${commentsHtml}</div>
+                    <div class="comment-list">${commentsHtml}</div>
                     <div class="comment-input-area">
-                        <input id="in-${p.id}" placeholder="Comment karein...">
+                        <input id="in-${p.id}" placeholder="Comment karein..." onkeypress="if(event.key==='Enter') postComment('${p.id}')">
                         <button onclick="postComment('${p.id}')">Post</button>
                     </div>
                 </div>
@@ -183,26 +180,35 @@
         document.getElementById("postFeed").innerHTML = html || "Koi story nahi hai.";
     };
 
+    // --- ACTIONS ---
     window.postComment = async (postId) => {
         const input = document.getElementById(`in-${postId}`);
-        if(!input.value.trim()) return;
+        const text = input.value.trim();
+        if(!text || !currentUser) return;
 
-        const commentObj = {
+        const commentData = {
             user: currentUser.displayName,
-            text: input.value,
-            time: Date.now()
+            text: text,
+            timestamp: Date.now()
         };
 
-        await push(ref(db, `posts/${postId}/comments`), commentObj);
-        input.value = "";
+        try {
+            await push(ref(db, `posts/${postId}/comments`), commentData);
+            input.value = "";
+            // Render automatically triggers via onValue
+        } catch (e) { alert("Error posting comment!"); }
     };
 
-    // --- OTHER UI LOGIC ---
+    window.deleteComment = (postId, commentId) => {
+        if(confirm("Ye comment delete karein?")) {
+            remove(ref(db, `posts/${postId}/comments/${commentId}`));
+        }
+    };
+
     window.handlePost = () => {
         const c = document.getElementById("p_content").value;
         const f = document.getElementById("p_file").files[0];
         if(!c && !f) return;
-
         if(f) {
             const r = new FileReader();
             r.onload = () => savePost(c, r.result);
@@ -222,6 +228,7 @@
         document.getElementById("p_file").value = "";
     }
 
+    // --- PROFILE ---
     window.openProfile = (u) => {
         let ups = allPosts.filter(x => x.user === u);
         document.getElementById("profileModal").style.display = "block";
@@ -229,12 +236,11 @@
             <div class="grid-item" onclick="viewPost('${p.id}')">
                 ${p.image ? `<img src="${p.image}">` : `<div style="padding:10px; font-size:10px;">${p.content.slice(0,30)}...</div>`}
             </div>`).join("");
-        
         document.getElementById("profileContent").innerHTML = `
             <div style="text-align:center; padding: 20px 0;">
                 <img src="https://ui-avatars.com/api/?name=${u}&size=80&background=random" style="border-radius:50%">
                 <h2>${u}</h2>
-                <p>${ups.length} Stories Shared</p>
+                <p>${ups.length} Stories</p>
             </div>
             <div class="profile-grid">${grid}</div>`;
     };
@@ -248,7 +254,6 @@
     };
 
     window.closeModal = (id) => document.getElementById(id).style.display = "none";
-
 </script>
 </body>
 </html>
