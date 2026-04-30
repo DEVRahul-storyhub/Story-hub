@@ -7,42 +7,68 @@
     <style>
         :root { 
             --primary: #0095f6; 
+            --primary-hover: #1877f2;
             --bg: #fafafa; 
             --border: #dbdbdb; 
             --text: #262626; 
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
-        body { font-family: system-ui; margin: 0; background: var(--bg); color: var(--text); }
+
+        body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); line-height: 1.5; }
+
+        /* Navbar */
         .navbar { 
-            background: white; padding: 0 20px; display: flex; justify-content: space-between; 
-            align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 60px; 
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
+            padding: 0 20px; display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 60px; 
         }
+        .nav-brand { font-size: 1.4rem; font-weight: 800; cursor: pointer; }
+
+        /* Layout */
         .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
-        .card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
+        .card { 
+            background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); 
+            margin-bottom: 20px; transition: border 0.3s ease; 
+        }
+
+        /* Inputs & Buttons */
         input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
         button { padding: 10px 20px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; }
         button.secondary { background: #efefef; color: black; }
-        .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; }
-        .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; }
-        .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; }
-        .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; }
-        .filter-chip { white-space: nowrap; padding: 6px 15px; border-radius: 20px; background: white; border: 1px solid var(--border); cursor: pointer; }
-        .filter-chip.active { background: var(--text); color: white; }
+        button.danger { background: #fee2e2; color: #dc2626; font-size: 12px; }
+
+        /* Post Styles */
+        .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; cursor: pointer; }
+        .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; border: 1px solid #eee; }
+        .category-badge { display: inline-block; background: #e0f1ff; color: #0073cc; font-size: 10px; padding: 3px 8px; border-radius: 12px; margin-bottom: 8px; text-transform: uppercase; font-weight: bold; }
+        .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; border-top: 1px solid #efefef; border-bottom: 1px solid #efefef; }
+
+        /* Filter Bar */
+        .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; scrollbar-width: none; }
+        .filter-chip { white-space: nowrap; padding: 6px 15px; border-radius: 20px; background: white; border: 1px solid var(--border); font-size: 13px; cursor: pointer; }
+        .filter-chip.active { background: var(--text); color: white; border-color: var(--text); }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; overflow-y: auto; }
+        .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 20px; }
+        .grid-item { aspect-ratio: 1/1; background: #eee; overflow: hidden; cursor: pointer; position: relative; }
+        .grid-item img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 <body>
 
 <div class="navbar">
-    <div style="font-weight:800;">StoryHub 📝</div>
+    <div class="nav-brand" onclick="location.reload()">StoryHub 📝</div>
     <div id="navUser"></div>
 </div>
 
 <div class="container">
     <!-- Auth Box -->
     <div class="card" id="authBox">
-        <h2>Login / Sign Up</h2>
-        <input id="u_name" placeholder="Username (No space)">
+        <h2 style="margin-top:0">Welcome</h2>
+        <input id="u_name" placeholder="Username (Unique)">
         <input id="u_pass" type="password" placeholder="Password (Min 6 chars)">
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
             <button onclick="appLogin()">Login</button>
             <button class="secondary" onclick="appSignup()">Sign Up</button>
         </div>
@@ -50,23 +76,36 @@
 
     <!-- Post Box -->
     <div class="card" id="postBox" style="display:none;">
-        <input id="p_title" placeholder="Title">
+        <input id="p_title" placeholder="Catchy Title (Optional)">
         <select id="p_cat">
             <option value="General">General</option>
             <option value="Comedy">Comedy</option>
             <option value="Fiction">Fiction</option>
             <option value="Horror">Horror</option>
+            <option value="Romantic">Romantic</option>
         </select>
-        <textarea id="p_content" rows="3" placeholder="Apni kahani likho..."></textarea>
+        <textarea id="p_content" rows="3" placeholder="Share your story..."></textarea>
         <input type="file" id="p_file" accept="image/*">
-        <button onclick="handlePost()" style="width:100%">Post Story</button>
+        <button onclick="handlePost()" style="width: 100%; margin-top: 10px;">Post Story</button>
     </div>
 
     <div class="filter-bar" id="categoryFilters">
-        <div class="filter-chip active" onclick="filterFeed('All', this)">All</div>
+        <div class="filter-chip active" id="filter-all" onclick="filterFeed('All', this)">All</div>
+        <div class="filter-chip" onclick="filterFeed('Comedy', this)">Comedy</div>
+        <div class="filter-chip" onclick="filterFeed('Fiction', this)">Fiction</div>
+        <div class="filter-chip" onclick="filterFeed('Horror', this)">Horror</div>
+        <div class="filter-chip" onclick="filterFeed('Romantic', this)">Romantic</div>
     </div>
 
-    <div id="postFeed">Loading stories...</div>
+    <div id="postFeed">Loading Feed...</div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profileModal" class="modal">
+    <div style="padding: 20px; max-width: 600px; margin: auto;">
+        <button class="secondary" onclick="closeModal('profileModal')">← Back</button>
+        <div id="profileContent"></div>
+    </div>
 </div>
 
 <script type="module">
@@ -74,7 +113,6 @@
     import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // APNI CONFIG YAHAN RAKHEIN
     const firebaseConfig = {
         apiKey: "AIzaSyCzq2CZZhYFAh0hO-WoSb15yQGMb_9ECK8",
         authDomain: "devrahul-storyhub.firebaseapp.com",
@@ -91,18 +129,24 @@
     const postsRef = ref(db, 'posts');
 
     let currentUser = null;
+    let allCloudPosts = [];
     let currentFilter = "All";
 
-    // --- AUTH LOGIC ---
+    // --- UTILS ---
+    const escapeHTML = (str) => {
+        let div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    };
+
+    // --- AUTH ---
     window.appSignup = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
-        if(u.length < 3) return alert("Username chota hai");
-        
         try {
             const res = await createUserWithEmailAndPassword(auth, u + "@storyhub.com", p);
             await updateProfile(res.user, { displayName: u });
-            alert("Account ban gaya!");
+            location.reload();
         } catch (e) { alert(e.message); }
     };
 
@@ -111,91 +155,134 @@
         const p = document.getElementById("u_pass").value;
         try {
             await signInWithEmailAndPassword(auth, u + "@storyhub.com", p);
-        } catch (e) { alert("Galat details!"); }
+        } catch (e) { alert("Login failed!"); }
     };
 
-    window.appLogout = () => signOut(auth);
+    window.appLogout = () => signOut(auth).then(() => location.reload());
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUser = user;
             document.getElementById("authBox").style.display = "none";
             document.getElementById("postBox").style.display = "block";
-            document.getElementById("navUser").innerHTML = `<b>${user.displayName}</b> <button onclick="appLogout()" class="secondary" style="padding:5px">Logout</button>`;
-        } else {
-            currentUser = null;
-            document.getElementById("authBox").style.display = "block";
-            document.getElementById("postBox").style.display = "none";
-            document.getElementById("navUser").innerHTML = "";
+            document.getElementById("navUser").innerHTML = `
+                <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="openProfile('${user.displayName}')">
+                    <img src="https://ui-avatars.com/api/?name=${user.displayName}&background=random" style="width:30px; border-radius:50%">
+                    <span style="font-weight:600">${user.displayName}</span>
+                    <button onclick="appLogout()" class="secondary" style="padding:4px 8px; font-size:12px">Logout</button>
+                </div>`;
         }
     });
 
-    // --- POST LOGIC ---
+    // --- POSTING ---
     window.handlePost = () => {
         const t = document.getElementById("p_title").value;
         const cat = document.getElementById("p_cat").value;
         const c = document.getElementById("p_content").value;
-        const file = document.getElementById("p_file").files[0];
+        const f = document.getElementById("p_file").files[0];
+        if(!c && !f) return alert("Write something!");
 
-        if(!c && !file) return alert("Kuch toh likho!");
-
-        if(file) {
-            const reader = new FileReader();
-            reader.onload = () => savePost(t, cat, c, reader.result);
-            reader.readAsDataURL(file);
-        } else {
-            savePost(t, cat, c, "");
-        }
+        if(f) {
+            const r = new FileReader();
+            r.onload = () => saveToCloud(t, cat, c, r.result);
+            r.readAsDataURL(f);
+        } else saveToCloud(t, cat, c, "");
     };
 
-    async function savePost(t, cat, c, img) {
+    async function saveToCloud(t, cat, c, img) {
         await push(postsRef, {
             user: currentUser.displayName,
-            uid: currentUser.uid, // Security ke liye UID zaroori hai
+            uid: currentUser.uid,
             title: t,
             category: cat,
             content: c,
             image: img,
             timestamp: Date.now()
         });
+        document.getElementById("p_title").value = "";
         document.getElementById("p_content").value = "";
         document.getElementById("p_file").value = "";
     }
 
-    // --- FEED LOGIC ---
-    onValue(postsRef, (snap) => {
-        const data = snap.val();
-        let html = "";
-        if(data) {
-            const posts = Object.keys(data).map(k => ({...data[k], id: k})).reverse();
-            posts.forEach(p => {
-                if(currentFilter !== "All" && p.category !== currentFilter) return;
-                html += `
-                <div class="card">
-                    <div class="post-header">
-                        <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
-                        <span>${p.user}</span>
-                    </div>
-                    <small style="color:blue">${p.category}</small>
-                    <h3>${p.title || ""}</h3>
-                    <p style="white-space:pre-wrap">${p.content}</p>
-                    ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
-                    ${currentUser && p.uid === currentUser.uid ? `<button onclick="delPost('${p.id}')" style="background:red; font-size:10px">Delete</button>` : ""}
-                </div>`;
-            });
-        }
-        document.getElementById("postFeed").innerHTML = html || "No stories yet.";
+    // --- FEED ---
+    onValue(postsRef, (snapshot) => {
+        const data = snapshot.val();
+        allCloudPosts = data ? Object.keys(data).map(k => ({...data[k], id: k})).reverse() : [];
+        renderFeed();
     });
 
-    window.delPost = (id) => { if(confirm("Delete karein?")) remove(ref(db, `posts/${id}`)); };
+    window.renderFeed = () => {
+        let html = "";
+        allCloudPosts.forEach(p => {
+            if(currentFilter !== "All" && p.category !== currentFilter) return;
+            html += `
+            <div class="card" id="${p.id}">
+                <div class="post-header" onclick="openProfile('${p.user}')">
+                    <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
+                    <span>${p.user}</span>
+                </div>
+                <div class="category-badge">${p.category}</div>
+                ${p.title ? `<h3>${escapeHTML(p.title)}</h3>` : ""}
+                <p style="white-space:pre-wrap">${escapeHTML(p.content)}</p>
+                ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
+                <div style="margin-top:10px; text-align:right">
+                    ${currentUser && p.uid === currentUser.uid ? `<button class="danger" onclick="delPost('${p.id}')">Delete</button>` : ""}
+                </div>
+            </div>`;
+        });
+        document.getElementById("postFeed").innerHTML = html || "No stories yet.";
+    };
 
     window.filterFeed = (cat, el) => {
         currentFilter = cat;
         document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
-        // Feed automatically updates due to onValue
+        renderFeed();
     };
-</script>
 
+    window.delPost = (id) => { if(confirm("Delete this story?")) remove(ref(db, `posts/${id}`)); };
+
+    // --- PROFILE & NEW VIEW POST LOGIC ---
+    window.openProfile = (u) => {
+        let posts = allCloudPosts.filter(x => x.user === u);
+        document.getElementById("profileModal").style.display = "block";
+        
+        let grid = posts.map(p => `
+            <div class="grid-item" onclick="viewPost('${p.id}')">
+                ${p.image ? `<img src="${p.image}">` : `<div style="padding:10px; font-size:10px;">${escapeHTML(p.content.slice(0,40))}...</div>`}
+            </div>
+        `).join("");
+        
+        document.getElementById("profileContent").innerHTML = `
+            <div style="text-align:center; padding: 20px 0;">
+                <img src="https://ui-avatars.com/api/?name=${u}&size=80&background=random" style="border-radius:50%">
+                <h2>${u}</h2>
+                <p>${posts.length} Stories</p>
+            </div>
+            <div class="profile-grid">${grid}</div>`;
+    };
+
+    window.viewPost = (postId) => {
+        window.closeModal('profileModal');
+        // Reset to 'All' filter so we can find the post
+        window.filterFeed('All', document.getElementById('filter-all'));
+
+        setTimeout(() => {
+            const el = document.getElementById(postId);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.style.borderColor = "var(--primary)";
+                el.style.boxShadow = "0 0 15px rgba(0,149,246,0.3)";
+                setTimeout(() => { 
+                    el.style.borderColor = "var(--border)"; 
+                    el.style.boxShadow = "none";
+                }, 2000);
+            }
+        }, 300);
+    };
+
+    window.closeModal = (id) => document.getElementById(id).style.display = "none";
+
+</script>
 </body>
 </html>
