@@ -11,14 +11,14 @@
         .nav-brand { font-size: 1.4rem; font-weight: 800; cursor: pointer; }
         .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
         .card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; position: relative; }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
         button { padding: 10px 20px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; }
         button.secondary { background: #efefef; color: black; }
         .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; cursor: pointer; }
         .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; border: 1px solid #eee; }
         .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; border-top: 1px solid #efefef; border-bottom: 1px solid #efefef; }
+        .category-badge { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
 
-        /* Comment Styles */
         .comment-box { margin-top: 15px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
         .comment-list { margin-bottom: 10px; }
         .comment-item { font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start; }
@@ -46,7 +46,7 @@
 
 <div class="container">
     <div class="card" id="authBox">
-        <h2 style="margin-top:0">Swagat Hai!</h2>
+        <h2 style="margin-top:0">Welcome!</h2>
         <input id="u_name" placeholder="Username">
         <input id="u_pass" type="password" placeholder="Password (Min 6 chars)">
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
@@ -56,7 +56,18 @@
     </div>
 
     <div class="card" id="postBox" style="display:none;">
-        <textarea id="p_content" rows="2" placeholder="Kuch likhiye..."></textarea>
+        <input id="p_title" placeholder="Story Title">
+        <select id="p_category">
+            <option value="General">General</option>
+            <option value="Love/Romance">Love/Romance</option>
+            <option value="Inspiration">Inspiration</option>
+            <option value="Emotional">Emotional</option>
+            <option value="Comedy">Comedy</option>
+            <option value="Horror">Horror</option>
+            <option value="Spiritual">Spiritual</option>
+            <option value="Adult">Adult</option>
+        </select>
+        <textarea id="p_content" rows="3" placeholder="Write your story here..."></textarea>
         <input type="file" id="p_file" accept="image/*">
         <button onclick="handlePost()" style="width: 100%;">Post Story</button>
     </div>
@@ -97,18 +108,18 @@
     window.appSignup = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
-        if(!u || p.length < 6) return alert("Username aur Password (6 chars) sahi bharein!");
+        if(!u || p.length < 6) return alert("Please enter valid username and password!");
         try {
             const res = await createUserWithEmailAndPassword(auth, u + "@storyhub.com", p);
             await updateProfile(res.user, { displayName: u });
             location.reload();
-        } catch (e) { alert("Error: Email already exists or connection issue."); }
+        } catch (e) { alert("Error: Account already exists or invalid data!"); }
     };
 
     window.appLogin = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
-        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch (e) { alert("Login failed! Username/Password check karein."); }
+        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch (e) { alert("Invalid credentials!"); }
     };
 
     window.appLogout = () => signOut(auth).then(() => location.reload());
@@ -128,7 +139,7 @@
                 </div>`;
             fetchPosts();
         } else {
-            document.getElementById("postFeed").innerHTML = "<p style='text-align:center; padding:20px;'>Login karein stories dekhne ke liye!</p>";
+            document.getElementById("postFeed").innerHTML = "<p style='text-align:center; padding:20px;'>Please login to see stories!</p>";
         }
     });
 
@@ -148,7 +159,6 @@
             if (p.comments) {
                 Object.keys(p.comments).forEach(cId => {
                     const c = p.comments[cId];
-                    // Security Check: Agar UID match hogi tabhi delete dikhega
                     const isMyComment = currentUser && c.uid === currentUser.uid;
                     commentsHtml += `
                         <div class="comment-item">
@@ -167,19 +177,21 @@
                     <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
                     <span>${p.user}</span>
                 </div>
-                <p style="white-space:pre-wrap">${p.content}</p>
+                <div class="category-badge">${p.category || 'General'}</div>
+                <h3 style="margin: 5px 0;">${p.title || 'Untitled Story'}</h3>
+                <p style="white-space:pre-wrap; margin-top:5px;">${p.content}</p>
                 ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
                 
                 <div class="comment-box">
                     <div class="comment-list">${commentsHtml}</div>
                     <div class="comment-input-area">
-                        <input id="in-${p.id}" placeholder="Comment karein..." onkeypress="if(event.key==='Enter') postComment('${p.id}')">
+                        <input id="in-${p.id}" placeholder="Write a comment..." onkeypress="if(event.key==='Enter') postComment('${p.id}')">
                         <button onclick="postComment('${p.id}')">Post</button>
                     </div>
                 </div>
             </div>`;
         });
-        document.getElementById("postFeed").innerHTML = html || "Koi story nahi hai.";
+        document.getElementById("postFeed").innerHTML = html || "No stories found.";
     };
 
     // --- ACTIONS ---
@@ -190,7 +202,7 @@
 
         const commentData = {
             user: currentUser.displayName,
-            uid: currentUser.uid, // <-- Step 2: Added UID for security
+            uid: currentUser.uid,
             text: text,
             timestamp: Date.now()
         };
@@ -198,36 +210,46 @@
         try {
             await push(ref(db, `posts/${postId}/comments`), commentData);
             input.value = "";
-        } catch (e) { alert("Permission Error: Rules update karein!"); }
+        } catch (e) { alert("Security Error: Permission denied!"); }
     };
 
     window.deleteComment = (postId, commentId) => {
-        if(confirm("Ye comment delete karein?")) {
+        if(confirm("Are you sure you want to delete this comment?")) {
             remove(ref(db, `posts/${postId}/comments/${commentId}`));
         }
     };
 
     window.handlePost = () => {
-        const c = document.getElementById("p_content").value;
-        const f = document.getElementById("p_file").files[0];
-        if(!c && !f) return;
-        if(f) {
+        const title = document.getElementById("p_title").value.trim();
+        const category = document.getElementById("p_category").value;
+        const content = document.getElementById("p_content").value.trim();
+        const file = document.getElementById("p_file").files[0];
+        
+        if(!content) return alert("Please write something!");
+
+        if(file) {
             const r = new FileReader();
-            r.onload = () => savePost(c, r.result);
-            r.readAsDataURL(f);
-        } else savePost(c, "");
+            r.onload = () => savePost(title, category, content, r.result);
+            r.readAsDataURL(file);
+        } else savePost(title, category, content, "");
     };
 
-    async function savePost(content, img) {
-        await push(ref(db, 'posts'), {
-            user: currentUser.displayName,
-            uid: currentUser.uid,
-            content: content,
-            image: img,
-            timestamp: Date.now()
-        });
-        document.getElementById("p_content").value = "";
-        document.getElementById("p_file").value = "";
+    async function savePost(title, category, content, img) {
+        try {
+            await push(ref(db, 'posts'), {
+                user: currentUser.displayName,
+                uid: currentUser.uid,
+                title: title,
+                category: category,
+                content: content,
+                image: img,
+                timestamp: Date.now()
+            });
+            document.getElementById("p_title").value = "";
+            document.getElementById("p_content").value = "";
+            document.getElementById("p_file").value = "";
+            alert("Story posted successfully!");
+        } catch (e) { alert("Failed to post story!"); }
     }
 
     // --- PROFILE ---
@@ -236,7 +258,7 @@
         document.getElementById("profileModal").style.display = "block";
         let grid = ups.map(p => `
             <div class="grid-item" onclick="viewPost('${p.id}')">
-                ${p.image ? `<img src="${p.image}">` : `<div style="padding:10px; font-size:10px; color:#999;">${p.content.slice(0,30)}...</div>`}
+                ${p.image ? `<img src="${p.image}">` : `<div style="padding:10px; font-size:10px; color:#999;">${p.title || 'Post'}</div>`}
             </div>`).join("");
         document.getElementById("profileContent").innerHTML = `
             <div style="text-align:center; padding: 20px 0;">
