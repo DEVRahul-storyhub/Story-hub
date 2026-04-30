@@ -19,6 +19,16 @@
         .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; border-top: 1px solid #efefef; border-bottom: 1px solid #efefef; }
         .category-badge { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
 
+        /* Disclaimer Styling */
+        .disclaimer-box { 
+            text-align: center; 
+            padding: 15px; 
+            margin-top: 10px; 
+            color: #666; 
+            font-size: 13px; 
+            line-height: 1.4;
+        }
+
         .comment-box { margin-top: 15px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
         .comment-list { margin-bottom: 10px; }
         .comment-item { font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start; }
@@ -59,13 +69,10 @@
         <input id="p_title" placeholder="Story Title">
         <select id="p_category">
             <option value="General">General</option>
-            <option value="Love/Romance">Love/Romance</option>
+            <option value="Love">Love</option>
             <option value="Inspiration">Inspiration</option>
-            <option value="Emotional">Emotional</option>
+            <option value="Sad">Sad</option>
             <option value="Comedy">Comedy</option>
-            <option value="Horror">Horror</option>
-            <option value="Spiritual">Spiritual</option>
-            <option value="Adult">Adult</option>
         </select>
         <textarea id="p_content" rows="3" placeholder="Write your story here..."></textarea>
         <input type="file" id="p_file" accept="image/*">
@@ -139,7 +146,15 @@
                 </div>`;
             fetchPosts();
         } else {
-            document.getElementById("postFeed").innerHTML = "<p style='text-align:center; padding:20px;'>Please login to see stories!</p>";
+            // Updated login landing page with Disclaimer
+            document.getElementById("postFeed").innerHTML = `
+                <div class="disclaimer-box">
+                    <p>Please login to see stories!</p>
+                    <p style="margin-top:10px; color:#999; font-style:italic;">
+                        <b>Note:</b> You can login or sign up with any unique username and password. 
+                        We do not collect your personal identity. Log in and enjoy the stories!
+                    </p>
+                </div>`;
         }
     });
 
