@@ -6,34 +6,91 @@
     <title>StoryHub - Likho Dil ki Baat</title>
     <style>
         :root { --primary: #0095f6; --bg: #fafafa; --border: #dbdbdb; --text: #262626; }
-        body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); line-height: 1.5; transition: all 0.5s ease; min-height: 100vh; }
-        body.logged-out { background: linear-gradient(135deg, #0095f6 0%, #001f3f 100%) fixed; color: white; }
-        body.logged-in { background: #121212 fixed; color: #262626; }
+        
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: var(--text); 
+            line-height: 1.5; 
+            transition: all 0.5s ease;
+            min-height: 100vh;
+        }
+
+        /* --- BACKGROUND STATES --- */
+        body.logged-out {
+            background: linear-gradient(135deg, #0095f6 0%, #001f3f 100%) fixed;
+            color: white;
+        }
+
+        body.logged-in {
+            background: #121212 fixed;
+            color: #262626;
+        }
+
         #authBox h2, #authBox p { color: #262626 !important; }
-        .navbar { background: white; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 60px; }
+
+        .navbar { 
+            background: white; padding: 0 20px; display: flex; justify-content: space-between; 
+            align-items: center; border-bottom: 1px solid var(--border); 
+            position: sticky; top: 0; z-index: 100; height: 60px; 
+        }
+
         body.logged-out .navbar { background: transparent; border-bottom: none; color: white; }
+
         .nav-brand { font-size: 1.4rem; font-weight: 800; cursor: pointer; }
-        .main-wrapper { display: flex; max-width: 900px; margin: 20px auto; gap: 20px; padding: 0 15px; }
+
+        /* --- LAYOUT STRUCTURE --- */
+        .main-wrapper {
+            display: flex;
+            max-width: 900px;
+            margin: 20px auto;
+            gap: 20px;
+            padding: 0 15px;
+        }
+
         .sidebar { flex: 1; display: none; }
         .container { flex: 2; max-width: 500px; margin: 0; }
-        @media (min-width: 800px) { .sidebar { display: block; position: sticky; top: 80px; height: fit-content; } }
+
+        @media (min-width: 800px) {
+            .sidebar { display: block; position: sticky; top: 80px; height: fit-content; }
+        }
+
         .sidebar-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: #262626; }
-        .writer-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+
+        .writer-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;
+        }
         .writer-item:last-child { border: none; }
-        .card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; color: #262626; }
+
+        .card { 
+            background: white; padding: 20px; border-radius: 12px; 
+            border: 1px solid var(--border); margin-bottom: 20px; color: #262626;
+        }
+
         input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; color: #262626; }
         button { padding: 10px 20px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; }
         button.secondary { background: #efefef; color: black; }
+        
         .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; cursor: pointer; }
         .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; border: 1px solid #eee; }
         .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; }
         .category-badge { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
-        .post-actions { display: flex; gap: 15px; padding: 10px 0; border-top: 1px solid #f0f0f0; margin-top: 10px; }
-        .action-btn { background: none; border: none; color: #262626; padding: 0; font-size: 14px; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+
+        /* Like & Interaction Styling */
+        .post-actions {
+            display: flex; gap: 15px; padding: 10px 0; border-top: 1px solid #f0f0f0; margin-top: 10px;
+        }
+        .action-btn {
+            background: none; border: none; color: #262626; padding: 0; font-size: 14px; display: flex; align-items: center; gap: 5px;
+        }
         .action-btn.liked { color: #ed4956; }
+
         .comment-box { margin-top: 10px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
         .comment-item { font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; }
         .comment-user { font-weight: 700; margin-right: 6px; }
+        
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; overflow-y: auto; color: #262626; }
         .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 20px; }
         .grid-item { aspect-ratio: 1/1; background: #eee; overflow: hidden; cursor: pointer; }
@@ -103,6 +160,7 @@
         databaseURL: "https://devrahul-storyhub-default-rtdb.firebaseio.com/",
         projectId: "devrahul-storyhub",
         storageBucket: "devrahul-storyhub.firebasestorage.app",
+        messagingSenderId: "889951778018",
         appId: "1:889951778018:web:7a01d97f72c016601d1abb"
     };
 
@@ -133,16 +191,17 @@
     window.appLogout = () => signOut(auth).then(() => location.reload());
 
     onAuthStateChanged(auth, (user) => {
+        const body = document.body;
         if (user) {
             currentUser = user;
-            document.body.classList.replace("logged-out", "logged-in");
+            body.classList.replace("logged-out", "logged-in");
             document.getElementById("authBox").style.display = "none";
             document.getElementById("postBox").style.display = "block";
             document.getElementById("sidebarArea").style.display = "block";
             document.getElementById("navUser").innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><div style="cursor:pointer;display:flex;align-items:center;gap:5px;" onclick="openProfile('${user.displayName}')"><img src="https://ui-avatars.com/api/?name=${user.displayName}&background=random" style="width:30px;border-radius:50%"><span style="font-weight:600">${user.displayName}</span></div><button onclick="appLogout()" class="secondary" style="padding:4px 8px;font-size:11px">Logout</button></div>`;
             fetchPosts();
         } else {
-            document.body.classList.replace("logged-in", "logged-out");
+            body.classList.replace("logged-in", "logged-out");
             document.getElementById("postBox").style.display = "none";
             document.getElementById("sidebarArea").style.display = "none";
             document.getElementById("authBox").style.display = "block";
@@ -164,7 +223,7 @@
         allPosts.forEach(p => { writerCounts[p.user] = (writerCounts[p.user] || 0) + 1; });
         let html = "";
         Object.entries(writerCounts).sort((a,b) => b[1] - a[1]).forEach(([name, count]) => {
-            html += `<div class="writer-item" onclick="openProfile('${name}')"><span>${name}</span><span style="font-size:12px;color:#8e8e8e;">${count} posts</span></div>`;
+            html += `<div class="writer-item" onclick="openProfile('${name}')"><div style="display:flex;align-items:center;gap:8px;"><img src="https://ui-avatars.com/api/?name=${name}&background=random" style="width:24px;border-radius:50%"><span style="font-size:14px;font-weight:500;">${name}</span></div><span style="font-size:12px;color:#8e8e8e;">${count} posts</span></div>`;
         });
         document.getElementById("writersList").innerHTML = html || "No writers yet.";
     }
@@ -172,14 +231,16 @@
     window.renderFeed = () => {
         let html = "";
         allPosts.forEach(p => {
-            const likeCount = p.likes ? Object.keys(p.likes).length : 0;
-            const isLiked = p.likes && p.likes[currentUser.uid] ? "liked" : "";
             let commentsHtml = "";
             if (p.comments) {
-                Object.values(p.comments).forEach(c => {
+                Object.keys(p.comments).forEach(cId => {
+                    const c = p.comments[cId];
                     commentsHtml += `<div class="comment-item"><div><span class="comment-user">${c.user}</span><span>${c.text}</span></div></div>`;
                 });
             }
+            
+            const likeCount = p.likes ? Object.keys(p.likes).length : 0;
+            const isLiked = p.likes && p.likes[currentUser.uid] ? "liked" : "";
 
             html += `
             <div class="card" id="${p.id}">
@@ -191,11 +252,14 @@
                 <h3 style="margin: 5px 0;">${p.title}</h3>
                 <p style="white-space:pre-wrap;">${p.content}</p>
                 ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
+                
                 <div class="post-actions">
                     <button class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">
                         ${isLiked ? '❤️' : '🤍'} <span>${likeCount}</span>
                     </button>
+                    <button class="action-btn">💬 <span>${p.comments ? Object.keys(p.comments).length : 0}</span></button>
                 </div>
+
                 <div class="comment-box">
                     <div class="comment-list">${commentsHtml}</div>
                     <div style="display:flex;gap:5px;margin-top:10px;">
@@ -205,15 +269,14 @@
                 </div>
             </div>`;
         });
-        document.getElementById("postFeed").innerHTML = html;
+        document.getElementById("postFeed").innerHTML = html || "No stories found.";
     };
 
-    // --- YE HAI LIKE FIX ---
+    // FIXED LIKE FUNCTION
     window.toggleLike = async (postId) => {
-        if(!currentUser) return;
         const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-        const snapshot = await get(likeRef);
-        if (snapshot.exists()) {
+        const snap = await get(likeRef);
+        if (snap.exists()) {
             await remove(likeRef);
         } else {
             await set(likeRef, true);
@@ -223,7 +286,7 @@
     window.postComment = async (postId) => {
         const input = document.getElementById(`in-${postId}`);
         if(!input.value.trim()) return;
-        await push(ref(db, `posts/${postId}/comments`), { user: currentUser.displayName, text: input.value.trim() });
+        await push(ref(db, `posts/${postId}/comments`), { user: currentUser.displayName, uid: currentUser.uid, text: input.value.trim() });
         input.value = "";
     };
 
@@ -242,6 +305,7 @@
 
     async function savePost(t, cat, c, img) {
         await push(ref(db, 'posts'), { user: currentUser.displayName, uid: currentUser.uid, title: t, category: cat, content: c, image: img });
+        alert("Posted!");
         document.getElementById("p_title").value = "";
         document.getElementById("p_content").value = "";
         document.getElementById("p_file").value = "";
@@ -250,10 +314,11 @@
     window.openProfile = (u) => {
         let ups = allPosts.filter(x => x.user === u);
         document.getElementById("profileModal").style.display = "block";
-        let grid = ups.map(p => `<div class="grid-item">${p.image ? `<img src="${p.image}">` : `<div style="padding:10px;font-size:12px;">${p.title}</div>`}</div>`).join("");
-        document.getElementById("profileContent").innerHTML = `<h2>${u}</h2><div class="profile-grid">${grid}</div>`;
+        let grid = ups.map(p => `<div class="grid-item" onclick="viewPost('${p.id}')">${p.image ? `<img src="${p.image}">` : `<div style="padding:10px;font-size:12px;">${p.title}</div>`}</div>`).join("");
+        document.getElementById("profileContent").innerHTML = `<div style="text-align:center;padding:20px"><img src="https://ui-avatars.com/api/?name=${u}&size=80&background=random" style="border-radius:50%"><h2>${u}</h2><p>${ups.length} Stories</p></div><div class="profile-grid">${grid}</div>`;
     };
 
+    window.viewPost = (id) => { closeModal('profileModal'); setTimeout(() => document.getElementById(id).scrollIntoView({behavior: 'smooth'}), 300); };
     window.closeModal = (id) => document.getElementById(id).style.display = "none";
 </script>
 </body>
