@@ -6,74 +6,152 @@
     <title>StoryHub - Likho Dil ki Baat</title>
     <style>
         :root { --primary: #0095f6; --bg: #fafafa; --border: #dbdbdb; --text: #262626; }
-        body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); transition: all 0.5s ease; min-height: 100vh; }
-        body.logged-out { background: linear-gradient(135deg, #0095f6 0%, #001f3f 100%) fixed; color: white; }
-        body.logged-in { background: #121212 fixed; color: #262626; }
+        
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: var(--text); 
+            line-height: 1.5; 
+            transition: all 0.5s ease;
+            min-height: 100vh;
+        }
 
-        .navbar { background: white; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 60px; }
+        /* --- BACKGROUND STATES --- */
+        body.logged-out {
+            background: linear-gradient(135deg, #0095f6 0%, #001f3f 100%) fixed;
+            color: white;
+        }
+
+        body.logged-in {
+            background: #121212 fixed;
+            color: #262626;
+        }
+
+        #authBox h2, #authBox p { color: #262626 !important; }
+
+        .navbar { 
+            background: white; padding: 0 20px; display: flex; justify-content: space-between; 
+            align-items: center; border-bottom: 1px solid var(--border); 
+            position: sticky; top: 0; z-index: 100; height: 60px; 
+        }
+
         body.logged-out .navbar { background: transparent; border-bottom: none; color: white; }
 
-        .main-wrapper { display: flex; max-width: 900px; margin: 20px auto; gap: 20px; padding: 0 15px; }
+        .nav-brand { font-size: 1.4rem; font-weight: 800; cursor: pointer; }
+
+        /* --- LAYOUT STRUCTURE --- */
+        .main-wrapper {
+            display: flex;
+            max-width: 900px;
+            margin: 20px auto;
+            gap: 20px;
+            padding: 0 15px;
+        }
+
         .sidebar { flex: 1; display: none; }
         .container { flex: 2; max-width: 500px; margin: 0; }
-        @media (min-width: 800px) { .sidebar { display: block; position: sticky; top: 80px; height: fit-content; } }
 
-        .card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
+        @media (min-width: 800px) {
+            .sidebar { display: block; position: sticky; top: 80px; height: fit-content; }
+        }
+
+        .sidebar-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: #262626; }
+
+        .writer-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;
+        }
+        .writer-item:last-child { border: none; }
+
+        .card { 
+            background: white; padding: 20px; border-radius: 12px; 
+            border: 1px solid var(--border); margin-bottom: 20px; color: #262626;
+        }
+
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; color: #262626; }
         button { padding: 10px 20px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button.secondary { background: #efefef; color: black; }
         
         .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; cursor: pointer; }
-        .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; }
+        .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; border: 1px solid #eee; }
         .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; }
-        
-        .post-actions { display: flex; gap: 15px; padding: 10px 0; border-top: 1px solid #f0f0f0; margin-top: 10px; }
-        .action-btn { background: none; border: none; font-size: 16px; display: flex; align-items: center; gap: 5px; cursor: pointer; transition: transform 0.1s; }
-        .action-btn:active { transform: scale(0.9); }
+        .category-badge { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
+
+        /* Like & Interaction Styling */
+        .post-actions {
+            display: flex; gap: 15px; padding: 10px 0; border-top: 1px solid #f0f0f0; margin-top: 10px;
+        }
+        .action-btn {
+            background: none; border: none; color: #262626; padding: 0; font-size: 14px; display: flex; align-items: center; gap: 5px;
+        }
         .action-btn.liked { color: #ed4956; }
 
-        .comment-box { margin-top: 10px; border-top: 1px solid #f0f0f0; padding-top: 10px; font-size: 14px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; overflow-y: auto; }
+        .comment-box { margin-top: 10px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
+        .comment-item { font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .comment-user { font-weight: 700; margin-right: 6px; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; overflow-y: auto; color: #262626; }
+        .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 20px; }
+        .grid-item { aspect-ratio: 1/1; background: #eee; overflow: hidden; cursor: pointer; }
+        .grid-item img { width: 100%; height: 100%; object-fit: cover; }
+        .disclaimer-box { text-align: center; padding: 40px 15px; color: white; width: 100%; }
     </style>
 </head>
 <body class="logged-out">
 
 <div class="navbar">
-    <div class="nav-brand" style="font-weight: 800; cursor: pointer;" onclick="location.reload()">StoryHub 📝</div>
+    <div class="nav-brand" onclick="location.reload()">StoryHub - Likho Dil ki Baat 📝</div>
     <div id="navUser"></div>
 </div>
 
 <div class="main-wrapper">
     <div class="sidebar" id="sidebarArea" style="display:none;">
-        <div style="background: white; padding: 15px; border-radius: 12px; border: 1px solid #dbdbdb;">
-            <h4 style="margin:0 0 10px 0;">Story Writers ✍️</h4>
-            <div id="writersList"></div>
+        <div class="sidebar-card">
+            <h4 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Story Writers ✍️</h4>
+            <div id="writersList">Loading writers...</div>
         </div>
     </div>
 
     <div class="container">
         <div class="card" id="authBox">
-            <h2>Welcome! 😊</h2>
+            <h2 style="margin-top:0">Welcome! Dear Story Writers😊</h2>
             <input id="u_name" placeholder="Username">
             <input id="u_pass" type="password" placeholder="Password (Min 6 chars)">
-            <button onclick="appLogin()" style="width:100%; margin-bottom: 5px;">Login</button>
-            <button onclick="appSignup()" class="secondary" style="width:100%; background:#efefef; color:black;">Sign Up</button>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <button onclick="appLogin()">Login</button>
+                <button class="secondary" onclick="appSignup()">Sign Up</button>
+            </div>
         </div>
 
         <div class="card" id="postBox" style="display:none;">
             <input id="p_title" placeholder="Story Title">
-            <textarea id="p_content" rows="3" placeholder="Write your story..."></textarea>
+            <select id="p_category">
+                <option value="General">General</option>
+                <option value="Love">Love</option>
+                <option value="Inspiration">Inspiration</option>
+                <option value="Sad">Sad</option>
+                <option value="Comedy">Comedy</option>
+            </select>
+            <textarea id="p_content" rows="3" placeholder="Write your story here..."></textarea>
             <input type="file" id="p_file" accept="image/*">
-            <button id="postBtn" onclick="handlePost()" style="width: 100%;">Post Story</button>
+            <button onclick="handlePost()" style="width: 100%;">Post Story</button>
         </div>
 
-        <div id="postFeed"></div>
+        <div id="postFeed">Syncing stories...</div>
+    </div>
+</div>
+
+<div id="profileModal" class="modal">
+    <div style="padding: 20px; max-width: 600px; margin: auto;">
+        <button class="secondary" onclick="closeModal('profileModal')">← Back</button>
+        <div id="profileContent"></div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, set, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -91,89 +169,113 @@
     const auth = getAuth(app);
 
     let currentUser = null;
+    let allPosts = [];
 
-    // --- AUTH LOGIC ---
     window.appSignup = async () => {
-        const u = document.getElementById("u_name").value;
+        const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
+        if(!u || p.length < 6) return alert("Please enter valid username and password!");
         try {
             const res = await createUserWithEmailAndPassword(auth, u + "@storyhub.com", p);
             await updateProfile(res.user, { displayName: u });
             location.reload();
-        } catch (e) { alert(e.message); }
+        } catch (e) { alert("Error: Account already exists!"); }
     };
 
     window.appLogin = async () => {
-        const u = document.getElementById("u_name").value;
+        const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
-        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch (e) { alert("Login Failed!"); }
+        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch (e) { alert("Invalid credentials!"); }
     };
 
     window.appLogout = () => signOut(auth).then(() => location.reload());
 
     onAuthStateChanged(auth, (user) => {
+        const body = document.body;
         if (user) {
             currentUser = user;
-            document.body.classList.replace("logged-out", "logged-in");
+            body.classList.replace("logged-out", "logged-in");
             document.getElementById("authBox").style.display = "none";
             document.getElementById("postBox").style.display = "block";
             document.getElementById("sidebarArea").style.display = "block";
-            document.getElementById("navUser").innerHTML = `<span style="margin-right:10px; color:#262626; font-weight:600">${user.displayName}</span><button onclick="appLogout()">Logout</button>`;
-            startListening();
+            document.getElementById("navUser").innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><div style="cursor:pointer;display:flex;align-items:center;gap:5px;" onclick="openProfile('${user.displayName}')"><img src="https://ui-avatars.com/api/?name=${user.displayName}&background=random" style="width:30px;border-radius:50%"><span style="font-weight:600">${user.displayName}</span></div><button onclick="appLogout()" class="secondary" style="padding:4px 8px;font-size:11px">Logout</button></div>`;
+            fetchPosts();
+        } else {
+            body.classList.replace("logged-in", "logged-out");
+            document.getElementById("postBox").style.display = "none";
+            document.getElementById("sidebarArea").style.display = "none";
+            document.getElementById("authBox").style.display = "block";
+            document.getElementById("postFeed").innerHTML = `<div class="disclaimer-box"><h1>StoryHub - Likho Dil ki Baat</h1><p>Please login to see stories!</p></div>`;
         }
     });
 
-    // --- REALTIME DATA LOGIC ---
-    function startListening() {
+    function fetchPosts() {
         onValue(ref(db, 'posts'), (snap) => {
             const data = snap.val();
-            renderFeed(data);
-            renderWriters(data);
+            allPosts = data ? Object.keys(data).map(k => ({...data[k], id: k})).reverse() : [];
+            renderFeed();
+            renderWriters();
         });
     }
 
-    function renderFeed(data) {
-        if (!data) return;
-        const posts = Object.keys(data).map(k => ({...data[k], id: k})).reverse();
+    function renderWriters() {
+        const writerCounts = {};
+        allPosts.forEach(p => { writerCounts[p.user] = (writerCounts[p.user] || 0) + 1; });
         let html = "";
-        posts.forEach(p => {
-            const likesCount = p.likes ? Object.keys(p.likes).length : 0;
-            const hasLiked = p.likes && p.likes[currentUser.uid];
+        Object.entries(writerCounts).sort((a,b) => b[1] - a[1]).forEach(([name, count]) => {
+            html += `<div class="writer-item" onclick="openProfile('${name}')"><div style="display:flex;align-items:center;gap:8px;"><img src="https://ui-avatars.com/api/?name=${name}&background=random" style="width:24px;border-radius:50%"><span style="font-size:14px;font-weight:500;">${name}</span></div><span style="font-size:12px;color:#8e8e8e;">${count} posts</span></div>`;
+        });
+        document.getElementById("writersList").innerHTML = html || "No writers yet.";
+    }
+
+    window.renderFeed = () => {
+        let html = "";
+        allPosts.forEach(p => {
+            let commentsHtml = "";
+            if (p.comments) {
+                Object.keys(p.comments).forEach(cId => {
+                    const c = p.comments[cId];
+                    commentsHtml += `<div class="comment-item"><div><span class="comment-user">${c.user}</span><span>${c.text}</span></div></div>`;
+                });
+            }
             
+            const likeCount = p.likes ? Object.keys(p.likes).length : 0;
+            const isLiked = p.likes && p.likes[currentUser.uid] ? "liked" : "";
+
             html += `
-            <div class="card">
-                <div class="post-header">
+            <div class="card" id="${p.id}">
+                <div class="post-header" onclick="openProfile('${p.user}')">
                     <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
                     <span>${p.user}</span>
                 </div>
-                <h3>${p.title}</h3>
-                <p>${p.content}</p>
+                <div class="category-badge">${p.category || 'General'}</div>
+                <h3 style="margin: 5px 0;">${p.title}</h3>
+                <p style="white-space:pre-wrap;">${p.content}</p>
                 ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
+                
                 <div class="post-actions">
-                    <button class="action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLike('${p.id}')">
-                        ${hasLiked ? '❤️' : '🤍'} <span>${likesCount}</span>
+                    <button class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">
+                        ${isLiked ? '❤️' : '🤍'} <span>${likeCount}</span>
                     </button>
-                    <span style="font-size:14px; margin-top:5px;">💬 ${p.comments ? Object.keys(p.comments).length : 0}</span>
+                    <button class="action-btn">💬 <span>${p.comments ? Object.keys(p.comments).length : 0}</span></button>
                 </div>
+
                 <div class="comment-box">
-                    <input id="in-${p.id}" placeholder="Write a comment..." style="padding:5px; width:75%">
-                    <button onclick="postComment('${p.id}')" style="padding:5px">Post</button>
+                    <div class="comment-list">${commentsHtml}</div>
+                    <div style="display:flex;gap:5px;margin-top:10px;">
+                        <input id="in-${p.id}" placeholder="Add a comment..." style="margin:0;padding:8px">
+                        <button onclick="postComment('${p.id}')" style="padding:8px 15px">Post</button>
+                    </div>
                 </div>
             </div>`;
         });
-        document.getElementById("postFeed").innerHTML = html;
-    }
+        document.getElementById("postFeed").innerHTML = html || "No stories found.";
+    };
 
-    // --- PROPER LIKE SOLUTION (Using Transaction) ---
     window.toggleLike = async (postId) => {
-        if (!currentUser) return;
-        
-        // Immediate UI feedback (Optional)
+        const post = allPosts.find(p => p.id === postId);
         const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-        
-        // Transaction use karne se data "Race condition" mein nahi fasta
-        const snapshot = await get(likeRef);
-        if (snapshot.exists()) {
+        if (post.likes && post.likes[currentUser.uid]) {
             await remove(likeRef);
         } else {
             await set(likeRef, true);
@@ -181,64 +283,42 @@
     };
 
     window.postComment = async (postId) => {
-        const val = document.getElementById(`in-${postId}`).value;
-        if(!val) return;
-        await push(ref(db, `posts/${postId}/comments`), { user: currentUser.displayName, text: val });
-        document.getElementById(`in-${postId}`).value = "";
+        const input = document.getElementById(`in-${postId}`);
+        if(!input.value.trim()) return;
+        await push(ref(db, `posts/${postId}/comments`), { user: currentUser.displayName, uid: currentUser.uid, text: input.value.trim() });
+        input.value = "";
     };
 
-    window.handlePost = async () => {
-        const t = document.getElementById("p_title").value;
-        const c = document.getElementById("p_content").value;
-        const f = document.getElementById("p_file").files[0];
-        if(!c) return;
-
-        const postBtn = document.getElementById("postBtn");
-        postBtn.disabled = true;
-        postBtn.innerText = "Posting...";
-
-        let imgData = "";
-        if(f) {
-            const reader = new FileReader();
-            reader.readAsDataURL(f);
-            reader.onload = async () => {
-                await savePost(t, c, reader.result);
-                resetPostForm();
-            };
-        } else {
-            await savePost(t, c, "");
-            resetPostForm();
-        }
+    window.handlePost = () => {
+        const title = document.getElementById("p_title").value;
+        const cat = document.getElementById("p_category").value;
+        const cont = document.getElementById("p_content").value;
+        const file = document.getElementById("p_file").files[0];
+        if(!cont) return alert("Write something!");
+        if(file) {
+            const r = new FileReader();
+            r.onload = () => savePost(title, cat, cont, r.result);
+            r.readAsDataURL(file);
+        } else savePost(title, cat, cont, "");
     };
 
-    async function savePost(title, content, img) {
-        await push(ref(db, 'posts'), {
-            user: currentUser.displayName, uid: currentUser.uid,
-            title, content, image: img, likes: {}
-        });
-    }
-
-    function resetPostForm() {
+    async function savePost(t, cat, c, img) {
+        await push(ref(db, 'posts'), { user: currentUser.displayName, uid: currentUser.uid, title: t, category: cat, content: c, image: img });
+        alert("Posted!");
         document.getElementById("p_title").value = "";
         document.getElementById("p_content").value = "";
         document.getElementById("p_file").value = "";
-        const postBtn = document.getElementById("postBtn");
-        postBtn.disabled = false;
-        postBtn.innerText = "Post Story";
     }
 
-    function renderWriters(data) {
-        if(!data) return;
-        const counts = {};
-        Object.values(data).forEach(p => counts[p.user] = (counts[p.user] || 0) + 1);
-        let html = "";
-        Object.entries(counts).forEach(([name, count]) => {
-            html += `<div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:14px;">
-                <span>${name}</span> <b>${count} posts</b>
-            </div>`;
-        });
-        document.getElementById("writersList").innerHTML = html;
-    }
+    window.openProfile = (u) => {
+        let ups = allPosts.filter(x => x.user === u);
+        document.getElementById("profileModal").style.display = "block";
+        let grid = ups.map(p => `<div class="grid-item" onclick="viewPost('${p.id}')">${p.image ? `<img src="${p.image}">` : `<div style="padding:10px;font-size:12px;">${p.title}</div>`}</div>`).join("");
+        document.getElementById("profileContent").innerHTML = `<div style="text-align:center;padding:20px"><img src="https://ui-avatars.com/api/?name=${u}&size=80&background=random" style="border-radius:50%"><h2>${u}</h2><p>${ups.length} Stories</p></div><div class="profile-grid">${grid}</div>`;
+    };
+
+    window.viewPost = (id) => { closeModal('profileModal'); setTimeout(() => document.getElementById(id).scrollIntoView({behavior: 'smooth'}), 300); };
+    window.closeModal = (id) => document.getElementById(id).style.display = "none";
 </script>
 </body>
 </html>
