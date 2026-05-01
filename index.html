@@ -23,7 +23,6 @@
             color: white;
         }
 
-        /* Login ke baad background dark ho jayega */
         body.logged-in {
             background: #121212 fixed;
             color: #262626;
@@ -50,46 +49,24 @@
             padding: 0 15px;
         }
 
-        /* Sidebar Styling */
-        .sidebar {
-            flex: 1;
-            display: none; 
-        }
-
+        .sidebar { flex: 1; display: none; }
         .container { flex: 2; max-width: 500px; margin: 0; }
 
         @media (min-width: 800px) {
             .sidebar { display: block; position: sticky; top: 80px; height: fit-content; }
         }
 
-        .sidebar-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
-            color: #262626;
-        }
+        .sidebar-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: #262626; }
 
         .writer-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: 0.2s;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;
         }
-        .writer-item:hover { opacity: 0.7; }
         .writer-item:last-child { border: none; }
 
-        /* CARD STYLING */
         .card { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 12px; 
-            border: 1px solid var(--border); 
-            margin-bottom: 20px; 
-            color: #262626;
+            background: white; padding: 20px; border-radius: 12px; 
+            border: 1px solid var(--border); margin-bottom: 20px; color: #262626;
         }
 
         input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; color: #262626; }
@@ -101,9 +78,16 @@
         .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; }
         .category-badge { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
 
-        .disclaimer-box { text-align: center; padding: 40px 15px; color: white; width: 100%; }
+        /* Like & Interaction Styling */
+        .post-actions {
+            display: flex; gap: 15px; padding: 10px 0; border-top: 1px solid #f0f0f0; margin-top: 10px;
+        }
+        .action-btn {
+            background: none; border: none; color: #262626; padding: 0; font-size: 14px; display: flex; align-items: center; gap: 5px;
+        }
+        .action-btn.liked { color: #ed4956; }
 
-        .comment-box { margin-top: 15px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
+        .comment-box { margin-top: 10px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
         .comment-item { font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; }
         .comment-user { font-weight: 700; margin-right: 6px; }
         
@@ -111,6 +95,7 @@
         .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 20px; }
         .grid-item { aspect-ratio: 1/1; background: #eee; overflow: hidden; cursor: pointer; }
         .grid-item img { width: 100%; height: 100%; object-fit: cover; }
+        .disclaimer-box { text-align: center; padding: 40px 15px; color: white; width: 100%; }
     </style>
 </head>
 <body class="logged-out">
@@ -121,7 +106,6 @@
 </div>
 
 <div class="main-wrapper">
-    <!-- LEFT SIDEBAR -->
     <div class="sidebar" id="sidebarArea" style="display:none;">
         <div class="sidebar-card">
             <h4 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Story Writers ✍️</h4>
@@ -167,7 +151,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -210,27 +194,17 @@
         const body = document.body;
         if (user) {
             currentUser = user;
-            body.classList.remove("logged-out");
-            body.classList.add("logged-in");
+            body.classList.replace("logged-out", "logged-in");
             document.getElementById("authBox").style.display = "none";
             document.getElementById("postBox").style.display = "block";
             document.getElementById("sidebarArea").style.display = "block";
-            document.getElementById("navUser").innerHTML = `
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div style="cursor:pointer; display:flex; align-items:center; gap:5px;" onclick="openProfile('${user.displayName}')">
-                        <img src="https://ui-avatars.com/api/?name=${user.displayName}&background=random" style="width:30px; border-radius:50%">
-                        <span style="font-weight:600">${user.displayName}</span>
-                    </div>
-                    <button onclick="appLogout()" class="secondary" style="padding:4px 8px; font-size:11px">Logout</button>
-                </div>`;
+            document.getElementById("navUser").innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><div style="cursor:pointer;display:flex;align-items:center;gap:5px;" onclick="openProfile('${user.displayName}')"><img src="https://ui-avatars.com/api/?name=${user.displayName}&background=random" style="width:30px;border-radius:50%"><span style="font-weight:600">${user.displayName}</span></div><button onclick="appLogout()" class="secondary" style="padding:4px 8px;font-size:11px">Logout</button></div>`;
             fetchPosts();
         } else {
-            body.classList.remove("logged-in");
-            body.classList.add("logged-out");
+            body.classList.replace("logged-in", "logged-out");
             document.getElementById("postBox").style.display = "none";
             document.getElementById("sidebarArea").style.display = "none";
             document.getElementById("authBox").style.display = "block";
-            document.getElementById("navUser").innerHTML = "";
             document.getElementById("postFeed").innerHTML = `<div class="disclaimer-box"><h1>StoryHub - Likho Dil ki Baat</h1><p>Please login to see stories!</p></div>`;
         }
     });
@@ -264,9 +238,48 @@
                     commentsHtml += `<div class="comment-item"><div><span class="comment-user">${c.user}</span><span>${c.text}</span></div></div>`;
                 });
             }
-            html += `<div class="card" id="${p.id}"><div class="post-header" onclick="openProfile('${p.user}')"><img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar"><span>${p.user}</span></div><div class="category-badge">${p.category || 'General'}</div><h3 style="margin: 5px 0;">${p.title}</h3><p style="white-space:pre-wrap;">${p.content}</p>${p.image ? `<img src="${p.image}" class="post-img">` : ""}<div class="comment-box"><div class="comment-list">${commentsHtml}</div><div style="display:flex;gap:5px"><input id="in-${p.id}" placeholder="Comment..." style="margin:0"><button onclick="postComment('${p.id}')">Post</button></div></div></div>`;
+            
+            const likeCount = p.likes ? Object.keys(p.likes).length : 0;
+            const isLiked = p.likes && p.likes[currentUser.uid] ? "liked" : "";
+
+            html += `
+            <div class="card" id="${p.id}">
+                <div class="post-header" onclick="openProfile('${p.user}')">
+                    <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
+                    <span>${p.user}</span>
+                </div>
+                <div class="category-badge">${p.category || 'General'}</div>
+                <h3 style="margin: 5px 0;">${p.title}</h3>
+                <p style="white-space:pre-wrap;">${p.content}</p>
+                ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
+                
+                <div class="post-actions">
+                    <button class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">
+                        ${isLiked ? '❤️' : '🤍'} <span>${likeCount}</span>
+                    </button>
+                    <button class="action-btn">💬 <span>${p.comments ? Object.keys(p.comments).length : 0}</span></button>
+                </div>
+
+                <div class="comment-box">
+                    <div class="comment-list">${commentsHtml}</div>
+                    <div style="display:flex;gap:5px;margin-top:10px;">
+                        <input id="in-${p.id}" placeholder="Add a comment..." style="margin:0;padding:8px">
+                        <button onclick="postComment('${p.id}')" style="padding:8px 15px">Post</button>
+                    </div>
+                </div>
+            </div>`;
         });
         document.getElementById("postFeed").innerHTML = html || "No stories found.";
+    };
+
+    window.toggleLike = async (postId) => {
+        const post = allPosts.find(p => p.id === postId);
+        const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+        if (post.likes && post.likes[currentUser.uid]) {
+            await remove(likeRef);
+        } else {
+            await set(likeRef, true);
+        }
     };
 
     window.postComment = async (postId) => {
