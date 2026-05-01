@@ -6,48 +6,83 @@
     <title>StoryHub - Likho Dil ki Baat</title>
     <style>
         :root { --primary: #0095f6; --bg: #fafafa; --border: #dbdbdb; --text: #262626; }
-        body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); line-height: 1.5; }
-        .navbar { background: white; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 60px; }
+        
+        /* Base Body - Default state */
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: var(--text); 
+            line-height: 1.5; 
+            transition: all 0.5s ease; /* Smooth color change */
+            min-height: 100vh;
+        }
+
+        /* --- 🔴 NEW DESIGN CLASSES --- */
+        
+        /* LOGIN SE PEHLE: Dark Blue Look */
+        body.logged-out {
+            background: linear-gradient(135deg, #0095f6 0%, #001f3f 100%) fixed;
+            color: white;
+        }
+
+        /* LOGIN KE BAAD: Soft Teal Gradient (image_f64790.png) */
+        body.logged-in {
+            background: linear-gradient(to bottom, #fdfcf0 0%, #76d7ea 100%) fixed;
+            color: #262626;
+        }
+
+        /* Glass effect for cards when logged in */
+        body.logged-in .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .navbar { 
+            background: white; padding: 0 20px; display: flex; justify-content: space-between; 
+            align-items: center; border-bottom: 1px solid var(--border); 
+            position: sticky; top: 0; z-index: 100; height: 60px; 
+            transition: all 0.3s;
+        }
+
+        /* Navbar style for logged out state */
+        body.logged-out .navbar {
+            background: transparent;
+            border-bottom: none;
+            color: white;
+        }
+
         .nav-brand { font-size: 1.4rem; font-weight: 800; cursor: pointer; }
         .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
         .card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; position: relative; }
         input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
         button { padding: 10px 20px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; }
         button.secondary { background: #efefef; color: black; }
+        
         .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; cursor: pointer; }
         .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; border: 1px solid #eee; }
         .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; border-top: 1px solid #efefef; border-bottom: 1px solid #efefef; }
         .category-badge { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
 
-        /* Disclaimer Styling */
+        /* Disclaimer Hero Section */
         .disclaimer-box { 
-            text-align: center; 
-            padding: 15px; 
-            margin-top: 10px; 
-            color: #666; 
-            font-size: 13px; 
-            line-height: 1.4;
+            text-align: center; padding: 40px 15px; color: white;
         }
 
         .comment-box { margin-top: 15px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
-        .comment-list { margin-bottom: 10px; }
         .comment-item { font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start; }
-        .comment-content { flex: 1; }
-        .comment-user { font-weight: 700; margin-right: 6px; color: #262626; }
-        .comment-text { color: #444; }
+        .comment-user { font-weight: 700; margin-right: 6px; color: inherit; }
         .comment-input-area { display: flex; gap: 8px; align-items: center; }
         .comment-input-area input { margin: 0; padding: 10px 15px; border-radius: 25px; font-size: 13px; background: #f8f8f8; }
-        .comment-input-area button { padding: 8px 18px; border-radius: 25px; font-size: 12px; }
-        .del-com { font-size: 10px; color: #ff4d4d; cursor: pointer; margin-left: 10px; opacity: 0.6; }
-        .del-com:hover { opacity: 1; }
-
+        
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; overflow-y: auto; }
         .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 20px; }
         .grid-item { aspect-ratio: 1/1; background: #eee; overflow: hidden; cursor: pointer; border: 1px solid #f0f0f0; }
         .grid-item img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
-<body>
+<body class="logged-out"> <!-- Default start with logged-out -->
 
 <div class="navbar">
     <div class="nav-brand" onclick="location.reload()">StoryHub - Likho Dil ki Baat 📝</div>
@@ -111,7 +146,7 @@
     let currentUser = null;
     let allPosts = [];
 
-    // --- AUTH ---
+    // --- AUTH (Old Logic Unchanged) ---
     window.appSignup = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
@@ -131,9 +166,15 @@
 
     window.appLogout = () => signOut(auth).then(() => location.reload());
 
+    // --- UI TOGGLE LOGIC ---
     onAuthStateChanged(auth, (user) => {
+        const body = document.body;
         if (user) {
             currentUser = user;
+            // Switch to Logged In Look
+            body.classList.remove("logged-out");
+            body.classList.add("logged-in");
+            
             document.getElementById("authBox").style.display = "none";
             document.getElementById("postBox").style.display = "block";
             document.getElementById("navUser").innerHTML = `
@@ -146,19 +187,28 @@
                 </div>`;
             fetchPosts();
         } else {
-            // Updated login landing page with Disclaimer
+            // Switch to Logged Out Look
+            body.classList.remove("logged-in");
+            body.classList.add("logged-out");
+            
+            document.getElementById("postBox").style.display = "none";
+            document.getElementById("authBox").style.display = "block";
+            document.getElementById("navUser").innerHTML = "";
+
             document.getElementById("postFeed").innerHTML = `
                 <div class="disclaimer-box">
-                    <p>Please login to see stories!</p>
-                    <p style="margin-top:10px; color:#999; font-style:italic;">
-                        <b>Note:</b> You can login or sign up with any unique username and password. 
+                    <h1 style="font-size: 2.8rem; margin-bottom: 10px;">Creative Design</h1>
+                    <p style="font-size: 1.2rem; opacity: 0.8;">Please login to see stories!</p>
+                    <div style="width: 50px; height: 3px; background: white; margin: 25px auto;"></div>
+                    <p style="margin-top:10px; font-weight:300; font-style:italic;">
+                        Note: You can login or sign up with any unique username and password. 
                         We do not collect your personal identity. Log in and enjoy the stories!
                     </p>
                 </div>`;
         }
     });
 
-    // --- DATA FETCHING ---
+    // --- DATA FETCHING & ACTIONS (All Old Logic Intact) ---
     function fetchPosts() {
         onValue(ref(db, 'posts'), (snap) => {
             const data = snap.val();
@@ -209,19 +259,11 @@
         document.getElementById("postFeed").innerHTML = html || "No stories found.";
     };
 
-    // --- ACTIONS ---
     window.postComment = async (postId) => {
         const input = document.getElementById(`in-${postId}`);
         const text = input.value.trim();
         if(!text || !currentUser) return;
-
-        const commentData = {
-            user: currentUser.displayName,
-            uid: currentUser.uid,
-            text: text,
-            timestamp: Date.now()
-        };
-
+        const commentData = { user: currentUser.displayName, uid: currentUser.uid, text: text, timestamp: Date.now() };
         try {
             await push(ref(db, `posts/${postId}/comments`), commentData);
             input.value = "";
@@ -239,9 +281,7 @@
         const category = document.getElementById("p_category").value;
         const content = document.getElementById("p_content").value.trim();
         const file = document.getElementById("p_file").files[0];
-        
         if(!content) return alert("Please write something!");
-
         if(file) {
             const r = new FileReader();
             r.onload = () => savePost(title, category, content, r.result);
@@ -252,13 +292,9 @@
     async function savePost(title, category, content, img) {
         try {
             await push(ref(db, 'posts'), {
-                user: currentUser.displayName,
-                uid: currentUser.uid,
-                title: title,
-                category: category,
-                content: content,
-                image: img,
-                timestamp: Date.now()
+                user: currentUser.displayName, uid: currentUser.uid,
+                title: title, category: category, content: content,
+                image: img, timestamp: Date.now()
             });
             document.getElementById("p_title").value = "";
             document.getElementById("p_content").value = "";
@@ -267,7 +303,6 @@
         } catch (e) { alert("Failed to post story!"); }
     }
 
-    // --- PROFILE ---
     window.openProfile = (u) => {
         let ups = allPosts.filter(x => x.user === u);
         document.getElementById("profileModal").style.display = "block";
@@ -278,7 +313,7 @@
         document.getElementById("profileContent").innerHTML = `
             <div style="text-align:center; padding: 20px 0;">
                 <img src="https://ui-avatars.com/api/?name=${u}&size=80&background=random" style="border-radius:50%">
-                <h2 style="margin:10px 0 5px 0">${u}</h2>
+                <h2 style="margin:10px 0 5px 0; color: #262626;">${u}</h2>
                 <p style="color:#8e8e8e; margin:0">${ups.length} Stories</p>
             </div>
             <div class="profile-grid">${grid}</div>`;
