@@ -28,10 +28,7 @@
             color: #262626;
         }
 
-        /* LOGIN BOX FIX: Iske andar ka text hamesha dark rahega */
-        #authBox h2, #authBox p {
-            color: #262626 !important;
-        }
+        #authBox h2, #authBox p { color: #262626 !important; }
 
         .navbar { 
             background: white; padding: 0 20px; display: flex; justify-content: space-between; 
@@ -42,8 +39,48 @@
         body.logged-out .navbar { background: transparent; border-bottom: none; color: white; }
 
         .nav-brand { font-size: 1.4rem; font-weight: 800; cursor: pointer; }
-        .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
-        
+
+        /* --- LAYOUT STRUCTURE --- */
+        .main-wrapper {
+            display: flex;
+            max-width: 900px;
+            margin: 20px auto;
+            gap: 20px;
+            padding: 0 15px;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            flex: 1;
+            display: none; /* Mobile par hide rakhenge */
+        }
+
+        .container { flex: 2; max-width: 500px; margin: 0; }
+
+        @media (min-width: 800px) {
+            .sidebar { display: block; position: sticky; top: 80px; height: fit-content; }
+        }
+
+        .sidebar-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            color: #262626;
+        }
+
+        .writer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .writer-item:hover { opacity: 0.7; }
+        .writer-item:last-child { border: none; }
+
         /* CARD STYLING */
         .card { 
             background: white; 
@@ -51,7 +88,7 @@
             border-radius: 12px; 
             border: 1px solid var(--border); 
             margin-bottom: 20px; 
-            color: #262626; /* Hamesha readable text */
+            color: #262626;
         }
 
         input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; color: #262626; }
@@ -63,7 +100,7 @@
         .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; }
         .category-badge { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
 
-        .disclaimer-box { text-align: center; padding: 40px 15px; color: white; }
+        .disclaimer-box { text-align: center; padding: 40px 15px; color: white; width: 100%; }
 
         .comment-box { margin-top: 15px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
         .comment-item { font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; }
@@ -82,32 +119,42 @@
     <div id="navUser"></div>
 </div>
 
-<div class="container">
-    <div class="card" id="authBox">
-        <h2 style="margin-top:0">Welcome! Dear Story Writers😊</h2>
-        <input id="u_name" placeholder="Username">
-        <input id="u_pass" type="password" placeholder="Password (Min 6 chars)">
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-            <button onclick="appLogin()">Login</button>
-            <button class="secondary" onclick="appSignup()">Sign Up</button>
+<div class="main-wrapper">
+    <!-- LEFT SIDEBAR: Story Writers List -->
+    <div class="sidebar" id="sidebarArea" style="display:none;">
+        <div class="sidebar-card">
+            <h4 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Story Writers ✍️</h4>
+            <div id="writersList">Loading writers...</div>
         </div>
     </div>
 
-    <div class="card" id="postBox" style="display:none;">
-        <input id="p_title" placeholder="Story Title">
-        <select id="p_category">
-            <option value="General">General</option>
-            <option value="Love">Love</option>
-            <option value="Inspiration">Inspiration</option>
-            <option value="Sad">Sad</option>
-            <option value="Comedy">Comedy</option>
-        </select>
-        <textarea id="p_content" rows="3" placeholder="Write your story here..."></textarea>
-        <input type="file" id="p_file" accept="image/*">
-        <button onclick="handlePost()" style="width: 100%;">Post Story</button>
-    </div>
+    <div class="container">
+        <div class="card" id="authBox">
+            <h2 style="margin-top:0">Welcome! Dear Story Writers😊</h2>
+            <input id="u_name" placeholder="Username">
+            <input id="u_pass" type="password" placeholder="Password (Min 6 chars)">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <button onclick="appLogin()">Login</button>
+                <button class="secondary" onclick="appSignup()">Sign Up</button>
+            </div>
+        </div>
 
-    <div id="postFeed">Syncing stories...</div>
+        <div class="card" id="postBox" style="display:none;">
+            <input id="p_title" placeholder="Story Title">
+            <select id="p_category">
+                <option value="General">General</option>
+                <option value="Love">Love</option>
+                <option value="Inspiration">Inspiration</option>
+                <option value="Sad">Sad</option>
+                <option value="Comedy">Comedy</option>
+            </select>
+            <textarea id="p_content" rows="3" placeholder="Write your story here..."></textarea>
+            <input type="file" id="p_file" accept="image/*">
+            <button onclick="handlePost()" style="width: 100%;">Post Story</button>
+        </div>
+
+        <div id="postFeed">Syncing stories...</div>
+    </div>
 </div>
 
 <div id="profileModal" class="modal">
@@ -167,6 +214,7 @@
             body.classList.add("logged-in");
             document.getElementById("authBox").style.display = "none";
             document.getElementById("postBox").style.display = "block";
+            document.getElementById("sidebarArea").style.display = "block";
             document.getElementById("navUser").innerHTML = `
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div style="cursor:pointer; display:flex; align-items:center; gap:5px;" onclick="openProfile('${user.displayName}')">
@@ -180,6 +228,7 @@
             body.classList.remove("logged-in");
             body.classList.add("logged-out");
             document.getElementById("postBox").style.display = "none";
+            document.getElementById("sidebarArea").style.display = "none";
             document.getElementById("authBox").style.display = "block";
             document.getElementById("navUser").innerHTML = "";
 
@@ -202,7 +251,29 @@
             const data = snap.val();
             allPosts = data ? Object.keys(data).map(k => ({...data[k], id: k})).reverse() : [];
             renderFeed();
+            renderWriters();
         });
+    }
+
+    // Sidebar writers rendering
+    function renderWriters() {
+        const writerCounts = {};
+        allPosts.forEach(p => {
+            writerCounts[p.user] = (writerCounts[p.user] || 0) + 1;
+        });
+
+        let html = "";
+        Object.entries(writerCounts).sort((a,b) => b[1] - a[1]).forEach(([name, count]) => {
+            html += `
+                <div class="writer-item" onclick="openProfile('${name}')">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <img src="https://ui-avatars.com/api/?name=${name}&background=random" style="width:24px; border-radius:50%">
+                        <span style="font-size:14px; font-weight:500;">${name}</span>
+                    </div>
+                    <span style="font-size:12px; color:#8e8e8e;">${count} posts</span>
+                </div>`;
+        });
+        document.getElementById("writersList").innerHTML = html || "No writers yet.";
     }
 
     window.renderFeed = () => {
@@ -272,16 +343,20 @@
             title: t, category: cat, content: c, image: img
         });
         alert("Posted!");
+        // Clear inputs after post
+        document.getElementById("p_title").value = "";
+        document.getElementById("p_content").value = "";
+        document.getElementById("p_file").value = "";
     }
 
     window.openProfile = (u) => {
         let ups = allPosts.filter(x => x.user === u);
         document.getElementById("profileModal").style.display = "block";
-        let grid = ups.map(p => `<div class="grid-item" onclick="viewPost('${p.id}')">${p.image ? `<img src="${p.image}">` : `<div style="padding:10px">${p.title}</div>`}</div>`).join("");
+        let grid = ups.map(p => `<div class="grid-item" onclick="viewPost('${p.id}')">${p.image ? `<img src="${p.image}">` : `<div style="padding:10px; font-size:12px;">${p.title}</div>`}</div>`).join("");
         document.getElementById("profileContent").innerHTML = `<div style="text-align:center;padding:20px"><img src="https://ui-avatars.com/api/?name=${u}&size=80&background=random" style="border-radius:50%"><h2>${u}</h2><p>${ups.length} Stories</p></div><div class="profile-grid">${grid}</div>`;
     };
 
-    window.viewPost = (id) => { closeModal('profileModal'); setTimeout(() => document.getElementById(id).scrollIntoView(), 300); };
+    window.viewPost = (id) => { closeModal('profileModal'); setTimeout(() => document.getElementById(id).scrollIntoView({behavior: 'smooth'}), 300); };
     window.closeModal = (id) => document.getElementById(id).style.display = "none";
 </script>
 </body>
