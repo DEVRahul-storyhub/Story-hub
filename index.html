@@ -34,7 +34,6 @@
         }
 
         body.logged-out .navbar { background: transparent; border-bottom: none; color: white; }
-
         .nav-brand { font-size: 1.4rem; font-weight: 800; cursor: pointer; }
 
         .main-wrapper {
@@ -80,8 +79,7 @@
         .action-btn {
             background: none; border: none; color: #262626; padding: 5px 10px; font-size: 14px; display: flex; align-items: center; gap: 5px; cursor: pointer; border-radius: 5px;
         }
-        .action-btn:hover { background: #fafafa; }
-        .action-btn.liked { color: #ed4956; font-weight: bold; }
+        .action-btn.liked { color: #ed4956; }
 
         .comment-box { margin-top: 10px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
         .comment-item { font-size: 13px; margin-bottom: 8px; }
@@ -128,8 +126,6 @@
                 <option value="Inspiration">Inspiration</option>
                 <option value="Sad">Sad</option>
                 <option value="Comedy">Comedy</option>
-                <option value="Adult/Sex">Adult/Sex</option>
-                <option value="Romentic">Romentic</option>
             </select>
             <textarea id="p_content" rows="3" placeholder="Write your story here..."></textarea>
             <input type="file" id="p_file" accept="image/*">
@@ -149,7 +145,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, remove, set, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -236,9 +232,8 @@
                 });
             }
             
-            const likesObj = p.likes || {};
-            const likeCount = Object.keys(likesObj).length;
-            const isLiked = currentUser && likesObj[currentUser.uid];
+            const likesCount = p.likes ? Object.keys(p.likes).length : 0;
+            const userLiked = p.likes && p.likes[currentUser?.uid];
 
             html += `
             <div class="card" id="${p.id}">
@@ -252,8 +247,8 @@
                 ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
                 
                 <div class="post-actions">
-                    <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${p.id}')">
-                        ${isLiked ? '❤️' : '🤍'} <span>${likeCount}</span>
+                    <button class="action-btn ${userLiked ? 'liked' : ''}" onclick="toggleLike('${p.id}')">
+                        ${userLiked ? '❤️' : '🤍'} <span id="like-count-${p.id}">${likesCount}</span>
                     </button>
                     <button class="action-btn">💬 <span>${p.comments ? Object.keys(p.comments).length : 0}</span></button>
                 </div>
@@ -272,15 +267,21 @@
 
     window.toggleLike = async (postId) => {
         if (!currentUser) return alert("Login to like!");
+        
+        // Prevent accidental double clicks
+        const likeBtn = document.querySelector(`#${postId} .action-btn`);
+        likeBtn.disabled = true;
+
         const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
         const snapshot = await get(likeRef);
-        
+
         if (snapshot.exists()) {
             await remove(likeRef);
         } else {
             await set(likeRef, true);
         }
-        // UI render automatically handles via onValue
+        
+        likeBtn.disabled = false;
     };
 
     window.postComment = async (postId) => {
@@ -304,7 +305,7 @@
     };
 
     async function savePost(t, cat, c, img) {
-        await push(ref(db, 'posts'), { user: currentUser.displayName, uid: currentUser.uid, title: t, category: cat, content: c, image: img, likes: {} });
+        await push(ref(db, 'posts'), { user: currentUser.displayName, uid: currentUser.uid, title: t, category: cat, content: c, image: img });
         alert("Posted!");
         document.getElementById("p_title").value = "";
         document.getElementById("p_content").value = "";
