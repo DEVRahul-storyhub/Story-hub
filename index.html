@@ -17,7 +17,6 @@
             min-height: 100vh;
         }
 
-        /* --- BACKGROUND STATES --- */
         body.logged-out {
             background: linear-gradient(135deg, #0095f6 0%, #001f3f 100%) fixed;
             color: white;
@@ -27,8 +26,6 @@
             background: #121212 fixed;
             color: #262626;
         }
-
-        #authBox h2, #authBox p { color: #262626 !important; }
 
         .navbar { 
             background: white; padding: 0 20px; display: flex; justify-content: space-between; 
@@ -40,7 +37,6 @@
 
         .nav-brand { font-size: 1.4rem; font-weight: 800; cursor: pointer; }
 
-        /* --- LAYOUT STRUCTURE --- */
         .main-wrapper {
             display: flex;
             max-width: 900px;
@@ -69,7 +65,7 @@
             border: 1px solid var(--border); margin-bottom: 20px; color: #262626;
         }
 
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; color: #262626; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
         button { padding: 10px 20px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; }
         button.secondary { background: #efefef; color: black; }
         
@@ -78,17 +74,17 @@
         .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; }
         .category-badge { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
 
-        /* Like & Interaction Styling */
         .post-actions {
             display: flex; gap: 15px; padding: 10px 0; border-top: 1px solid #f0f0f0; margin-top: 10px;
         }
         .action-btn {
-            background: none; border: none; color: #262626; padding: 0; font-size: 14px; display: flex; align-items: center; gap: 5px;
+            background: none; border: none; color: #262626; padding: 5px 10px; font-size: 14px; display: flex; align-items: center; gap: 5px; cursor: pointer; border-radius: 5px;
         }
-        .action-btn.liked { color: #ed4956; }
+        .action-btn:hover { background: #fafafa; }
+        .action-btn.liked { color: #ed4956; font-weight: bold; }
 
         .comment-box { margin-top: 10px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
-        .comment-item { font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .comment-item { font-size: 13px; margin-bottom: 8px; }
         .comment-user { font-weight: 700; margin-right: 6px; }
         
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; overflow-y: auto; color: #262626; }
@@ -151,7 +147,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, remove, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -198,7 +194,7 @@
             document.getElementById("authBox").style.display = "none";
             document.getElementById("postBox").style.display = "block";
             document.getElementById("sidebarArea").style.display = "block";
-            document.getElementById("navUser").innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><div style="cursor:pointer;display:flex;align-items:center;gap:5px;" onclick="openProfile('${user.displayName}')"><img src="https://ui-avatars.com/api/?name=${user.displayName}&background=random" style="width:30px;border-radius:50%"><span style="font-weight:600">${user.displayName}</span></div><button onclick="appLogout()" class="secondary" style="padding:4px 8px;font-size:11px">Logout</button></div>`;
+            document.getElementById("navUser").innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><div style="cursor:pointer;display:flex;align-items:center;gap:5px;" onclick="openProfile('${user.displayName}')"><img src="https://ui-avatars.com/api/?name=${user.displayName}&background=random" style="width:30px;border-radius:50%"><span style="font-weight:600;color:#262626">${user.displayName}</span></div><button onclick="appLogout()" class="secondary" style="padding:4px 8px;font-size:11px">Logout</button></div>`;
             fetchPosts();
         } else {
             body.classList.replace("logged-in", "logged-out");
@@ -233,14 +229,14 @@
         allPosts.forEach(p => {
             let commentsHtml = "";
             if (p.comments) {
-                Object.keys(p.comments).forEach(cId => {
-                    const c = p.comments[cId];
-                    commentsHtml += `<div class="comment-item"><div><span class="comment-user">${c.user}</span><span>${c.text}</span></div></div>`;
+                Object.values(p.comments).forEach(c => {
+                    commentsHtml += `<div class="comment-item"><span class="comment-user">${c.user}</span><span>${c.text}</span></div>`;
                 });
             }
             
-            const likeCount = p.likes ? Object.keys(p.likes).length : 0;
-            const isLiked = p.likes && p.likes[currentUser.uid] ? "liked" : "";
+            const likesObj = p.likes || {};
+            const likeCount = Object.keys(likesObj).length;
+            const isLiked = currentUser && likesObj[currentUser.uid];
 
             html += `
             <div class="card" id="${p.id}">
@@ -254,7 +250,7 @@
                 ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
                 
                 <div class="post-actions">
-                    <button class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">
+                    <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${p.id}')">
                         ${isLiked ? '❤️' : '🤍'} <span>${likeCount}</span>
                     </button>
                     <button class="action-btn">💬 <span>${p.comments ? Object.keys(p.comments).length : 0}</span></button>
@@ -273,13 +269,16 @@
     };
 
     window.toggleLike = async (postId) => {
-        const post = allPosts.find(p => p.id === postId);
+        if (!currentUser) return alert("Login to like!");
         const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-        if (post.likes && post.likes[currentUser.uid]) {
+        const snapshot = await get(likeRef);
+        
+        if (snapshot.exists()) {
             await remove(likeRef);
         } else {
             await set(likeRef, true);
         }
+        // UI render automatically handles via onValue
     };
 
     window.postComment = async (postId) => {
@@ -303,7 +302,7 @@
     };
 
     async function savePost(t, cat, c, img) {
-        await push(ref(db, 'posts'), { user: currentUser.displayName, uid: currentUser.uid, title: t, category: cat, content: c, image: img });
+        await push(ref(db, 'posts'), { user: currentUser.displayName, uid: currentUser.uid, title: t, category: cat, content: c, image: img, likes: {} });
         alert("Posted!");
         document.getElementById("p_title").value = "";
         document.getElementById("p_content").value = "";
@@ -317,7 +316,10 @@
         document.getElementById("profileContent").innerHTML = `<div style="text-align:center;padding:20px"><img src="https://ui-avatars.com/api/?name=${u}&size=80&background=random" style="border-radius:50%"><h2>${u}</h2><p>${ups.length} Stories</p></div><div class="profile-grid">${grid}</div>`;
     };
 
-    window.viewPost = (id) => { closeModal('profileModal'); setTimeout(() => document.getElementById(id).scrollIntoView({behavior: 'smooth'}), 300); };
+    window.viewPost = (id) => { closeModal('profileModal'); setTimeout(() => {
+        const el = document.getElementById(id);
+        if(el) el.scrollIntoView({behavior: 'smooth'});
+    }, 300); };
     window.closeModal = (id) => document.getElementById(id).style.display = "none";
 </script>
 </body>
