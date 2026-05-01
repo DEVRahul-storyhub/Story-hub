@@ -5,97 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StoryHub - Likho Dil ki Baat</title>
     <style>
-        :root { --primary: #0095f6; --border: rgba(255,255,255,0.2); }
+        :root { --primary: #0095f6; --border: #dbdbdb; --text: #262626; }
         
         body { 
+            font-family: -apple-system, system-ui, sans-serif; 
             margin: 0; 
-            font-family: -apple-system, sans-serif;
+            transition: all 0.5s ease;
             min-height: 100vh;
             background-attachment: fixed;
             background-size: cover;
             background-position: center;
-            transition: background 0.5s ease;
         }
 
-        /* Sabke liye background (Login ke baad) */
-        body.logged-in {
-            /* Maine ye link online host kiya hai taaki sabko dikhe */
-            background-image: url('https://i.ibb.co/Y76X66f/beach-pink.jpg'); 
-        }
-
+        /* Login se pehle ka style */
         body.logged-out {
             background: linear-gradient(135deg, #0095f6 0%, #001f3f 100%) fixed;
-        }
-
-        .navbar { 
-            background: rgba(255, 255, 255, 0.15);
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border);
             color: white;
         }
 
-        .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
+        /* Login ke baad aapka pasandida background */
+        body.logged-in {
+            background-image: url('https://i.pinimg.com/564x/59/c0/d4/59c0d45a90967a5b3a32274488390772.jpg');
+            color: #262626;
+        }
+
+        .navbar { 
+            background: rgba(255, 255, 255, 0.9); padding: 0 20px; display: flex; justify-content: space-between; 
+            align-items: center; border-bottom: 1px solid var(--border); 
+            position: sticky; top: 0; z-index: 100; height: 60px; backdrop-filter: blur(5px);
+        }
+
+        body.logged-out .navbar { background: transparent; border-bottom: none; color: white; }
+        .nav-brand { font-size: 1.4rem; font-weight: 800; cursor: pointer; }
+
+        .main-wrapper {
+            display: flex; max-width: 900px; margin: 20px auto; gap: 20px; padding: 0 15px;
+        }
+
+        .sidebar { flex: 1; display: none; }
+        .container { flex: 2; max-width: 500px; margin: 0 auto; }
+
+        @media (min-width: 800px) {
+            .sidebar { display: block; position: sticky; top: 80px; height: fit-content; }
+        }
 
         .card { 
-            background: rgba(255, 255, 255, 0.9); /* Glass effect */
-            padding: 20px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            border: 1px solid white;
+            background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 15px; 
+            border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 16px; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
+        button { padding: 10px 20px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        button:hover { opacity: 0.8; }
+        button.secondary { background: #efefef; color: black; }
         
-        button { 
-            padding: 12px 24px; border: none; border-radius: 12px; 
-            background: var(--primary); color: white; font-weight: bold; 
-            cursor: pointer; transition: 0.3s;
-        }
+        .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; }
+        .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; border: 1px solid #ddd; }
+        .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; border-radius: 5px; }
 
-        .like-btn { 
-            background: #f0f0f0; color: #262626; border: none; padding: 8px 15px; 
-            border-radius: 20px; font-size: 16px; display: flex; align-items: center; gap: 8px;
+        .post-actions {
+            display: flex; gap: 15px; padding: 10px 0; border-top: 1px solid #eee; margin-top: 10px;
         }
-        .like-btn.active { background: #ffebed; color: #ed4956; font-weight: bold; }
+        .action-btn {
+            background: none; border: none; color: #262626; font-size: 18px; display: flex; align-items: center; gap: 5px; cursor: pointer;
+        }
+        .action-btn.liked { color: #ed4956; animation: pop 0.3s ease; }
+        @keyframes pop { 0% {transform: scale(1);} 50% {transform: scale(1.2);} 100% {transform: scale(1);} }
 
-        .post-user { font-weight: 800; color: #444; margin-bottom: 10px; display: block; }
+        .comment-box { margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
     </style>
 </head>
 <body class="logged-out">
 
 <div class="navbar">
-    <div style="font-weight: 900; letter-spacing: 1px;">STORYHUB</div>
+    <div class="nav-brand" onclick="location.reload()">StoryHub 📝</div>
     <div id="navUser"></div>
 </div>
 
-<div class="container">
-    <div class="card" id="authBox">
-        <h2 style="margin-top:0; text-align:center;">Namaste! 🙏</h2>
-        <input id="u_name" placeholder="Username (e.g. rahul)">
-        <input id="u_pass" type="password" placeholder="Password">
-        <button onclick="appLogin()" style="width:100%; margin-top:10px;">Dwar Kholein (Login)</button>
+<div class="main-wrapper">
+    <div class="sidebar" id="sidebarArea" style="display:none;">
+        <div class="card" style="padding:15px;">
+            <h4 style="margin-top:0">Top Writers ✍️</h4>
+            <div id="writersList"></div>
+        </div>
     </div>
 
-    <div class="card" id="postBox" style="display:none;">
-        <textarea id="p_content" rows="3" placeholder="Aaj aapke dil mein kya hai?"></textarea>
-        <button onclick="handlePost()" style="width:100%">Post Karein</button>
-    </div>
+    <div class="container">
+        <!-- Auth Box -->
+        <div class="card" id="authBox">
+            <h2 style="margin-top:0; color:#262626">Welcome Back!</h2>
+            <input id="u_name" placeholder="Username">
+            <input id="u_pass" type="password" placeholder="Password">
+            <button onclick="appLogin()" style="width:100%; margin-bottom:10px">Login</button>
+            <button onclick="appSignup()" class="secondary" style="width:100%">Sign Up</button>
+        </div>
 
-    <div id="postFeed"></div>
+        <!-- Post Box -->
+        <div class="card" id="postBox" style="display:none;">
+            <input id="p_title" placeholder="Story Title">
+            <textarea id="p_content" rows="3" placeholder="Write your heart out..."></textarea>
+            <input type="file" id="p_file" accept="image/*">
+            <button onclick="handlePost()" style="width: 100%;">Share Story</button>
+        </div>
+
+        <div id="postFeed"></div>
+    </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, set, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getDatabase, ref, push, onValue, remove, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCzq2CZZhYFAh0hO-WoSb15yQGMb_9ECK8",
@@ -103,6 +123,7 @@
         databaseURL: "https://devrahul-storyhub-default-rtdb.firebaseio.com/",
         projectId: "devrahul-storyhub",
         storageBucket: "devrahul-storyhub.firebasestorage.app",
+        messagingSenderId: "889951778018",
         appId: "1:889951778018:web:7a01d97f72c016601d1abb"
     };
 
@@ -110,74 +131,80 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
-    let loggedInUser = null;
+    let currentUser = null;
 
-    // --- Login/Signup Logic ---
+    // --- AUTH ---
+    window.appSignup = async () => {
+        const u = document.getElementById("u_name").value.trim();
+        const p = document.getElementById("u_pass").value;
+        try {
+            const res = await createUserWithEmailAndPassword(auth, u + "@storyhub.com", p);
+            await updateProfile(res.user, { displayName: u });
+            location.reload();
+        } catch (e) { alert("Error: Account exists or invalid!"); }
+    };
+
     window.appLogin = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
-        if(!u || !p) return alert("Details bhariye!");
-        
-        try {
-            await signInWithEmailAndPassword(auth, u + "@storyhub.com", p);
-        } catch (e) {
-            // Agar user nahi hai toh signup karlo automatically (Trial ke liye easy)
-            try {
-                const res = await createUserWithEmailAndPassword(auth, u + "@storyhub.com", p);
-                await updateProfile(res.user, { displayName: u });
-            } catch (err) { alert("Login failed!"); }
-        }
+        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch (e) { alert("Login failed!"); }
     };
 
     window.appLogout = () => signOut(auth).then(() => location.reload());
 
-    onAuthStateChanged(auth, (u) => {
-        if (u) {
-            loggedInUser = u;
-            document.body.className = "logged-in"; 
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            document.body.classList.replace("logged-out", "logged-in");
             document.getElementById("authBox").style.display = "none";
             document.getElementById("postBox").style.display = "block";
-            document.getElementById("navUser").innerHTML = `<button onclick="appLogout()" style="background:#ff4757">Logout</button>`;
+            document.getElementById("sidebarArea").style.display = "block";
+            document.getElementById("navUser").innerHTML = `<button onclick="appLogout()">Logout (${user.displayName})</button>`;
             listenToPosts();
         }
     });
 
-    // --- REALTIME FEED ---
+    // --- POSTS & LIKES ---
     function listenToPosts() {
         onValue(ref(db, 'posts'), (snap) => {
             const data = snap.val();
-            const list = data ? Object.keys(data).map(k => ({...data[k], id: k})).reverse() : [];
-            renderFeed(list);
+            const posts = data ? Object.keys(data).map(k => ({...data[k], id: k})).reverse() : [];
+            renderFeed(posts);
         });
     }
 
     function renderFeed(posts) {
         let html = "";
         posts.forEach(p => {
-            const likesObj = p.likes || {};
-            const isLiked = likesObj[loggedInUser.uid];
-            const count = Object.keys(likesObj).length;
+            const likesCount = p.likes ? Object.keys(p.likes).length : 0;
+            const isLiked = p.likes && p.likes[currentUser.uid];
             
             html += `
             <div class="card">
-                <span class="post-user">@${p.user}</span>
-                <p style="font-size:18px; line-height:1.4;">${p.content}</p>
-                <div style="margin-top:15px;">
-                    <button class="like-btn ${isLiked ? 'active' : ''}" onclick="toggleLike('${p.id}')">
-                        ${isLiked ? '❤️ Liked' : '🤍 Like'} <span>${count}</span>
+                <div class="post-header">
+                    <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
+                    <span>${p.user}</span>
+                </div>
+                <h3 style="margin:5px 0">${p.title}</h3>
+                <p style="white-space:pre-wrap">${p.content}</p>
+                ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
+                <div class="post-actions">
+                    <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${p.id}')">
+                        ${isLiked ? '❤️' : '🤍'} <span>${likesCount}</span>
                     </button>
+                    <button class="action-btn">💬 ${p.comments ? Object.keys(p.comments).length : 0}</button>
                 </div>
             </div>`;
         });
-        document.getElementById("postFeed").innerHTML = html;
+        document.getElementById("postFeed").innerHTML = html || "<p style='text-align:center; color:white;'>No stories yet. Be the first!</p>";
     }
 
-    // --- LIKE FIX (PROPER) ---
     window.toggleLike = async (postId) => {
-        const likeRef = ref(db, `posts/${postId}/likes/${loggedInUser.uid}`);
-        
-        // Local check to prevent flicker
+        if (!currentUser) return;
+        const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
         const snapshot = await get(likeRef);
+        
+        // Proper Sync logic: Check status before changing
         if (snapshot.exists()) {
             await remove(likeRef);
         } else {
@@ -186,16 +213,24 @@
     };
 
     window.handlePost = () => {
+        const t = document.getElementById("p_title").value;
         const c = document.getElementById("p_content").value;
-        if(!c) return;
-        push(ref(db, 'posts'), { 
-            user: loggedInUser.displayName || loggedInUser.email.split('@')[0], 
-            content: c, 
-            uid: loggedInUser.uid,
-            timestamp: Date.now()
-        });
-        document.getElementById("p_content").value = "";
+        const f = document.getElementById("p_file").files[0];
+        if(!c) return alert("Please write a story!");
+
+        if(f) {
+            const reader = new FileReader();
+            reader.onload = () => savePost(t, c, reader.result);
+            reader.readAsDataURL(f);
+        } else savePost(t, c, "");
     };
+
+    async function savePost(t, c, img) {
+        await push(ref(db, 'posts'), { user: currentUser.displayName, uid: currentUser.uid, title: t, content: c, image: img });
+        document.getElementById("p_title").value = "";
+        document.getElementById("p_content").value = "";
+        document.getElementById("p_file").value = "";
+    }
 </script>
 </body>
 </html>
