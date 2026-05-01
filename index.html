@@ -17,15 +17,15 @@
             min-height: 100vh;
         }
 
-        /* --- DARK BACKGROUND FOR LOGIN SCREEN --- */
+        /* --- BACKGROUND STATES --- */
         body.logged-out {
-            background: #121212 fixed; /* Pure Dark Background */
-            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) fixed;
+            background: linear-gradient(135deg, #0095f6 0%, #001f3f 100%) fixed;
             color: white;
         }
 
+        /* Login ke baad background dark ho jayega */
         body.logged-in {
-            background: linear-gradient(to bottom, #fdfcf0 0%, #76d7ea 100%) fixed;
+            background: #121212 fixed;
             color: #262626;
         }
 
@@ -50,6 +50,7 @@
             padding: 0 15px;
         }
 
+        /* Sidebar Styling */
         .sidebar {
             flex: 1;
             display: none; 
@@ -81,6 +82,7 @@
         .writer-item:hover { opacity: 0.7; }
         .writer-item:last-child { border: none; }
 
+        /* CARD STYLING */
         .card { 
             background: white; 
             padding: 20px; 
@@ -119,6 +121,7 @@
 </div>
 
 <div class="main-wrapper">
+    <!-- LEFT SIDEBAR -->
     <div class="sidebar" id="sidebarArea" style="display:none;">
         <div class="sidebar-card">
             <h4 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Story Writers ✍️</h4>
@@ -184,7 +187,6 @@
     let currentUser = null;
     let allPosts = [];
 
-    // AUTH FUNCTIONS
     window.appSignup = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
@@ -229,21 +231,10 @@
             document.getElementById("sidebarArea").style.display = "none";
             document.getElementById("authBox").style.display = "block";
             document.getElementById("navUser").innerHTML = "";
-
-            document.getElementById("postFeed").innerHTML = `
-                <div class="disclaimer-box">
-                    <h1 style="font-size: 2.8rem; margin-bottom: 10px;">StoryHub - Likho Dil ki Baat</h1>
-                    <p style="font-size: 1.2rem; opacity: 0.9;">Please login to see stories!</p>
-                    <div style="width: 50px; height: 2px; background: white; margin: 20px auto;"></div>
-                    <p style="font-style:italic; font-size: 0.9rem; opacity: 0.8;">
-                        Note: You can login or sign up with any unique username and password. 
-                        We do not collect your personal identity.
-                    </p>
-                </div>`;
+            document.getElementById("postFeed").innerHTML = `<div class="disclaimer-box"><h1>StoryHub - Likho Dil ki Baat</h1><p>Please login to see stories!</p></div>`;
         }
     });
 
-    // DATABASE FUNCTIONS
     function fetchPosts() {
         onValue(ref(db, 'posts'), (snap) => {
             const data = snap.val();
@@ -255,20 +246,10 @@
 
     function renderWriters() {
         const writerCounts = {};
-        allPosts.forEach(p => {
-            writerCounts[p.user] = (writerCounts[p.user] || 0) + 1;
-        });
-
+        allPosts.forEach(p => { writerCounts[p.user] = (writerCounts[p.user] || 0) + 1; });
         let html = "";
         Object.entries(writerCounts).sort((a,b) => b[1] - a[1]).forEach(([name, count]) => {
-            html += `
-                <div class="writer-item" onclick="openProfile('${name}')">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <img src="https://ui-avatars.com/api/?name=${name}&background=random" style="width:24px; border-radius:50%">
-                        <span style="font-size:14px; font-weight:500;">${name}</span>
-                    </div>
-                    <span style="font-size:12px; color:#8e8e8e;">${count} posts</span>
-                </div>`;
+            html += `<div class="writer-item" onclick="openProfile('${name}')"><div style="display:flex;align-items:center;gap:8px;"><img src="https://ui-avatars.com/api/?name=${name}&background=random" style="width:24px;border-radius:50%"><span style="font-size:14px;font-weight:500;">${name}</span></div><span style="font-size:12px;color:#8e8e8e;">${count} posts</span></div>`;
         });
         document.getElementById("writersList").innerHTML = html || "No writers yet.";
     }
@@ -280,32 +261,10 @@
             if (p.comments) {
                 Object.keys(p.comments).forEach(cId => {
                     const c = p.comments[cId];
-                    const isMyComment = currentUser && c.uid === currentUser.uid;
-                    commentsHtml += `
-                        <div class="comment-item">
-                            <div><span class="comment-user">${c.user}</span><span>${c.text}</span></div>
-                            ${isMyComment ? `<span style="color:red;cursor:pointer;font-size:10px" onclick="deleteComment('${p.id}', '${cId}')">Delete</span>` : ""}
-                        </div>`;
+                    commentsHtml += `<div class="comment-item"><div><span class="comment-user">${c.user}</span><span>${c.text}</span></div></div>`;
                 });
             }
-            html += `
-            <div class="card" id="${p.id}">
-                <div class="post-header" onclick="openProfile('${p.user}')">
-                    <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
-                    <span>${p.user}</span>
-                </div>
-                <div class="category-badge">${p.category || 'General'}</div>
-                <h3 style="margin: 5px 0;">${p.title}</h3>
-                <p style="white-space:pre-wrap;">${p.content}</p>
-                ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
-                <div class="comment-box">
-                    <div class="comment-list">${commentsHtml}</div>
-                    <div style="display:flex;gap:5px">
-                        <input id="in-${p.id}" placeholder="Comment..." style="margin:0">
-                        <button onclick="postComment('${p.id}')">Post</button>
-                    </div>
-                </div>
-            </div>`;
+            html += `<div class="card" id="${p.id}"><div class="post-header" onclick="openProfile('${p.user}')"><img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar"><span>${p.user}</span></div><div class="category-badge">${p.category || 'General'}</div><h3 style="margin: 5px 0;">${p.title}</h3><p style="white-space:pre-wrap;">${p.content}</p>${p.image ? `<img src="${p.image}" class="post-img">` : ""}<div class="comment-box"><div class="comment-list">${commentsHtml}</div><div style="display:flex;gap:5px"><input id="in-${p.id}" placeholder="Comment..." style="margin:0"><button onclick="postComment('${p.id}')">Post</button></div></div></div>`;
         });
         document.getElementById("postFeed").innerHTML = html || "No stories found.";
     };
@@ -313,13 +272,9 @@
     window.postComment = async (postId) => {
         const input = document.getElementById(`in-${postId}`);
         if(!input.value.trim()) return;
-        await push(ref(db, `posts/${postId}/comments`), {
-            user: currentUser.displayName, uid: currentUser.uid, text: input.value.trim()
-        });
+        await push(ref(db, `posts/${postId}/comments`), { user: currentUser.displayName, uid: currentUser.uid, text: input.value.trim() });
         input.value = "";
     };
-
-    window.deleteComment = (pId, cId) => remove(ref(db, `posts/${pId}/comments/${cId}`));
 
     window.handlePost = () => {
         const title = document.getElementById("p_title").value;
@@ -335,10 +290,7 @@
     };
 
     async function savePost(t, cat, c, img) {
-        await push(ref(db, 'posts'), {
-            user: currentUser.displayName, uid: currentUser.uid,
-            title: t, category: cat, content: c, image: img
-        });
+        await push(ref(db, 'posts'), { user: currentUser.displayName, uid: currentUser.uid, title: t, category: cat, content: c, image: img });
         alert("Posted!");
         document.getElementById("p_title").value = "";
         document.getElementById("p_content").value = "";
@@ -348,7 +300,7 @@
     window.openProfile = (u) => {
         let ups = allPosts.filter(x => x.user === u);
         document.getElementById("profileModal").style.display = "block";
-        let grid = ups.map(p => `<div class="grid-item" onclick="viewPost('${p.id}')">${p.image ? `<img src="${p.image}">` : `<div style="padding:10px; font-size:12px;">${p.title}</div>`}</div>`).join("");
+        let grid = ups.map(p => `<div class="grid-item" onclick="viewPost('${p.id}')">${p.image ? `<img src="${p.image}">` : `<div style="padding:10px;font-size:12px;">${p.title}</div>`}</div>`).join("");
         document.getElementById("profileContent").innerHTML = `<div style="text-align:center;padding:20px"><img src="https://ui-avatars.com/api/?name=${u}&size=80&background=random" style="border-radius:50%"><h2>${u}</h2><p>${ups.length} Stories</p></div><div class="profile-grid">${grid}</div>`;
     };
 
