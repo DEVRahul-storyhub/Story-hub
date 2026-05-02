@@ -49,11 +49,20 @@
             padding: 0 15px;
         }
 
+        /* FIXED SIDEBAR SCROLL LOGIC */
         .sidebar { flex: 1; display: none; }
         .container { flex: 2; max-width: 500px; margin: 0; }
 
         @media (min-width: 800px) {
-            .sidebar { display: block; position: sticky; top: 80px; height: fit-content; }
+            .sidebar { 
+                display: block; 
+                position: sticky; 
+                top: 80px; 
+                height: calc(100vh - 100px); /* Sidebar height based on screen */
+                overflow-y: auto; /* Agar category niche jaye to sidebar ke andar scroll ho sake */
+                scrollbar-width: none; /* Firefox ke liye scrollbar hide */
+            }
+            .sidebar::-webkit-scrollbar { display: none; } /* Chrome/Safari ke liye scrollbar hide */
         }
 
         .sidebar-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: #262626; margin-bottom: 20px; }
@@ -108,6 +117,7 @@
 </div>
 
 <div class="main-wrapper">
+    <!-- Sidebar now with auto-scroll logic -->
     <div class="sidebar" id="sidebarArea" style="display:none;">
         <div class="sidebar-card">
             <h4 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Story Writers ✍️</h4>
@@ -182,7 +192,7 @@
 
     let currentUser = null;
     let allPosts = [];
-    let currentFilter = null; // null means "All"
+    let currentFilter = null;
 
     window.appSignup = async () => {
         const u = document.getElementById("u_name").value.trim();
@@ -373,7 +383,7 @@
 
     window.viewPost = (id) => { 
         closeModal('profileModal'); 
-        clearFilter(); // Clear filter to ensure the post is visible
+        clearFilter(); 
         setTimeout(() => {
             const el = document.getElementById(id);
             if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'});
