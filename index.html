@@ -205,7 +205,20 @@
             document.getElementById("postBox").style.display = "none";
             document.getElementById("sidebarArea").style.display = "none";
             document.getElementById("authBox").style.display = "block";
-            document.getElementById("postFeed").innerHTML = `<div class="disclaimer-box"><h1>StoryHub - Likho Dil ki Baat</h1><p>Please login to see stories!</p></div>`;
+            
+            // --- Yahan Disclaimer Add kiya gaya hai ---
+            document.getElementById("postFeed").innerHTML = `
+                <div class="disclaimer-box">
+                    <h1>StoryHub - Likho Dil ki Baat</h1>
+                    <p>Please login to see stories!</p>
+                    <div style="margin-top: 20px; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.3); max-width: 500px; margin: auto;">
+                        <p style="font-size: 14px; line-height: 1.6; color: #e0e0e0; text-align: left;">
+                            <strong>🔒 Privacy Policy:</strong> We value your privacy. We do not collect any personal identity information. 
+                            All you need is a unique username and password to start your journey. 
+                            Join us to write and read unlimited stories with complete peace of mind!
+                        </p>
+                    </div>
+                </div>`;
         }
     });
 
