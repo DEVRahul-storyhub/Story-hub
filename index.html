@@ -13,25 +13,24 @@
             background: var(--bg); 
             color: var(--text); 
             line-height: 1.5; 
-            transition: background 0.8s ease;
+            transition: background 0.5s ease;
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* --- NEW GRADIENT BACKGROUND (LOGIN STATE) --- */
+        /* --- BACKGROUND STATES --- */
         body.logged-out {
             background: linear-gradient(135deg, #0095f6 0%, #001f3f 100%) fixed;
             color: white;
         }
 
         body.logged-in {
-            /* Image se match karta hua Soft Gradient */
-            background: linear-gradient(to bottom, #fdfdf2 0%, #a1eafb 50%, #70d6e8 100%) fixed !important;
+            background-color: #1a2639 !important; /* Image wala color */
             color: #262626;
         }
 
-        /* Floating Letters Styling */
+        /* Floating Letters Container */
         #bg-alphabets {
             position: fixed;
             top: 0;
@@ -45,17 +44,16 @@
 
         .letter {
             position: absolute;
-            color: rgba(0, 0, 0, 0.07); /* Light background par dark alphabets */
+            color: rgba(255, 255, 255, 0.05); /* Bahut halka color taaki text dikhe */
             font-weight: bold;
-            font-size: 1.8rem;
+            font-size: 2rem;
             user-select: none;
         }
 
         #authBox h2, #authBox p { color: #262626 !important; }
 
         .navbar { 
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
-            padding: 0 20px; display: flex; justify-content: space-between; 
+            background: white; padding: 0 20px; display: flex; justify-content: space-between; 
             align-items: center; border-bottom: 1px solid var(--border); 
             position: sticky; top: 0; z-index: 100; height: 60px; 
         }
@@ -88,20 +86,21 @@
             .sidebar::-webkit-scrollbar { display: none; }
         }
 
-        .sidebar-card { background: rgba(255, 255, 255, 0.9); border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: #262626; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .sidebar-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: #262626; margin-bottom: 20px; }
 
         .writer-item, .category-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 8px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;
         }
+        .writer-item:last-child, .category-item:last-child { border: none; }
+        .category-item:hover { color: var(--primary); }
 
         .card { 
-            background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 12px; 
+            background: white; padding: 20px; border-radius: 12px; 
             border: 1px solid var(--border); margin-bottom: 20px; color: #262626;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; color: #262626; }
         button { padding: 10px 20px; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; }
         button.secondary { background: #efefef; color: black; }
         
@@ -110,39 +109,53 @@
         .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; }
         .category-badge { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 5px; display: inline-block; cursor: pointer; }
 
-        .post-actions { display: flex; gap: 15px; padding: 10px 0; border-top: 1px solid #f0f0f0; margin-top: 10px; }
-        .action-btn { background: none; border: none; color: #262626; font-size: 14px; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .post-actions {
+            display: flex; gap: 15px; padding: 10px 0; border-top: 1px solid #f0f0f0; margin-top: 10px;
+        }
+        .action-btn {
+            background: none; border: none; color: #262626; padding: 0; font-size: 14px; display: flex; align-items: center; gap: 5px;
+        }
         .action-btn.liked { color: #ed4956; }
 
+        .comment-box { margin-top: 10px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
+        .comment-item { font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .comment-user { font-weight: 700; margin-right: 6px; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; overflow-y: auto; color: #262626; }
+        .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 20px; }
+        .grid-item { aspect-ratio: 1/1; background: #eee; overflow: hidden; cursor: pointer; }
+        .grid-item img { width: 100%; height: 100%; object-fit: cover; }
+        .disclaimer-box { text-align: center; padding: 40px 15px; color: white; width: 100%; }
+        
         #filterIndicator { margin-bottom: 15px; display: none; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; overflow-y: auto; }
     </style>
 </head>
 <body class="logged-out">
 
+<!-- Alphabet background -->
 <div id="bg-alphabets"></div>
 
 <div class="navbar">
-    <div class="nav-brand" onclick="location.reload()">StoryHub 📝</div>
+    <div class="nav-brand" onclick="location.reload()">StoryHub - Likho Dil ki Baat 📝</div>
     <div id="navUser"></div>
 </div>
 
 <div class="main-wrapper">
     <div class="sidebar" id="sidebarArea" style="display:none;">
         <div class="sidebar-card">
-            <h4 style="margin:0 0 10px 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Story Writers ✍️</h4>
-            <div id="writersList">Loading...</div>
+            <h4 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Story Writers ✍️</h4>
+            <div id="writersList">Loading writers...</div>
         </div>
 
         <div class="sidebar-card">
-            <h4 style="margin:0 0 10px 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Categories 📚</h4>
-            <div id="categoriesList">Loading...</div>
+            <h4 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Categories 📚</h4>
+            <div id="categoriesList">Loading categories...</div>
         </div>
     </div>
 
     <div class="container">
         <div class="card" id="authBox">
-            <h2 style="margin-top:0">Welcome! 😊</h2>
+            <h2 style="margin-top:0">Welcome! Dear Story Writers😊</h2>
             <input id="u_name" placeholder="Username">
             <input id="u_pass" type="password" placeholder="Password (Min 6 chars)">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
@@ -204,17 +217,19 @@
     let allPosts = [];
     let currentFilter = null;
 
+    // --- ALPHABET BACKGROUND GENERATOR ---
     function initAlphabetBackground() {
         const container = document.getElementById('bg-alphabets');
         container.innerHTML = '';
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ📝✍️📖🖋️📜";
-        for (let i = 0; i < 45; i++) {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ📝✍️📖";
+        for (let i = 0; i < 40; i++) {
             const span = document.createElement('span');
             span.className = 'letter';
             span.innerText = chars[Math.floor(Math.random() * chars.length)];
-            span.style.left = Math.random() * 95 + "vw";
-            span.style.top = Math.random() * 95 + "vh";
+            span.style.left = Math.random() * 100 + "vw";
+            span.style.top = Math.random() * 100 + "vh";
             span.style.transform = `rotate(${Math.random() * 360}deg)`;
+            span.style.opacity = Math.random() * 0.2;
             container.appendChild(span);
         }
     }
@@ -222,18 +237,18 @@
     window.appSignup = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
-        if(!u || p.length < 6) return alert("Valid username and password (6 chars) required!");
+        if(!u || p.length < 6) return alert("Please enter valid username and password!");
         try {
             const res = await createUserWithEmailAndPassword(auth, u + "@storyhub.com", p);
             await updateProfile(res.user, { displayName: u });
             location.reload();
-        } catch (e) { alert("Error: Account exists or invalid!"); }
+        } catch (e) { alert("Error: Account already exists!"); }
     };
 
     window.appLogin = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
-        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch (e) { alert("Invalid login!"); }
+        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch (e) { alert("Invalid credentials!"); }
     };
 
     window.appLogout = () => signOut(auth).then(() => location.reload());
@@ -249,7 +264,7 @@
             document.getElementById("authBox").style.display = "none";
             document.getElementById("postBox").style.display = "block";
             document.getElementById("sidebarArea").style.display = "block";
-            document.getElementById("navUser").innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><div style="cursor:pointer;display:flex;align-items:center;gap:5px;" onclick="openProfile('${user.displayName}')"><img src="https://ui-avatars.com/api/?name=${user.displayName}&background=random" style="width:30px;border-radius:50%"><span style="font-weight:600">${user.displayName}</span></div><button onclick="appLogout()" class="secondary" style="padding:4px 8px;font-size:11px">Logout</button></div>`;
+            document.getElementById("navUser").innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><div style="cursor:pointer;display:flex;align-items:center;gap:5px;" onclick="openProfile('${user.displayName}')"><img src="https://ui-avatars.com/api/?name=${user.displayName}&background=random" style="width:30px;border-radius:50%"><span style="font-weight:600; color:#262626">${user.displayName}</span></div><button onclick="appLogout()" class="secondary" style="padding:4px 8px;font-size:11px">Logout</button></div>`;
             fetchPosts();
         } else {
             body.classList.replace("logged-in", "logged-out");
@@ -257,6 +272,8 @@
             document.getElementById("postBox").style.display = "none";
             document.getElementById("sidebarArea").style.display = "none";
             document.getElementById("authBox").style.display = "block";
+            
+            document.getElementById("postFeed").innerHTML = `<div class="disclaimer-box"><h1>StoryHub</h1><p>Please login to see stories!</p></div>`;
         }
     });
 
@@ -264,7 +281,9 @@
         onValue(ref(db, 'posts'), (snap) => {
             const data = snap.val();
             allPosts = data ? Object.keys(data).map(k => ({...data[k], id: k})).reverse() : [];
-            renderFeed(); renderWriters(); renderCategories();
+            renderFeed();
+            renderWriters();
+            renderCategories();
         });
     }
 
@@ -275,28 +294,51 @@
         Object.entries(writerCounts).sort((a,b) => b[1] - a[1]).forEach(([name, count]) => {
             html += `<div class="writer-item" onclick="openProfile('${name}')"><div style="display:flex;align-items:center;gap:8px;"><img src="https://ui-avatars.com/api/?name=${name}&background=random" style="width:24px;border-radius:50%"><span style="font-size:14px;font-weight:500;">${name}</span></div><span style="font-size:12px;color:#8e8e8e;">${count} posts</span></div>`;
         });
-        document.getElementById("writersList").innerHTML = html || "No writers.";
+        document.getElementById("writersList").innerHTML = html || "No writers yet.";
     }
 
     function renderCategories() {
         const catCounts = {};
-        allPosts.forEach(p => { const cat = p.category || "General"; catCounts[cat] = (catCounts[cat] || 0) + 1; });
+        allPosts.forEach(p => { 
+            const cat = p.category || "General";
+            catCounts[cat] = (catCounts[cat] || 0) + 1; 
+        });
         let html = `<div class="category-item" onclick="clearFilter()"><span style="font-size:14px;font-weight:600;">All Stories</span><span>${allPosts.length}</span></div>`;
         Object.entries(catCounts).sort((a,b) => b[1] - a[1]).forEach(([cat, count]) => {
-            html += `<div class="category-item" onclick="applyFilter('${cat}')"><span style="font-size:14px;font-weight:500;">${cat}</span><span style="font-size:12px;color:#8e8e8e;">${count}</span></div>`;
+            html += `<div class="category-item" onclick="applyFilter('${cat}')"><span style="font-size:14px;font-weight:500;">${cat}</span><span style="font-size:12px;color:#8e8e8e;">${count} stories</span></div>`;
         });
-        document.getElementById("categoriesList").innerHTML = html;
+        document.getElementById("categoriesList").innerHTML = html || "No stories yet.";
     }
 
-    window.applyFilter = (cat) => { currentFilter = cat; document.getElementById("filterIndicator").style.display = "flex"; document.getElementById("filterText").innerText = "Category: " + cat; renderFeed(); };
-    window.clearFilter = () => { currentFilter = null; document.getElementById("filterIndicator").style.display = "none"; renderFeed(); };
+    window.applyFilter = (cat) => {
+        currentFilter = cat;
+        document.getElementById("filterIndicator").style.display = "flex";
+        document.getElementById("filterText").innerText = "Category: " + cat;
+        renderFeed();
+    };
+
+    window.clearFilter = () => {
+        currentFilter = null;
+        document.getElementById("filterIndicator").style.display = "none";
+        renderFeed();
+    };
 
     window.renderFeed = () => {
         let html = "";
-        const filtered = currentFilter ? allPosts.filter(p => p.category === currentFilter) : allPosts;
-        filtered.forEach(p => {
+        const filteredPosts = currentFilter ? allPosts.filter(p => p.category === currentFilter) : allPosts;
+
+        filteredPosts.forEach(p => {
+            let commentsHtml = "";
+            if (p.comments) {
+                Object.keys(p.comments).forEach(cId => {
+                    const c = p.comments[cId];
+                    commentsHtml += `<div class="comment-item"><div><span class="comment-user">${c.user}</span><span>${c.text}</span></div></div>`;
+                });
+            }
+            
             const likeCount = p.likes ? Object.keys(p.likes).length : 0;
             const isLiked = p.likes && p.likes[currentUser.uid] ? "liked" : "";
+
             html += `
             <div class="card" id="${p.id}">
                 <div class="post-header" onclick="openProfile('${p.user}')">
@@ -306,20 +348,42 @@
                 <div class="category-badge" onclick="applyFilter('${p.category}')">${p.category || 'General'}</div>
                 <h3 style="margin: 5px 0; cursor:pointer;" onclick="viewPost('${p.id}')">${p.title}</h3>
                 <p style="white-space:pre-wrap;">${p.content}</p>
-                ${p.image ? `<img src="${p.image}" class="post-img" onclick="viewPost('${p.id}')">` : ""}
+                ${p.image ? `<img src="${p.image}" class="post-img" style="cursor:pointer;" onclick="viewPost('${p.id}')">` : ""}
+                
                 <div class="post-actions">
-                    <button class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">${isLiked ? '❤️' : '🤍'} <span>${likeCount}</span></button>
+                    <button class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">
+                        ${isLiked ? '❤️' : '🤍'} <span>${likeCount}</span>
+                    </button>
                     <button class="action-btn">💬 <span>${p.comments ? Object.keys(p.comments).length : 0}</span></button>
+                </div>
+
+                <div class="comment-box">
+                    <div class="comment-list">${commentsHtml}</div>
+                    <div style="display:flex;gap:5px;margin-top:10px;">
+                        <input id="in-${p.id}" placeholder="Add a comment..." style="margin:0;padding:8px">
+                        <button onclick="postComment('${p.id}')" style="padding:8px 15px">Post</button>
+                    </div>
                 </div>
             </div>`;
         });
-        document.getElementById("postFeed").innerHTML = html || "Nothing here.";
+        document.getElementById("postFeed").innerHTML = html || "No stories found.";
     };
 
     window.toggleLike = async (postId) => {
         const post = allPosts.find(p => p.id === postId);
         const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-        post.likes && post.likes[currentUser.uid] ? await remove(likeRef) : await set(likeRef, true);
+        if (post.likes && post.likes[currentUser.uid]) {
+            await remove(likeRef);
+        } else {
+            await set(likeRef, true);
+        }
+    };
+
+    window.postComment = async (postId) => {
+        const input = document.getElementById(`in-${postId}`);
+        if(!input.value.trim()) return;
+        await push(ref(db, `posts/${postId}/comments`), { user: currentUser.displayName, uid: currentUser.uid, text: input.value.trim() });
+        input.value = "";
     };
 
     window.handlePost = () => {
@@ -327,26 +391,37 @@
         const cat = document.getElementById("p_category").value;
         const cont = document.getElementById("p_content").value;
         const file = document.getElementById("p_file").files[0];
-        if(!cont) return alert("Content required!");
+        if(!cont) return alert("Write something!");
         if(file) {
-            const r = new FileReader(); r.onload = () => savePost(title, cat, cont, r.result); r.readAsDataURL(file);
+            const r = new FileReader();
+            r.onload = () => savePost(title, cat, cont, r.result);
+            r.readAsDataURL(file);
         } else savePost(title, cat, cont, "");
     };
 
     async function savePost(t, cat, c, img) {
         await push(ref(db, 'posts'), { user: currentUser.displayName, uid: currentUser.uid, title: t, category: cat, content: c, image: img });
-        document.getElementById("p_title").value = ""; document.getElementById("p_content").value = ""; document.getElementById("p_file").value = "";
-        alert("Story Posted!");
+        alert("Posted!");
+        document.getElementById("p_title").value = "";
+        document.getElementById("p_content").value = "";
+        document.getElementById("p_file").value = "";
     }
 
     window.openProfile = (u) => {
         let ups = allPosts.filter(x => x.user === u);
         document.getElementById("profileModal").style.display = "block";
-        let grid = ups.map(p => `<div class="grid-item" onclick="viewPost('${p.id}')" style="aspect-ratio:1/1;background:#eee;overflow:hidden;cursor:pointer;">${p.image ? `<img src="${p.image}" style="width:100%;height:100%;object-fit:cover">` : `<div style="padding:10px;font-size:11px;">${p.title}</div>`}</div>`).join("");
-        document.getElementById("profileContent").innerHTML = `<div style="text-align:center;padding:20px"><img src="https://ui-avatars.com/api/?name=${u}&size=80&background=random" style="border-radius:50%"><h2>${u}</h2></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;">${grid}</div>`;
+        let grid = ups.map(p => `<div class="grid-item" onclick="viewPost('${p.id}')">${p.image ? `<img src="${p.image}">` : `<div style="padding:10px;font-size:12px;">${p.title}</div>`}</div>`).join("");
+        document.getElementById("profileContent").innerHTML = `<div style="text-align:center;padding:20px"><img src="https://ui-avatars.com/api/?name=${u}&size=80&background=random" style="border-radius:50%"><h2>${u}</h2><p>${ups.length} Stories</p></div><div class="profile-grid">${grid}</div>`;
     };
 
-    window.viewPost = (id) => { closeModal('profileModal'); clearFilter(); setTimeout(() => { const el = document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth', block:'center'}); }, 300); };
+    window.viewPost = (id) => { 
+        closeModal('profileModal'); 
+        clearFilter(); 
+        setTimeout(() => {
+            const el = document.getElementById(id);
+            if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }, 300); 
+    };
     window.closeModal = (id) => document.getElementById(id).style.display = "none";
 </script>
 </body>
