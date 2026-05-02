@@ -56,13 +56,14 @@
             .sidebar { display: block; position: sticky; top: 80px; height: fit-content; }
         }
 
-        .sidebar-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: #262626; }
+        .sidebar-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: #262626; margin-bottom: 20px; }
 
-        .writer-item {
+        .writer-item, .category-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 8px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer;
         }
-        .writer-item:last-child { border: none; }
+        .writer-item:last-child, .category-item:last-child { border: none; }
+        .category-item:hover { color: var(--primary); }
 
         .card { 
             background: white; padding: 20px; border-radius: 12px; 
@@ -76,9 +77,8 @@
         .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; cursor: pointer; }
         .feed-avatar { width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; border: 1px solid #eee; }
         .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; }
-        .category-badge { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
+        .category-badge { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 5px; display: inline-block; cursor: pointer; }
 
-        /* Like & Interaction Styling */
         .post-actions {
             display: flex; gap: 15px; padding: 10px 0; border-top: 1px solid #f0f0f0; margin-top: 10px;
         }
@@ -96,6 +96,8 @@
         .grid-item { aspect-ratio: 1/1; background: #eee; overflow: hidden; cursor: pointer; }
         .grid-item img { width: 100%; height: 100%; object-fit: cover; }
         .disclaimer-box { text-align: center; padding: 40px 15px; color: white; width: 100%; }
+        
+        #filterIndicator { margin-bottom: 15px; display: none; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
     </style>
 </head>
 <body class="logged-out">
@@ -110,6 +112,11 @@
         <div class="sidebar-card">
             <h4 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Story Writers ✍️</h4>
             <div id="writersList">Loading writers...</div>
+        </div>
+
+        <div class="sidebar-card">
+            <h4 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Categories 📚</h4>
+            <div id="categoriesList">Loading categories...</div>
         </div>
     </div>
 
@@ -136,6 +143,11 @@
             <textarea id="p_content" rows="3" placeholder="Write your story here..."></textarea>
             <input type="file" id="p_file" accept="image/*">
             <button onclick="handlePost()" style="width: 100%;">Post Story</button>
+        </div>
+
+        <div id="filterIndicator">
+            <span id="filterText" style="font-weight:600; color:var(--primary)"></span>
+            <button onclick="clearFilter()" class="secondary" style="padding:4px 10px; font-size:12px">Show All</button>
         </div>
 
         <div id="postFeed">Syncing stories...</div>
@@ -170,6 +182,7 @@
 
     let currentUser = null;
     let allPosts = [];
+    let currentFilter = null; // null means "All"
 
     window.appSignup = async () => {
         const u = document.getElementById("u_name").value.trim();
@@ -206,7 +219,6 @@
             document.getElementById("sidebarArea").style.display = "none";
             document.getElementById("authBox").style.display = "block";
             
-            // --- Yahan Disclaimer Add kiya gaya hai ---
             document.getElementById("postFeed").innerHTML = `
                 <div class="disclaimer-box">
                     <h1>StoryHub - Likho Dil ki Baat</h1>
@@ -228,6 +240,7 @@
             allPosts = data ? Object.keys(data).map(k => ({...data[k], id: k})).reverse() : [];
             renderFeed();
             renderWriters();
+            renderCategories();
         });
     }
 
@@ -241,9 +254,37 @@
         document.getElementById("writersList").innerHTML = html || "No writers yet.";
     }
 
+    function renderCategories() {
+        const catCounts = {};
+        allPosts.forEach(p => { 
+            const cat = p.category || "General";
+            catCounts[cat] = (catCounts[cat] || 0) + 1; 
+        });
+        let html = `<div class="category-item" onclick="clearFilter()"><span style="font-size:14px;font-weight:600;">All Stories</span><span>${allPosts.length}</span></div>`;
+        Object.entries(catCounts).sort((a,b) => b[1] - a[1]).forEach(([cat, count]) => {
+            html += `<div class="category-item" onclick="applyFilter('${cat}')"><span style="font-size:14px;font-weight:500;">${cat}</span><span style="font-size:12px;color:#8e8e8e;">${count} stories</span></div>`;
+        });
+        document.getElementById("categoriesList").innerHTML = html || "No stories yet.";
+    }
+
+    window.applyFilter = (cat) => {
+        currentFilter = cat;
+        document.getElementById("filterIndicator").style.display = "flex";
+        document.getElementById("filterText").innerText = "Category: " + cat;
+        renderFeed();
+    };
+
+    window.clearFilter = () => {
+        currentFilter = null;
+        document.getElementById("filterIndicator").style.display = "none";
+        renderFeed();
+    };
+
     window.renderFeed = () => {
         let html = "";
-        allPosts.forEach(p => {
+        const filteredPosts = currentFilter ? allPosts.filter(p => p.category === currentFilter) : allPosts;
+
+        filteredPosts.forEach(p => {
             let commentsHtml = "";
             if (p.comments) {
                 Object.keys(p.comments).forEach(cId => {
@@ -261,10 +302,10 @@
                     <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
                     <span>${p.user}</span>
                 </div>
-                <div class="category-badge">${p.category || 'General'}</div>
-                <h3 style="margin: 5px 0;">${p.title}</h3>
+                <div class="category-badge" onclick="applyFilter('${p.category}')">${p.category || 'General'}</div>
+                <h3 style="margin: 5px 0; cursor:pointer;" onclick="viewPost('${p.id}')">${p.title}</h3>
                 <p style="white-space:pre-wrap;">${p.content}</p>
-                ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
+                ${p.image ? `<img src="${p.image}" class="post-img" style="cursor:pointer;" onclick="viewPost('${p.id}')">` : ""}
                 
                 <div class="post-actions">
                     <button class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">
@@ -282,7 +323,7 @@
                 </div>
             </div>`;
         });
-        document.getElementById("postFeed").innerHTML = html || "No stories found.";
+        document.getElementById("postFeed").innerHTML = html || (currentFilter ? `No stories in ${currentFilter}.` : "No stories found.");
     };
 
     window.toggleLike = async (postId) => {
@@ -330,7 +371,14 @@
         document.getElementById("profileContent").innerHTML = `<div style="text-align:center;padding:20px"><img src="https://ui-avatars.com/api/?name=${u}&size=80&background=random" style="border-radius:50%"><h2>${u}</h2><p>${ups.length} Stories</p></div><div class="profile-grid">${grid}</div>`;
     };
 
-    window.viewPost = (id) => { closeModal('profileModal'); setTimeout(() => document.getElementById(id).scrollIntoView({behavior: 'smooth'}), 300); };
+    window.viewPost = (id) => { 
+        closeModal('profileModal'); 
+        clearFilter(); // Clear filter to ensure the post is visible
+        setTimeout(() => {
+            const el = document.getElementById(id);
+            if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }, 300); 
+    };
     window.closeModal = (id) => document.getElementById(id).style.display = "none";
 </script>
 </body>
