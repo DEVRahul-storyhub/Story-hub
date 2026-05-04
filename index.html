@@ -10,125 +10,87 @@
             --dark-bg: #0f0720; 
             --accent: #1e113a;
             --text-light: #f3f4f6;
-            --border: #dbdbdb; 
         }
         
-        body { 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            margin: 0; 
-            background: var(--dark-bg); 
-            color: var(--text-light); 
-            line-height: 1.6; 
-            min-height: 100vh;
-            transition: all 0.5s ease;
-            overflow-x: hidden;
-        }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Segoe UI', sans-serif; }
 
-        /* --- LOGGED OUT HERO LOOK --- */
+        /* --- LOGGED OUT DESIGN (SINGLE SCREEN) --- */
         body.logged-out {
-            background: linear-gradient(rgba(15, 7, 32, 0.75), rgba(15, 7, 32, 0.95)), 
+            background: linear-gradient(rgba(15, 7, 32, 0.8), rgba(15, 7, 32, 0.9)), 
                         url('https://images.unsplash.com/photo-1516410529446-2c777cb7366d?auto=format&fit=crop&q=80&w=2000') no-repeat center center fixed;
             background-size: cover;
+            overflow: hidden;
         }
 
-        /* --- LOGGED IN USER LOOK --- */
+        /* --- LOGGED IN DESIGN --- */
         body.logged-in {
             background: url('image_b88f4e.png') no-repeat center center fixed !important;
-            background-size: 100% 100% !important; 
+            background-size: cover !important; 
             color: #262626;
+            overflow-y: auto;
         }
 
-        /* Fixed Alphabets for Logged In */
         #bg-alphabets {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: -1; display: none;
         }
-        .letter {
-            position: absolute; color: rgba(0, 0, 0, 0.08); 
-            font-weight: bold; font-size: 1.8rem; user-select: none;
-        }
+        .letter { position: absolute; color: rgba(0, 0, 0, 0.08); font-weight: bold; font-size: 1.8rem; }
 
-        /* Navbar */
         .navbar { 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 5%; height: 70px; position: sticky; top: 0; z-index: 1000;
-            background: rgba(15, 7, 32, 0.6); backdrop-filter: blur(15px);
+            padding: 0 5%; height: 60px; position: sticky; top:0; z-index: 1000;
+            background: rgba(15, 7, 32, 0.6); backdrop-filter: blur(10px);
         }
-        body.logged-in .navbar { 
-            background: rgba(255, 255, 255, 0.9); color: #262626; 
-            border-bottom: 1px solid rgba(0,0,0,0.1); 
-        }
+        body.logged-in .navbar { background: rgba(255, 255, 255, 0.9); color: #262626; border-bottom: 1px solid #ddd; }
 
-        .nav-brand { font-size: 1.6rem; font-weight: 800; color: #fff; cursor: pointer; }
+        .nav-brand { font-size: 1.3rem; font-weight: 800; color: #fff; cursor: pointer; }
         body.logged-in .nav-brand { color: #262626; }
 
-        /* Hero Section (Logged Out) */
-        #heroArea { display: flex; flex-direction: column; align-items: flex-start; padding: 80px 8%; }
-        .hero-title { font-size: 4.5rem; font-weight: 700; margin: 0; line-height: 1.1; }
-        .hero-subtitle { font-size: 1.2rem; color: #ccc; margin: 20px 0 40px; max-width: 500px; }
-
-        /* Stats Bar */
-        .stats-bar { display: flex; gap: 60px; padding: 40px 8%; }
-        .stat-item h3 { margin: 0; font-size: 1.8rem; }
-        .stat-item p { margin: 0; color: #aaa; }
-
-        /* Cards Styling */
-        .card { 
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px);
-            padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        /* Hero Area */
+        #loggedOutUI {
+            height: calc(100vh - 60px);
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 0 5%;
         }
-        body.logged-in .card { 
-            background: rgba(255, 255, 255, 0.95); color: #262626; 
-            border: 1px solid #ced4da; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-        }
-
-        /* Forms & Buttons */
-        input, textarea, select { 
-            width: 100%; padding: 14px; margin: 10px 0; border: 1px solid rgba(255,255,255,0.2); 
-            border-radius: 12px; background: rgba(0,0,0,0.2); color: white; box-sizing: border-box;
-        }
-        body.logged-in input, body.logged-in textarea { 
-            background: #fff; color: #262626; border: 1px solid #bbb; 
-        }
-
-        button { 
-            padding: 14px 25px; border: none; border-radius: 12px; font-weight: 600; 
-            background: var(--primary); color: white; cursor: pointer; transition: 0.3s;
-        }
-        button:hover { transform: translateY(-2px); opacity: 0.9; }
-        button.secondary { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
-        body.logged-in button.secondary { background: #efefef; color: #000; border: 1px solid #ddd; }
-
-        /* Feed Wrapper */
-        .main-wrapper { display: none; max-width: 950px; margin: 20px auto; gap: 20px; padding: 0 15px; }
-        body.logged-in .main-wrapper { display: flex; }
-        .sidebar { flex: 1; }
-        .container { flex: 2; max-width: 550px; }
-
-        /* Post UI Details */
-        .post-header { display: flex; align-items: center; margin-bottom: 12px; font-weight: 600; cursor: pointer; }
-        .feed-avatar { width: 36px; height: 36px; border-radius: 50%; margin-right: 10px; }
-        .post-img { width: calc(100% + 50px); margin: 10px -25px; display: block; }
-        .category-badge { background: #e0f2fe; color: #0369a1; padding: 3px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; display: inline-block; margin-bottom: 10px; }
-        .post-actions { display: flex; gap: 15px; padding: 10px 0; border-top: 1px solid #eee; margin-top: 10px; }
-        .action-btn { background: none; color: #444; display: flex; align-items: center; gap: 5px; width: auto; padding: 5px; }
-        .action-btn.liked { color: #ed4956; }
+        .hero-container { display: flex; align-items: center; justify-content: space-between; flex-grow: 1; gap: 30px; }
+        .hero-title { font-size: 3.5rem; font-weight: 700; color: #fff; line-height: 1.1; margin: 0; }
         
-        /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; overflow-y: auto; color: #262626; }
-        .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 20px; }
-        .grid-item { aspect-ratio: 1/1; background: #eee; overflow: hidden; cursor: pointer; }
-        .grid-item img { width: 100%; height: 100%; object-fit: cover; }
+        .auth-card { 
+            width: 350px; background: rgba(255, 255, 255, 0.1); 
+            padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+        }
 
-        .disclaimer-box { text-align: center; padding: 40px 15px; color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+        /* Feed Layout */
+        .main-wrapper { display: none; max-width: 1000px; margin: 20px auto; gap: 20px; padding: 0 15px; }
+        body.logged-in .main-wrapper { display: flex; }
+        .sidebar { width: 250px; position: sticky; top: 80px; height: fit-content; }
+        .container { flex: 1; max-width: 600px; }
 
-        @media (max-width: 800px) {
-            .main-wrapper { flex-direction: column; }
+        .card { background: white; padding: 20px; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        /* Elements */
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        body.logged-out input { background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.2); }
+        
+        button { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 600; background: var(--primary); color: white; cursor: pointer; }
+        button.secondary { background: #eee; color: #333; margin-top: 8px; }
+
+        .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; }
+        .feed-avatar { width: 35px; height: 35px; border-radius: 50%; }
+        .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; }
+        .category-badge { background: #f3e8ff; color: #7e22ce; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: bold; }
+        
+        .post-actions { display: flex; gap: 15px; border-top: 1px solid #eee; padding-top: 10px; margin-top: 10px; }
+        .action-btn { background: none; color: #555; width: auto; padding: 5px 10px; display: flex; align-items: center; gap: 5px; }
+        .action-btn.liked { color: #ed4956; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; overflow-y: auto; padding: 20px; box-sizing: border-box; }
+
+        @media (max-width: 850px) {
+            body.logged-out { overflow-y: auto; }
+            .hero-container { flex-direction: column; text-align: center; padding: 40px 0; }
+            #loggedOutUI { height: auto; }
             .sidebar { display: none; }
-            .hero-title { font-size: 2.8rem; }
-            .stats-bar { flex-direction: column; gap: 20px; }
         }
     </style>
 </head>
@@ -141,71 +103,64 @@
     <div id="navUser"></div>
 </nav>
 
-<!-- LOGGED OUT UI -->
+<!-- LOGGED OUT -->
 <div id="loggedOutUI">
-    <div id="heroArea">
-        <h1 class="hero-title">Escape<br>Into Stories</h1>
-        <p class="hero-subtitle">Find your next adventure, escape, and inspiration in a story written by writers worldwide.</p>
-        
-        <div class="card" id="authBox" style="width: 100%; max-width: 400px;">
-            <h3 style="margin-top:0">Join our community</h3>
+    <div class="hero-container">
+        <div class="hero-text">
+            <h1 class="hero-title">Escape<br>Into Stories</h1>
+            <p style="color:#ccc; font-size: 1.1rem; margin-top: 15px;">Read and write stories that touch the heart.</p>
+        </div>
+        <div class="auth-card" id="authBox">
+            <h3 style="margin:0 0 15px 0; color:#fff">Welcome</h3>
             <input id="u_name" placeholder="Username">
-            <input id="u_pass" type="password" placeholder="Password (Min 6 chars)">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                <button onclick="appLogin()">Login</button>
-                <button class="secondary" onclick="appSignup()">Sign Up</button>
-            </div>
+            <input id="u_pass" type="password" placeholder="Password">
+            <button onclick="appLogin()">Login</button>
+            <button class="secondary" onclick="appSignup()">Join StoryHub</button>
         </div>
     </div>
-
-    <div class="stats-bar">
-        <div class="stat-item"><h3>📖 10K+</h3><p>Stories</p></div>
-        <div class="stat-item"><h3>👥 25K+</h3><p>Readers</p></div>
-        <div class="stat-item"><h3>✍️ 100+</h3><p>Authors</p></div>
-    </div>
-
-    <div class="disclaimer-box">
-        <p>© 2026 StoryHub - Likho Dil ki Baat. All stories are user-generated. Please login to explore.</p>
+    <div style="padding-bottom: 20px;">
+        <div style="display:flex; gap:30px; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px">
+            <div><h3 style="margin:0; color:var(--primary)">10K+</h3><p style="margin:0; font-size:12px; color:#aaa">Stories</p></div>
+            <div><h3 style="margin:0; color:var(--primary)">25K+</h3><p style="margin:0; font-size:12px; color:#aaa">Readers</p></div>
+        </div>
+        <p style="font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 15px;">© 2026 StoryHub - Likho Dil ki Baat. User content disclaimer applies.</p>
     </div>
 </div>
 
-<!-- LOGGED IN MAIN FEED -->
+<!-- LOGGED IN FEED -->
 <div class="main-wrapper">
     <div class="sidebar">
         <div class="card">
-            <h4 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Writers ✍️</h4>
-            <div id="writersList">Loading...</div>
+            <h4 style="margin:0 0 10px 0">Top Writers ✍️</h4>
+            <div id="writersList"></div>
         </div>
         <div class="card">
-            <h4 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Categories 📚</h4>
-            <div id="categoriesList">Loading...</div>
+            <h4 style="margin:0 0 10px 0">Categories 📚</h4>
+            <div id="categoriesList"></div>
         </div>
     </div>
 
     <div class="container">
-        <div class="card" id="postBox">
-            <input id="p_title" placeholder="Story Title">
+        <div class="card">
+            <input id="p_title" placeholder="Title of your story">
             <select id="p_category">
                 <option value="General">General</option>
-                <option value="Love">Love</option>
+                <option value="Love">Love Story</option>
                 <option value="Inspiration">Inspiration</option>
                 <option value="Sad">Sad</option>
-                <option value="Comedy">Comedy</option>
             </select>
-            <textarea id="p_content" rows="3" placeholder="Share your story..."></textarea>
-            <input type="file" id="p_file" accept="image/*">
+            <textarea id="p_content" rows="3" placeholder="Dil ki baat likho..."></textarea>
+            <input type="file" id="p_file" accept="image/*" style="font-size:12px">
             <button onclick="handlePost()">Post Story</button>
         </div>
-        <div id="postFeed">Syncing stories...</div>
+        <div id="postFeed"></div>
     </div>
 </div>
 
-<!-- PROFILE MODAL -->
+<!-- MODALS -->
 <div id="profileModal" class="modal">
-    <div style="padding: 20px; max-width: 800px; margin: auto;">
-        <button class="secondary" onclick="closeModal('profileModal')">← Back to Feed</button>
-        <div id="profileContent"></div>
-    </div>
+    <button class="secondary" onclick="closeModal('profileModal')" style="width:auto">← Back</button>
+    <div id="profileContent" style="max-width:600px; margin:20px auto"></div>
 </div>
 
 <script type="module">
@@ -230,142 +185,108 @@
     let currentUser = null;
     let allPosts = [];
 
-    function initAlphabetBackground() {
+    // --- ALPHABETS ---
+    function initAlphabets() {
         const container = document.getElementById('bg-alphabets');
         container.innerHTML = '';
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ📝✍️📖अआ";
-        for (let i = 0; i < 40; i++) {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ📝✍️";
+        for (let i = 0; i < 30; i++) {
             const span = document.createElement('span');
             span.className = 'letter';
             span.innerText = chars[Math.floor(Math.random() * chars.length)];
             span.style.left = Math.random() * 95 + "vw";
             span.style.top = Math.random() * 95 + "vh";
-            span.style.transform = `rotate(${Math.random() * 360}deg)`;
             container.appendChild(span);
         }
     }
 
+    // --- AUTH ---
     onAuthStateChanged(auth, (user) => {
-        const body = document.body;
         if (user) {
             currentUser = user;
-            body.className = "logged-in";
+            document.body.className = "logged-in";
             document.getElementById("loggedOutUI").style.display = "none";
             document.getElementById("bg-alphabets").style.display = "block";
-            initAlphabetBackground();
+            initAlphabets();
             document.getElementById("navUser").innerHTML = `
-                <div style="display:flex;align-items:center;gap:15px;">
-                    <span style="font-weight:600; cursor:pointer;" onclick="openProfile('${user.displayName}')">${user.displayName}</span>
-                    <button id="logoutBtn" class="secondary" style="width:auto;padding:6px 15px; font-size:12px">Logout</button>
+                <div style="display:flex; align-items:center; gap:10px">
+                    <span onclick="openProfile('${user.displayName}')" style="cursor:pointer; font-weight:600">@${user.displayName}</span>
+                    <button id="logoutBtn" style="width:auto; padding:5px 12px; background:#f3f4f6; color:#000">Logout</button>
                 </div>`;
-            
-            document.getElementById("logoutBtn").addEventListener("click", () => {
-                signOut(auth).then(() => window.location.reload());
-            });
-
+            document.getElementById("logoutBtn").onclick = () => signOut(auth).then(() => location.reload());
             fetchPosts();
         } else {
-            currentUser = null;
-            body.className = "logged-out";
-            document.getElementById("loggedOutUI").style.display = "block";
-            document.getElementById("bg-alphabets").style.display = "none";
-            document.getElementById("navUser").innerHTML = `<button onclick="document.getElementById('authBox').scrollIntoView({behavior:'smooth'})" style="width:auto; padding:8px 20px;">Sign In</button>`;
+            document.body.className = "logged-out";
+            document.getElementById("loggedOutUI").style.display = "flex";
         }
     });
 
     window.appLogin = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
-        if(!u || !p) return alert("Fill all fields");
-        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch (e) { alert("Invalid login!"); }
+        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch(e) { alert("Invalid Credentials"); }
     };
 
     window.appSignup = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
-        if(p.length < 6) return alert("Password must be 6+ chars");
+        if(p.length < 6) return alert("Password too short");
         try {
             const res = await createUserWithEmailAndPassword(auth, u + "@storyhub.com", p);
             await updateProfile(res.user, { displayName: u });
-            window.location.reload();
-        } catch (e) { alert("Error in Signup!"); }
+            location.reload();
+        } catch(e) { alert("Signup Error"); }
     };
 
+    // --- DATABASE ---
     function fetchPosts() {
         onValue(ref(db, 'posts'), (snap) => {
             const data = snap.val();
             allPosts = data ? Object.keys(data).map(k => ({...data[k], id: k})).reverse() : [];
             renderFeed();
-            renderWriters();
-            renderCategories();
+            renderStats();
         });
-    }
-
-    function renderWriters() {
-        const writers = {};
-        allPosts.forEach(p => { writers[p.user] = (writers[p.user] || 0) + 1; });
-        let html = "";
-        Object.entries(writers).sort((a,b) => b[1] - a[1]).forEach(([name, count]) => {
-            html += `<div style="display:flex;justify-content:space-between;padding:8px 0;cursor:pointer;border-bottom:1px solid #f0f0f0" onclick="openProfile('${name}')">
-                <span style="font-size:14px">@${name}</span> <span style="font-size:12px; color:#888">${count} stories</span></div>`;
-        });
-        document.getElementById("writersList").innerHTML = html || "No writers yet.";
-    }
-
-    function renderCategories() {
-        const cats = {};
-        allPosts.forEach(p => { cats[p.category || 'General'] = (cats[p.category || 'General'] || 0) + 1; });
-        let html = "";
-        Object.entries(cats).forEach(([cat, count]) => {
-            html += `<div style="display:flex;justify-content:space-between;padding:8px 0; font-size:14px">
-                <span>${cat}</span> <span style="color:#888">${count}</span></div>`;
-        });
-        document.getElementById("categoriesList").innerHTML = html || "General";
     }
 
     function renderFeed() {
         let html = "";
         allPosts.forEach(p => {
-            const likesCount = p.likes ? Object.keys(p.likes).length : 0;
-            const likedClass = p.likes && p.likes[currentUser.uid] ? "liked" : "";
-            const commentsCount = p.comments ? Object.keys(p.comments).length : 0;
-            
+            const likes = p.likes ? Object.keys(p.likes).length : 0;
+            const isLiked = p.likes && p.likes[currentUser.uid] ? "liked" : "";
             html += `
-            <div class="card" id="${p.id}">
-                <div class="post-header" onclick="openProfile('${p.user}')">
-                    <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar"> 
-                    <span>${p.user}</span>
-                </div>
-                <div class="category-badge">${p.category || 'General'}</div>
-                <h3 style="margin: 0 0 10px 0">${p.title}</h3>
-                <p style="white-space:pre-wrap">${p.content}</p>
-                ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
-                <div class="post-actions">
-                    <button class="action-btn ${likedClass}" onclick="toggleLike('${p.id}')">❤️ ${likesCount}</button>
-                    <button class="action-btn">💬 ${commentsCount}</button>
-                </div>
-                <div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px">
-                    <div style="display:flex; gap:10px">
-                        <input id="cmt-${p.id}" placeholder="Write a comment..." style="padding:10px; font-size:13px; margin:0">
-                        <button onclick="postComment('${p.id}')" style="padding:10px; font-size:12px; width:auto">Post</button>
+                <div class="card">
+                    <div class="post-header" onclick="openProfile('${p.user}')">
+                        <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
+                        <strong>${p.user}</strong>
                     </div>
-                </div>
-            </div>`;
+                    <div class="category-badge">${p.category || 'General'}</div>
+                    <h3 style="margin:10px 0">${p.title}</h3>
+                    <p style="white-space:pre-wrap">${p.content}</p>
+                    ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
+                    <div class="post-actions">
+                        <button class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">❤️ ${likes}</button>
+                        <button class="action-btn" onclick="focusComment('${p.id}')">💬 ${p.comments ? Object.keys(p.comments).length : 0}</button>
+                    </div>
+                    <div style="margin-top:10px; display:flex; gap:5px">
+                        <input id="cmt-${p.id}" placeholder="Comment..." style="margin:0; padding:8px">
+                        <button onclick="addComment('${p.id}')" style="width:auto; padding:0 15px">Post</button>
+                    </div>
+                </div>`;
         });
-        document.getElementById("postFeed").innerHTML = html || "No stories found.";
+        document.getElementById("postFeed").innerHTML = html || "No stories yet.";
     }
 
     window.toggleLike = (id) => {
         const post = allPosts.find(p => p.id === id);
-        const likeRef = ref(db, `posts/${id}/likes/${currentUser.uid}`);
-        if(post.likes && post.likes[currentUser.uid]) remove(likeRef);
-        else set(likeRef, true);
+        const path = `posts/${id}/likes/${currentUser.uid}`;
+        if(post.likes && post.likes[currentUser.uid]) remove(ref(db, path));
+        else set(ref(db, path), true);
     };
 
-    window.postComment = (id) => {
+    window.addComment = (id) => {
         const val = document.getElementById(`cmt-${id}`).value;
-        if(!val.trim()) return;
-        push(ref(db, `posts/${id}/comments`), { user: currentUser.displayName, text: val.trim() });
+        if(!val) return;
+        push(ref(db, `posts/${id}/comments`), { user: currentUser.displayName, text: val });
         document.getElementById(`cmt-${id}`).value = "";
     };
 
@@ -374,44 +295,43 @@
         const c = document.getElementById("p_content").value;
         const cat = document.getElementById("p_category").value;
         const file = document.getElementById("p_file").files[0];
-        if(!c) return alert("Please write some content!");
-        
+        if(!c) return alert("Write something!");
+
         if(file) {
             const reader = new FileReader();
-            reader.onload = () => saveToFirebase(t, c, cat, reader.result);
+            reader.onload = () => savePost(t, c, cat, reader.result);
             reader.readAsDataURL(file);
-        } else saveToFirebase(t, c, cat, "");
+        } else savePost(t, c, cat, "");
     };
 
-    async function saveToFirebase(t, c, cat, img) {
-        await push(ref(db, 'posts'), { 
-            user: currentUser.displayName, 
-            uid: currentUser.uid, 
-            title: t, 
-            content: c, 
-            category: cat, 
-            image: img,
-            timestamp: Date.now()
+    async function savePost(t, c, cat, img) {
+        await push(ref(db, 'posts'), {
+            user: currentUser.displayName, uid: currentUser.uid,
+            title: t, content: c, category: cat, image: img, time: Date.now()
         });
         document.getElementById("p_title").value = "";
         document.getElementById("p_content").value = "";
         document.getElementById("p_file").value = "";
     }
 
+    function renderStats() {
+        const writers = {};
+        allPosts.forEach(p => writers[p.user] = (writers[p.user] || 0) + 1);
+        document.getElementById("writersList").innerHTML = Object.entries(writers).map(([n, c]) => 
+            `<div style="display:flex; justify-content:space-between; margin-bottom:5px"><span>@${n}</span><b>${c}</b></div>`
+        ).join("");
+    }
+
     window.openProfile = (u) => {
-        const userPosts = allPosts.filter(p => p.user === u);
+        const uposts = allPosts.filter(p => p.user === u);
         document.getElementById("profileModal").style.display = "block";
-        let grid = userPosts.map(p => `
-            <div class="grid-item">
-                ${p.image ? `<img src="${p.image}">` : `<div style="padding:15px; font-size:12px; color:#555"><strong>${p.title}</strong><br>${p.content.substring(0,40)}...</div>`}
-            </div>`).join("");
         document.getElementById("profileContent").innerHTML = `
-            <div style="text-align:center; padding: 20px 0;">
+            <div style="text-align:center; margin-bottom:30px">
                 <img src="https://ui-avatars.com/api/?name=${u}&size=100&background=random" style="border-radius:50%">
                 <h2>${u}</h2>
-                <p style="color:#666">${userPosts.length} Stories Published</p>
+                <p>${uposts.length} Stories Shared</p>
             </div>
-            <div class="profile-grid">${grid}</div>`;
+            ${uposts.map(p => `<div class="card"><h4>${p.title}</h4><p>${p.content.substring(0,100)}...</p></div>`).join("")}`;
     };
 
     window.closeModal = (id) => document.getElementById(id).style.display = "none";
