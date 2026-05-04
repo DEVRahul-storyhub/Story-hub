@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StoryHub - Escape Into Stories</title>
+    <title>StoryHub - Likho Dil ki Baat</title>
     <style>
         :root { 
             --primary: #a855f7; 
@@ -24,7 +24,7 @@
             overflow-x: hidden;
         }
 
-        /* --- LOGGED OUT HERO LOOK (TaleCraft Style) --- */
+        /* --- LOGGED OUT HERO LOOK --- */
         body.logged-out {
             background: linear-gradient(rgba(15, 7, 32, 0.75), rgba(15, 7, 32, 0.95)), 
                         url('https://images.unsplash.com/photo-1516410529446-2c777cb7366d?auto=format&fit=crop&q=80&w=2000') no-repeat center center fixed;
@@ -122,6 +122,8 @@
         .grid-item { aspect-ratio: 1/1; background: #eee; overflow: hidden; cursor: pointer; }
         .grid-item img { width: 100%; height: 100%; object-fit: cover; }
 
+        .disclaimer-box { text-align: center; padding: 40px 15px; color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+
         @media (max-width: 800px) {
             .main-wrapper { flex-direction: column; }
             .sidebar { display: none; }
@@ -135,13 +137,11 @@
 <div id="bg-alphabets"></div>
 
 <nav class="navbar">
-    <div class="nav-brand" onclick="location.reload()">✨ StoryHub</div>
-    <div id="navUser">
-        <!-- Button will be injected by JS -->
-    </div>
+    <div class="nav-brand" onclick="location.reload()">StoryHub - Likho Dil ki Baat 📝</div>
+    <div id="navUser"></div>
 </nav>
 
-<!-- LOGGED OUT UI (TaleCraft Style) -->
+<!-- LOGGED OUT UI -->
 <div id="loggedOutUI">
     <div id="heroArea">
         <h1 class="hero-title">Escape<br>Into Stories</h1>
@@ -162,6 +162,10 @@
         <div class="stat-item"><h3>📖 10K+</h3><p>Stories</p></div>
         <div class="stat-item"><h3>👥 25K+</h3><p>Readers</p></div>
         <div class="stat-item"><h3>✍️ 100+</h3><p>Authors</p></div>
+    </div>
+
+    <div class="disclaimer-box">
+        <p>© 2026 StoryHub - Likho Dil ki Baat. All stories are user-generated. Please login to explore.</p>
     </div>
 </div>
 
@@ -226,7 +230,6 @@
     let currentUser = null;
     let allPosts = [];
 
-    // --- ALPHABET BACKGROUND ---
     function initAlphabetBackground() {
         const container = document.getElementById('bg-alphabets');
         container.innerHTML = '';
@@ -242,7 +245,6 @@
         }
     }
 
-    // --- AUTH OBSERVER (FIXED LOGOUT) ---
     onAuthStateChanged(auth, (user) => {
         const body = document.body;
         if (user) {
@@ -257,7 +259,6 @@
                     <button id="logoutBtn" class="secondary" style="width:auto;padding:6px 15px; font-size:12px">Logout</button>
                 </div>`;
             
-            // Logout listener
             document.getElementById("logoutBtn").addEventListener("click", () => {
                 signOut(auth).then(() => window.location.reload());
             });
@@ -272,7 +273,6 @@
         }
     });
 
-    // --- AUTH ACTIONS ---
     window.appLogin = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
@@ -291,7 +291,6 @@
         } catch (e) { alert("Error in Signup!"); }
     };
 
-    // --- DATA HANDLING ---
     function fetchPosts() {
         onValue(ref(db, 'posts'), (snap) => {
             const data = snap.val();
@@ -353,7 +352,7 @@
                 </div>
             </div>`;
         });
-        document.getElementById("postFeed").innerHTML = html || "No stories found. Start writing!";
+        document.getElementById("postFeed").innerHTML = html || "No stories found.";
     }
 
     window.toggleLike = (id) => {
