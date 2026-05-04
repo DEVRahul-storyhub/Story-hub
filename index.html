@@ -16,7 +16,7 @@
 
         /* --- LOGGED OUT DESIGN (SINGLE SCREEN) --- */
         body.logged-out {
-            background: linear-gradient(rgba(15, 7, 32, 0.8), rgba(15, 7, 32, 0.9)), 
+            background: linear-gradient(rgba(15, 7, 32, 0.85), rgba(15, 7, 32, 0.95)), 
                         url('https://images.unsplash.com/photo-1516410529446-2c777cb7366d?auto=format&fit=crop&q=80&w=2000') no-repeat center center fixed;
             background-size: cover;
             overflow: hidden;
@@ -46,51 +46,72 @@
         .nav-brand { font-size: 1.3rem; font-weight: 800; color: #fff; cursor: pointer; }
         body.logged-in .nav-brand { color: #262626; }
 
-        /* Hero Area */
+        /* Hero UI Fix */
         #loggedOutUI {
             height: calc(100vh - 60px);
             display: flex; flex-direction: column; justify-content: space-between;
             padding: 0 5%;
         }
-        .hero-container { display: flex; align-items: center; justify-content: space-between; flex-grow: 1; gap: 30px; }
-        .hero-title { font-size: 3.5rem; font-weight: 700; color: #fff; line-height: 1.1; margin: 0; }
+        .hero-container { display: flex; align-items: center; justify-content: space-between; flex-grow: 1; gap: 30px; margin-top: -60px; }
         
+        .hero-text { flex: 1; }
+        .hero-title { font-size: 4.5rem; font-weight: 700; color: #fff; line-height: 1; margin: 0; }
+        .hero-subtitle { color: #ccc; font-size: 1.3rem; margin: 15px 0; }
+        
+        /* Disclaimer Styling */
+        .hero-disclaimer { 
+            font-size: 0.9rem; 
+            color: rgba(255,255,255,0.6); 
+            max-width: 550px; 
+            line-height: 1.5;
+            border-left: 3px solid var(--primary);
+            padding-left: 20px;
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 0 10px 10px 0;
+        }
+
         .auth-card { 
-            width: 350px; background: rgba(255, 255, 255, 0.1); 
-            padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+            width: 380px; background: rgba(255, 255, 255, 0.1); 
+            padding: 30px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px); box-shadow: 0 25px 50px rgba(0,0,0,0.3);
         }
 
         /* Feed Layout */
         .main-wrapper { display: none; max-width: 1000px; margin: 20px auto; gap: 20px; padding: 0 15px; }
         body.logged-in .main-wrapper { display: flex; }
-        .sidebar { width: 250px; position: sticky; top: 80px; height: fit-content; }
-        .container { flex: 1; max-width: 600px; }
+        .sidebar { width: 260px; position: sticky; top: 80px; height: fit-content; }
+        .container { flex: 1; max-width: 620px; }
 
-        .card { background: white; padding: 20px; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .card { background: white; padding: 20px; border-radius: 18px; border: 1px solid #eee; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
         
-        /* Elements */
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        body.logged-out input { background: rgba(0,0,0,0.3); color: white; border: 1px solid rgba(255,255,255,0.2); }
+        input, textarea, select { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ddd; border-radius: 12px; font-size: 14px; box-sizing: border-box; }
+        body.logged-out input { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.2); }
         
-        button { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 600; background: var(--primary); color: white; cursor: pointer; }
-        button.secondary { background: #eee; color: #333; margin-top: 8px; }
+        button { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 600; background: var(--primary); color: white; cursor: pointer; transition: 0.3s; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button.secondary { background: rgba(255,255,255,0.1); color: #fff; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        body.logged-in button.secondary { background: #f0f0f0; color: #333; }
 
-        .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; }
-        .feed-avatar { width: 35px; height: 35px; border-radius: 50%; }
-        .post-img { width: calc(100% + 40px); margin: 10px -20px; display: block; }
-        .category-badge { background: #f3e8ff; color: #7e22ce; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: bold; }
+        /* Post Components */
+        .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; cursor: pointer; }
+        .feed-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #f0f0f0; }
+        .post-img { width: calc(100% + 40px); margin: 15px -20px; display: block; max-height: 450px; object-fit: cover; }
+        .category-badge { display: inline-block; background: #f3e8ff; color: #7e22ce; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        .post-actions { display: flex; gap: 15px; border-top: 1px solid #eee; padding-top: 10px; margin-top: 10px; }
-        .action-btn { background: none; color: #555; width: auto; padding: 5px 10px; display: flex; align-items: center; gap: 5px; }
-        .action-btn.liked { color: #ed4956; }
+        .post-actions { display: flex; gap: 20px; border-top: 1px solid #f0f0f0; padding-top: 12px; margin-top: 12px; }
+        .action-btn { background: none; color: #666; width: auto; padding: 6px 12px; display: flex; align-items: center; gap: 6px; font-size: 14px; }
+        .action-btn.liked { color: #ef4444; font-weight: bold; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; overflow-y: auto; padding: 20px; box-sizing: border-box; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; overflow-y: auto; padding: 30px; }
 
         @media (max-width: 850px) {
             body.logged-out { overflow-y: auto; }
-            .hero-container { flex-direction: column; text-align: center; padding: 40px 0; }
+            .hero-container { flex-direction: column; text-align: center; padding: 50px 0; margin-top: 0; }
+            .hero-title { font-size: 3rem; }
             #loggedOutUI { height: auto; }
             .sidebar { display: none; }
+            .hero-disclaimer { margin: 20px auto; text-align: left; }
         }
     </style>
 </head>
@@ -103,27 +124,35 @@
     <div id="navUser"></div>
 </nav>
 
-<!-- LOGGED OUT -->
+<!-- LOGGED OUT (SINGLE SCREEN) -->
 <div id="loggedOutUI">
     <div class="hero-container">
         <div class="hero-text">
             <h1 class="hero-title">Escape<br>Into Stories</h1>
-            <p style="color:#ccc; font-size: 1.1rem; margin-top: 15px;">Read and write stories that touch the heart.</p>
+            <p class="hero-subtitle">Read and write stories that touch the heart.</p>
+            
+            <div class="hero-disclaimer">
+                <b>Community Disclaimer:</b> All stories and content on StoryHub are user-generated. We do not own or verify the accuracy of the tales shared. Please maintain community guidelines and respect fellow writers.
+            </div>
         </div>
+
         <div class="auth-card" id="authBox">
-            <h3 style="margin:0 0 15px 0; color:#fff">Welcome! Story Writers✍️</h3>
-            <input id="u_name" placeholder="Username">
+            <h3 style="margin:0 0 20px 0; color:#fff; font-size: 24px;">Start Your Journey</h3>
+            <input id="u_name" placeholder="Choose Username">
             <input id="u_pass" type="password" placeholder="Password">
             <button onclick="appLogin()">Login</button>
-            <button class="secondary" onclick="appSignup()">Join StoryHub</button>
+            <button class="secondary" onclick="appSignup()">Create New Account</button>
         </div>
     </div>
-    <div style="padding-bottom: 20px;">
-        <div style="display:flex; gap:30px; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px">
-            <div><h3 style="margin:0; color:var(--primary)">10K+</h3><p style="margin:0; font-size:12px; color:#aaa">Stories</p></div>
-            <div><h3 style="margin:0; color:var(--primary)">25K+</h3><p style="margin:0; font-size:12px; color:#aaa">Readers</p></div>
+
+    <!-- Bottom Stats Bar -->
+    <div style="padding-bottom: 25px;">
+        <div style="display:flex; gap:40px; border-top:1px solid rgba(255,255,255,0.1); padding-top:25px">
+            <div><h3 style="margin:0; color:var(--primary); font-size: 22px;">10K+</h3><p style="margin:0; font-size:12px; color:#aaa; text-transform: uppercase;">Stories</p></div>
+            <div><h3 style="margin:0; color:var(--primary); font-size: 22px;">25K+</h3><p style="margin:0; font-size:12px; color:#aaa; text-transform: uppercase;">Readers</p></div>
+            <div><h3 style="margin:0; color:var(--primary); font-size: 22px;">150+</h3><p style="margin:0; font-size:12px; color:#aaa; text-transform: uppercase;">Top Authors</p></div>
         </div>
-        <p style="font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 15px;">© 2026 StoryHub - Likho Dil ki Baat. User content disclaimer applies.</p>
+        <p style="font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 15px; letter-spacing: 1px;">© 2026 STORYHUB - LIKHO DIL KI BAAT. ALL RIGHTS RESERVED.</p>
     </div>
 </div>
 
@@ -131,36 +160,37 @@
 <div class="main-wrapper">
     <div class="sidebar">
         <div class="card">
-            <h4 style="margin:0 0 10px 0">Top Writers ✍️</h4>
-            <div id="writersList"></div>
+            <h4 style="margin:0 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Top Writers ✍️</h4>
+            <div id="writersList" style="line-height: 2;"></div>
         </div>
-        <div class="card">
-            <h4 style="margin:0 0 10px 0">Categories 📚</h4>
-            <div id="categoriesList"></div>
+        <div class="card" style="background: var(--accent); color: white;">
+            <p style="font-size: 13px; opacity: 0.8; margin: 0;">Tip: Add a title to your story to get more reads!</p>
         </div>
     </div>
 
     <div class="container">
-        <div class="card">
-            <input id="p_title" placeholder="Title of your story">
+        <div class="card" style="border-top: 4px solid var(--primary);">
+            <input id="p_title" placeholder="Story Title...">
             <select id="p_category">
-                <option value="General">General</option>
-                <option value="Love">Love Story</option>
-                <option value="Inspiration">Inspiration</option>
-                <option value="Sad">Sad</option>
+                <option value="General">General Category</option>
+                <option value="Love">Love & Romance</option>
+                <option value="Inspiration">Motivational</option>
+                <option value="Horror">Horror & Mystery</option>
             </select>
-            <textarea id="p_content" rows="3" placeholder="Dil ki baat likho..."></textarea>
-            <input type="file" id="p_file" accept="image/*" style="font-size:12px">
+            <textarea id="p_content" rows="4" placeholder="Write your heart out..."></textarea>
+            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Attach an image (Optional):</div>
+            <input type="file" id="p_file" accept="image/*" style="font-size:12px; padding: 8px;">
             <button onclick="handlePost()">Post Story</button>
         </div>
         <div id="postFeed"></div>
     </div>
 </div>
 
-<!-- MODALS -->
 <div id="profileModal" class="modal">
-    <button class="secondary" onclick="closeModal('profileModal')" style="width:auto">← Back</button>
-    <div id="profileContent" style="max-width:600px; margin:20px auto"></div>
+    <div style="max-width:700px; margin:auto">
+        <button class="secondary" onclick="closeModal('profileModal')" style="width:auto; color:#000; padding: 10px 25px;">← Back to Home</button>
+        <div id="profileContent" style="margin-top:40px"></div>
+    </div>
 </div>
 
 <script type="module">
@@ -185,33 +215,16 @@
     let currentUser = null;
     let allPosts = [];
 
-    // --- ALPHABETS ---
-    function initAlphabets() {
-        const container = document.getElementById('bg-alphabets');
-        container.innerHTML = '';
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ📝✍️";
-        for (let i = 0; i < 30; i++) {
-            const span = document.createElement('span');
-            span.className = 'letter';
-            span.innerText = chars[Math.floor(Math.random() * chars.length)];
-            span.style.left = Math.random() * 95 + "vw";
-            span.style.top = Math.random() * 95 + "vh";
-            container.appendChild(span);
-        }
-    }
-
-    // --- AUTH ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUser = user;
             document.body.className = "logged-in";
             document.getElementById("loggedOutUI").style.display = "none";
             document.getElementById("bg-alphabets").style.display = "block";
-            initAlphabets();
             document.getElementById("navUser").innerHTML = `
-                <div style="display:flex; align-items:center; gap:10px">
-                    <span onclick="openProfile('${user.displayName}')" style="cursor:pointer; font-weight:600">@${user.displayName}</span>
-                    <button id="logoutBtn" style="width:auto; padding:5px 12px; background:#f3f4f6; color:#000">Logout</button>
+                <div style="display:flex; align-items:center; gap:15px">
+                    <span onclick="openProfile('${user.displayName}')" style="cursor:pointer; font-weight:600; font-size:14px">@${user.displayName}</span>
+                    <button id="logoutBtn" style="width:auto; padding:6px 15px; background:#f0f0f0; color:#333; font-size:12px">Logout</button>
                 </div>`;
             document.getElementById("logoutBtn").onclick = () => signOut(auth).then(() => location.reload());
             fetchPosts();
@@ -224,27 +237,27 @@
     window.appLogin = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
-        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch(e) { alert("Invalid Credentials"); }
+        if(!u || !p) return alert("Please fill all fields");
+        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch(e) { alert("Invalid login credentials."); }
     };
 
     window.appSignup = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
-        if(p.length < 6) return alert("Password too short");
+        if(u.length < 3) return alert("Username too short");
         try {
             const res = await createUserWithEmailAndPassword(auth, u + "@storyhub.com", p);
             await updateProfile(res.user, { displayName: u });
             location.reload();
-        } catch(e) { alert("Signup Error"); }
+        } catch(e) { alert("Signup failed. Use a stronger password."); }
     };
 
-    // --- DATABASE ---
     function fetchPosts() {
         onValue(ref(db, 'posts'), (snap) => {
             const data = snap.val();
             allPosts = data ? Object.keys(data).map(k => ({...data[k], id: k})).reverse() : [];
             renderFeed();
-            renderStats();
+            updateWritersList();
         });
     }
 
@@ -257,23 +270,22 @@
                 <div class="card">
                     <div class="post-header" onclick="openProfile('${p.user}')">
                         <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
-                        <strong>${p.user}</strong>
+                        <div style="display:flex; flex-direction:column">
+                            <strong style="font-size:14px">@${p.user}</strong>
+                            <span style="font-size:10px; color:#999">Just now</span>
+                        </div>
                     </div>
                     <div class="category-badge">${p.category || 'General'}</div>
-                    <h3 style="margin:10px 0">${p.title}</h3>
-                    <p style="white-space:pre-wrap">${p.content}</p>
+                    <h3 style="margin:12px 0 8px 0; color:#1a1a1a">${p.title || 'Untitled Story'}</h3>
+                    <p style="white-space:pre-wrap; color:#444; line-height:1.6">${p.content}</p>
                     ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
                     <div class="post-actions">
                         <button class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">❤️ ${likes}</button>
-                        <button class="action-btn" onclick="focusComment('${p.id}')">💬 ${p.comments ? Object.keys(p.comments).length : 0}</button>
-                    </div>
-                    <div style="margin-top:10px; display:flex; gap:5px">
-                        <input id="cmt-${p.id}" placeholder="Comment..." style="margin:0; padding:8px">
-                        <button onclick="addComment('${p.id}')" style="width:auto; padding:0 15px">Post</button>
+                        <button class="action-btn">💬 ${p.comments ? Object.keys(p.comments).length : 0}</button>
                     </div>
                 </div>`;
         });
-        document.getElementById("postFeed").innerHTML = html || "No stories yet.";
+        document.getElementById("postFeed").innerHTML = html || "<div class='card'>No stories yet. Be the first!</div>";
     }
 
     window.toggleLike = (id) => {
@@ -283,42 +295,40 @@
         else set(ref(db, path), true);
     };
 
-    window.addComment = (id) => {
-        const val = document.getElementById(`cmt-${id}`).value;
-        if(!val) return;
-        push(ref(db, `posts/${id}/comments`), { user: currentUser.displayName, text: val });
-        document.getElementById(`cmt-${id}`).value = "";
-    };
-
-    window.handlePost = () => {
+    window.handlePost = async () => {
         const t = document.getElementById("p_title").value;
         const c = document.getElementById("p_content").value;
         const cat = document.getElementById("p_category").value;
         const file = document.getElementById("p_file").files[0];
-        if(!c) return alert("Write something!");
+        if(!c) return alert("Content cannot be empty");
+        
+        const postData = { user: currentUser.displayName, uid: currentUser.uid, title: t, content: c, category: cat, time: Date.now() };
 
         if(file) {
             const reader = new FileReader();
-            reader.onload = () => savePost(t, c, cat, reader.result);
+            reader.onload = () => {
+                postData.image = reader.result;
+                push(ref(db, 'posts'), postData);
+            };
             reader.readAsDataURL(file);
-        } else savePost(t, c, cat, "");
-    };
-
-    async function savePost(t, c, cat, img) {
-        await push(ref(db, 'posts'), {
-            user: currentUser.displayName, uid: currentUser.uid,
-            title: t, content: c, category: cat, image: img, time: Date.now()
-        });
+        } else {
+            await push(ref(db, 'posts'), postData);
+        }
+        
         document.getElementById("p_title").value = "";
         document.getElementById("p_content").value = "";
         document.getElementById("p_file").value = "";
-    }
+    };
 
-    function renderStats() {
-        const writers = {};
-        allPosts.forEach(p => writers[p.user] = (writers[p.user] || 0) + 1);
-        document.getElementById("writersList").innerHTML = Object.entries(writers).map(([n, c]) => 
-            `<div style="display:flex; justify-content:space-between; margin-bottom:5px"><span>@${n}</span><b>${c}</b></div>`
+    function updateWritersList() {
+        const counts = {};
+        allPosts.forEach(p => counts[p.user] = (counts[p.user] || 0) + 1);
+        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 5);
+        document.getElementById("writersList").innerHTML = sorted.map(([name, count]) => 
+            `<div style="display:flex; justify-content:space-between; font-size:13px">
+                <span onclick="openProfile('${name}')" style="cursor:pointer; color:var(--primary)">@${name}</span>
+                <span style="color:#888">${count} stories</span>
+            </div>`
         ).join("");
     }
 
@@ -326,12 +336,20 @@
         const uposts = allPosts.filter(p => p.user === u);
         document.getElementById("profileModal").style.display = "block";
         document.getElementById("profileContent").innerHTML = `
-            <div style="text-align:center; margin-bottom:30px">
-                <img src="https://ui-avatars.com/api/?name=${u}&size=100&background=random" style="border-radius:50%">
-                <h2>${u}</h2>
-                <p>${uposts.length} Stories Shared</p>
+            <div style="text-align:center; margin-bottom:40px">
+                <img src="https://ui-avatars.com/api/?name=${u}&size=120&background=random" style="border-radius:50%; border:4px solid #f0f0f0">
+                <h2 style="margin:15px 0 5px 0">@${u}</h2>
+                <p style="color:#666">${uposts.length} Stories Published</p>
             </div>
-            ${uposts.map(p => `<div class="card"><h4>${p.title}</h4><p>${p.content.substring(0,100)}...</p></div>`).join("")}`;
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px">
+                ${uposts.map(p => `
+                    <div class="card">
+                        <div class="category-badge">${p.category}</div>
+                        <h4>${p.title || 'Untitled'}</h4>
+                        <p style="font-size:13px; color:#555">${p.content.substring(0,100)}...</p>
+                    </div>
+                `).join("")}
+            </div>`;
     };
 
     window.closeModal = (id) => document.getElementById(id).style.display = "none";
