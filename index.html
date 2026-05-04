@@ -15,6 +15,8 @@
             line-height: 1.5; 
             transition: all 0.5s ease;
             min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
         }
 
         /* --- BACKGROUND STATES --- */
@@ -23,15 +25,44 @@
             color: white;
         }
 
+        /* Yahan "image_b88f4e.png" ko background mein add kiya gaya hai */
         body.logged-in {
-            background: #121212 fixed;
+            background: url('image_b88f4e.png') no-repeat center center fixed !important;
+            background-size: cover !important;
             color: #262626;
+        }
+
+        /* Floating Letters Container */
+        #bg-alphabets {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            display: none;
+        }
+
+        .letter {
+            position: absolute;
+            color: rgba(0, 0, 0, 0.07); /* Light shade for the letters */
+            font-weight: bold;
+            font-size: 1.6rem;
+            user-select: none;
+            animation: floatAnim 20s linear infinite;
+        }
+
+        @keyframes floatAnim {
+            from { transform: translateY(100vh) rotate(0deg); }
+            to { transform: translateY(-10vh) rotate(360deg); }
         }
 
         #authBox h2, #authBox p { color: #262626 !important; }
 
         .navbar { 
-            background: white; padding: 0 20px; display: flex; justify-content: space-between; 
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
+            padding: 0 20px; display: flex; justify-content: space-between; 
             align-items: center; border-bottom: 1px solid var(--border); 
             position: sticky; top: 0; z-index: 100; height: 60px; 
         }
@@ -40,7 +71,6 @@
 
         .nav-brand { font-size: 1.4rem; font-weight: 800; cursor: pointer; }
 
-        /* --- LAYOUT STRUCTURE --- */
         .main-wrapper {
             display: flex;
             max-width: 900px;
@@ -49,7 +79,6 @@
             padding: 0 15px;
         }
 
-        /* FIXED SIDEBAR SCROLL LOGIC */
         .sidebar { flex: 1; display: none; }
         .container { flex: 2; max-width: 500px; margin: 0; }
 
@@ -58,14 +87,14 @@
                 display: block; 
                 position: sticky; 
                 top: 80px; 
-                height: calc(100vh - 100px); /* Sidebar height based on screen */
-                overflow-y: auto; /* Agar category niche jaye to sidebar ke andar scroll ho sake */
-                scrollbar-width: none; /* Firefox ke liye scrollbar hide */
+                height: calc(100vh - 100px); 
+                overflow-y: auto; 
+                scrollbar-width: none; 
             }
-            .sidebar::-webkit-scrollbar { display: none; } /* Chrome/Safari ke liye scrollbar hide */
+            .sidebar::-webkit-scrollbar { display: none; }
         }
 
-        .sidebar-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: #262626; margin-bottom: 20px; }
+        .sidebar-card { background: rgba(255, 255, 255, 0.9); border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: #262626; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
         .writer-item, .category-item {
             display: flex; justify-content: space-between; align-items: center;
@@ -75,8 +104,9 @@
         .category-item:hover { color: var(--primary); }
 
         .card { 
-            background: white; padding: 20px; border-radius: 12px; 
+            background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 12px; 
             border: 1px solid var(--border); margin-bottom: 20px; color: #262626;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; color: #262626; }
@@ -111,13 +141,15 @@
 </head>
 <body class="logged-out">
 
+<!-- Container for floating letters -->
+<div id="bg-alphabets"></div>
+
 <div class="navbar">
     <div class="nav-brand" onclick="location.reload()">StoryHub - Likho Dil ki Baat 📝</div>
     <div id="navUser"></div>
 </div>
 
 <div class="main-wrapper">
-    <!-- Sidebar now with auto-scroll logic -->
     <div class="sidebar" id="sidebarArea" style="display:none;">
         <div class="sidebar-card">
             <h4 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Story Writers ✍️</h4>
@@ -194,6 +226,23 @@
     let allPosts = [];
     let currentFilter = null;
 
+    // Logic for Floating Letters
+    function initAlphabetBackground() {
+        const container = document.getElementById('bg-alphabets');
+        container.innerHTML = '';
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZअआइकखग📝✍️📖🖋️📜";
+        for (let i = 0; i < 40; i++) {
+            const span = document.createElement('span');
+            span.className = 'letter';
+            span.innerText = chars[Math.floor(Math.random() * chars.length)];
+            span.style.left = Math.random() * 95 + "vw";
+            span.style.top = Math.random() * 100 + "vh";
+            span.style.animationDelay = (Math.random() * 10) + "s";
+            span.style.transform = `rotate(${Math.random() * 360}deg)`;
+            container.appendChild(span);
+        }
+    }
+
     window.appSignup = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
@@ -218,6 +267,8 @@
         if (user) {
             currentUser = user;
             body.classList.replace("logged-out", "logged-in");
+            document.getElementById("bg-alphabets").style.display = "block";
+            initAlphabetBackground();
             document.getElementById("authBox").style.display = "none";
             document.getElementById("postBox").style.display = "block";
             document.getElementById("sidebarArea").style.display = "block";
@@ -225,6 +276,7 @@
             fetchPosts();
         } else {
             body.classList.replace("logged-in", "logged-out");
+            document.getElementById("bg-alphabets").style.display = "none";
             document.getElementById("postBox").style.display = "none";
             document.getElementById("sidebarArea").style.display = "none";
             document.getElementById("authBox").style.display = "block";
@@ -233,13 +285,6 @@
                 <div class="disclaimer-box">
                     <h1>StoryHub - Likho Dil ki Baat</h1>
                     <p>Please login to see stories!</p>
-                    <div style="margin-top: 20px; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.3); max-width: 500px; margin: auto;">
-                        <p style="font-size: 14px; line-height: 1.6; color: #e0e0e0; text-align: left;">
-                            <strong>🔒 Privacy Policy:</strong> We value your privacy. We do not collect any personal identity information. 
-                            All you need is a unique username and password to start your journey. 
-                            Join us to write and read unlimited stories with complete peace of mind!
-                        </p>
-                    </div>
                 </div>`;
         }
     });
