@@ -3,184 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StoryHub - Likho Dil ki Baat</title>
+    <title>StoryHub - Escape Into Stories</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
             --primary: #a855f7; 
+            --primary-dark: #7e22ce;
             --dark-bg: #0f0720; 
-            --accent: #1e113a;
-            --text-light: #f3f4f6;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --glass-bg: rgba(255, 255, 255, 0.1);
         }
         
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Segoe UI', sans-serif; }
+        body, html { 
+            margin: 0; padding: 0; 
+            min-height: 100vh; width: 100%; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            transition: background 0.5s ease;
+        }
 
-        /* --- LOGGED OUT DESIGN --- */
+        /* --- LOGGED OUT UI BACKGROUND --- */
         body.logged-out {
-            background: linear-gradient(rgba(15, 7, 32, 0.85), rgba(15, 7, 32, 0.95)), 
+            background: linear-gradient(rgba(15, 7, 32, 0.8), rgba(15, 7, 32, 0.9)), 
                         url('https://images.unsplash.com/photo-1516410529446-2c777cb7366d?auto=format&fit=crop&q=80&w=2000') no-repeat center center fixed;
             background-size: cover;
             overflow: hidden;
         }
 
-        /* --- LOGGED IN DESIGN --- */
+        /* --- LOGGED IN UI BACKGROUND (As per image_b662a6.png) --- */
         body.logged-in {
-            background: url('image_b88f4e.png') no-repeat center center fixed !important;
+            background: url('image_b662a6.png') no-repeat center center fixed !important;
             background-size: cover !important; 
-            color: #262626;
             overflow-y: auto;
         }
 
-        #bg-alphabets {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: -1; display: none;
-        }
-        .letter { position: absolute; color: rgba(0, 0, 0, 0.08); font-weight: bold; font-size: 1.8rem; }
-
+        /* Navbar Styling */
         .navbar { 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 5%; height: 60px; position: sticky; top:0; z-index: 1000;
-            background: rgba(15, 7, 32, 0.6); backdrop-filter: blur(10px);
+            padding: 0 5%; height: 70px; position: sticky; top: 0; z-index: 1000;
+            background: rgba(15, 7, 32, 0.7); backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: white;
         }
-        body.logged-in .navbar { background: rgba(255, 255, 255, 0.9); color: #262626; border-bottom: 1px solid #ddd; }
+        body.logged-in .navbar { 
+            background: rgba(255, 255, 255, 0.15); 
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
 
-        .nav-brand { font-size: 1.3rem; font-weight: 800; color: #fff; cursor: pointer; }
-        body.logged-in .nav-brand { color: #262626; }
+        .nav-brand { font-size: 1.5rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .nav-brand i { color: var(--primary); }
 
+        /* Logged Out Hero Section */
         #loggedOutUI {
-            height: calc(100vh - 60px);
+            height: calc(100vh - 70px);
             display: flex; flex-direction: column; justify-content: space-between;
-            padding: 0 5%;
+            padding: 0 8%;
         }
-        .hero-container { display: flex; align-items: center; justify-content: space-between; flex-grow: 1; gap: 30px; margin-top: -60px; }
+        .hero-container { display: flex; align-items: center; justify-content: space-between; flex-grow: 1; gap: 50px; margin-top: -50px; }
         
-        .hero-text { flex: 1; }
-        .hero-title { font-size: 4.5rem; font-weight: 700; color: #fff; line-height: 1; margin: 0; }
-        .hero-subtitle { color: #ccc; font-size: 1.3rem; margin: 15px 0; }
+        .hero-text { flex: 1.2; color: white; }
+        .hero-title { font-size: 5rem; font-weight: 800; line-height: 1; margin: 0; text-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .hero-subtitle { font-size: 1.4rem; margin: 20px 0; opacity: 0.9; }
         
         .hero-disclaimer { 
-            font-size: 0.9rem; 
-            color: rgba(255,255,255,0.6); 
-            max-width: 550px; 
-            line-height: 1.5;
-            border-left: 3px solid var(--primary);
-            padding-left: 20px;
-            background: rgba(255,255,255,0.03);
-            padding: 15px;
-            border-radius: 0 10px 10px 0;
+            font-size: 0.95rem; color: rgba(255,255,255,0.7); 
+            max-width: 500px; line-height: 1.6; padding: 20px;
+            background: rgba(255,255,255,0.05); border-left: 4px solid var(--primary);
+            border-radius: 0 15px 15px 0; margin-top: 30px;
         }
 
+        /* Auth Card */
         .auth-card { 
-            width: 380px; background: rgba(255, 255, 255, 0.1); 
-            padding: 30px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(15px);
+            width: 400px; background: var(--glass-bg); 
+            padding: 40px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(20px); box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            color: white;
+        }
+        .auth-card h2 { margin-top: 0; font-size: 2rem; }
+
+        /* Input Styles */
+        input, textarea, select { 
+            width: 100%; padding: 15px; margin: 12px 0; border: 1px solid rgba(255,255,255,0.2); 
+            border-radius: 12px; font-size: 15px; box-sizing: border-box; background: rgba(255,255,255,0.9);
+            color: #333; outline: none;
+        }
+        body.logged-out input { background: rgba(255,255,255,0.1); color: white; }
+        body.logged-out input::placeholder { color: rgba(255,255,255,0.5); }
+
+        button { 
+            width: 100%; padding: 15px; border: none; border-radius: 12px; 
+            font-weight: 700; background: var(--primary); color: white; 
+            cursor: pointer; transition: all 0.3s ease; font-size: 16px;
+        }
+        button:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3); }
+        button.secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); margin-top: 10px; }
+
+        /* Main Feed Layout */
+        .main-wrapper { display: none; max-width: 1200px; margin: 30px auto; gap: 30px; padding: 0 20px; }
+        body.logged-in .main-wrapper { display: flex; }
+        
+        .sidebar { width: 300px; position: sticky; top: 100px; height: fit-content; display: flex; flex-direction: column; gap: 20px; }
+        .container { flex: 1; max-width: 650px; }
+
+        /* Glassmorphism Cards */
+        .card { 
+            background: var(--card-bg); padding: 25px; border-radius: 20px; 
+            border: 1px solid rgba(255,255,255,0.3); margin-bottom: 25px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
         }
 
-        /* Feed Layout */
-        .main-wrapper { display: none; max-width: 1000px; margin: 20px auto; gap: 20px; padding: 0 15px; }
-        body.logged-in .main-wrapper { display: flex; }
-        .sidebar { width: 260px; position: sticky; top: 80px; height: fit-content; }
-        .container { flex: 1; max-width: 620px; }
+        /* Sidebar Item Styling */
+        .sidebar-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px; }
+        .stat-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; transition: 0.2s; }
+        .stat-item:hover { color: var(--primary); cursor: pointer; }
+        .stat-count { background: #f3e8ff; color: var(--primary-dark); padding: 2px 10px; border-radius: 10px; font-weight: 700; font-size: 12px; }
 
-        .card { background: white; padding: 20px; border-radius: 18px; border: 1px solid #eee; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+        /* Post Styling */
+        .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; }
+        .post-info h4 { margin: 0; font-size: 15px; color: #1a1a1a; }
+        .post-info span { font-size: 12px; color: #777; }
         
-        input, textarea, select { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ddd; border-radius: 12px; font-size: 14px; box-sizing: border-box; }
-        body.logged-out input { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.2); }
+        .post-title { font-size: 1.4rem; font-weight: 800; margin: 10px 0; color: #1a1a1a; }
+        .post-content { line-height: 1.7; color: #444; white-space: pre-wrap; font-size: 15px; }
+        .post-img { width: calc(100% + 50px); margin: 20px -25px; display: block; max-height: 500px; object-fit: cover; }
         
-        button { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 600; background: var(--primary); color: white; cursor: pointer; transition: 0.3s; }
-        button.secondary { background: rgba(255,255,255,0.1); color: #fff; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1); }
-        body.logged-in button.secondary { background: #f0f0f0; color: #333; }
+        .category-tag { 
+            display: inline-block; background: #f3e8ff; color: var(--primary-dark); 
+            padding: 5px 15px; border-radius: 20px; font-size: 11px; font-weight: 800; 
+            text-transform: uppercase; margin-bottom: 10px; 
+        }
 
-        .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; cursor: pointer; }
-        .feed-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #f0f0f0; }
-        .post-img { width: calc(100% + 40px); margin: 15px -20px; display: block; max-height: 450px; object-fit: cover; }
-        .category-badge { display: inline-block; background: #f3e8ff; color: #7e22ce; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
-        
-        .post-actions { display: flex; gap: 20px; border-top: 1px solid #f0f0f0; padding-top: 12px; margin-top: 12px; }
-        .action-btn { background: none; color: #666; width: auto; padding: 6px 12px; display: flex; align-items: center; gap: 6px; font-size: 14px; }
-        .action-btn.liked { color: #ef4444; font-weight: bold; }
+        .post-actions { 
+            display: flex; gap: 25px; border-top: 1px solid #eee; 
+            padding-top: 15px; margin-top: 15px; 
+        }
+        .action-btn { 
+            background: none; color: #555; width: auto; padding: 8px 0; 
+            display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;
+        }
+        .action-btn i { font-size: 18px; transition: 0.2s; }
+        .action-btn.liked { color: #ef4444; }
+        .action-btn.liked i { transform: scale(1.2); }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; overflow-y: auto; padding: 30px; }
+        /* Profile Modal */
+        .modal { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.8); z-index: 2000; overflow-y: auto; 
+            backdrop-filter: blur(10px);
+        }
+        .modal-content { max-width: 800px; margin: 50px auto; position: relative; }
+        .close-modal { position: absolute; top: 20px; right: 20px; color: white; font-size: 30px; cursor: pointer; }
 
-        @media (max-width: 850px) {
-            body.logged-out { overflow-y: auto; }
-            .hero-container { flex-direction: column; text-align: center; margin-top: 0; }
+        @media (max-width: 900px) {
+            .hero-container { flex-direction: column; text-align: center; margin-top: 20px; }
+            .hero-title { font-size: 3rem; }
             .sidebar { display: none; }
+            .main-wrapper { justify-content: center; }
         }
     </style>
 </head>
 <body class="logged-out">
 
-<div id="bg-alphabets"></div>
-
 <nav class="navbar">
-    <div class="nav-brand" onclick="location.reload()">StoryHub - Likho Dil ki Baat 📝</div>
-    <div id="navUser"></div>
+    <div class="nav-brand" onclick="location.reload()">
+        <i class="fas fa-feather-alt"></i> StoryHub
+    </div>
+    <div id="navRight">
+        <!-- User info will load here -->
+    </div>
 </nav>
 
+<!-- LOGGED OUT VIEW -->
 <div id="loggedOutUI">
     <div class="hero-container">
         <div class="hero-text">
             <h1 class="hero-title">Escape<br>Into Stories</h1>
-            <p class="hero-subtitle">Read and write stories that touch the heart.</p>
+            <p class="hero-subtitle">Read and write stories that touch the heart. Join a community of dreamers.</p>
             <div class="hero-disclaimer">
-                <b>Community Disclaimer:</b> All stories and content on StoryHub are user-generated. We do not own or verify the accuracy of the tales shared. Please maintain community guidelines.
+                <strong><i class="fas fa-shield-alt"></i> Community Disclaimer:</strong><br>
+                All stories and content on StoryHub are user-generated. We do not own or verify the accuracy of the tales shared. Please maintain community guidelines and respect fellow writers.
             </div>
         </div>
-        <div class="auth-card" id="authBox">
-            <h3 style="margin:0 0 20px 0; color:#fff">Start Your Journey</h3>
-            <input id="u_name" placeholder="Username">
-            <input id="u_pass" type="password" placeholder="Password">
-            <button onclick="appLogin()">Login</button>
-            <button class="secondary" onclick="appSignup()">Create Account</button>
+
+        <div class="auth-card">
+            <h2>Welcome</h2>
+            <p style="margin-bottom:20px; opacity:0.8">Login or Create an account to start writing.</p>
+            <input type="text" id="u_name" placeholder="Username">
+            <input type="password" id="u_pass" placeholder="Password">
+            <button onclick="handleAuth('login')">Login to Account</button>
+            <button class="secondary" onclick="handleAuth('signup')">New here? Sign Up</button>
         </div>
     </div>
-    <div style="padding-bottom: 25px; display:flex; gap:40px; border-top:1px solid rgba(255,255,255,0.1); padding-top:25px">
-        <div><h3 style="margin:0; color:var(--primary)">10K+</h3><p style="margin:0; font-size:12px; color:#aaa">Stories</p></div>
-        <div><h3 style="margin:0; color:var(--primary)">25K+</h3><p style="margin:0; font-size:12px; color:#aaa">Readers</p></div>
+
+    <div style="padding: 30px 0; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 50px; color: white;">
+        <div><h3 style="margin:0; color:var(--primary)">12K+</h3><span style="font-size:12px; opacity:0.6; text-transform:uppercase">Stories Shared</span></div>
+        <div><h3 style="margin:0; color:var(--primary)">45K+</h3><span style="font-size:12px; opacity:0.6; text-transform:uppercase">Active Readers</span></div>
     </div>
 </div>
 
-<div class="main-wrapper">
+<!-- LOGGED IN VIEW -->
+<div class="main-wrapper" id="loggedInUI">
+    <!-- Sidebar -->
     <div class="sidebar">
-        <!-- TOP WRITERS BOX -->
+        <!-- Top Writers Card (As per image_b6bd1a.png) -->
         <div class="card">
-            <h4 style="margin:0 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Top Writers ✍️</h4>
-            <div id="writersList" style="line-height: 2;"></div>
+            <div class="sidebar-title"><i class="fas fa-pen-fancy"></i> Top Writers</div>
+            <div id="topWritersList">
+                <!-- Dynamic Content -->
+            </div>
         </div>
 
-        <!-- CATEGORY BOX (WAPAS ADD KIYA) -->
+        <!-- Categories Card -->
         <div class="card">
-            <h4 style="margin:0 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Categories 📚</h4>
-            <div id="categoriesList" style="line-height: 2;"></div>
+            <div class="sidebar-title"><i class="fas fa-th-large"></i> Categories</div>
+            <div id="categoryStats">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+
+        <div style="font-size: 11px; opacity: 0.5; color: white; padding: 10px;">
+            &copy; 2026 StoryHub - Likho Dil Ki Baat. All rights reserved.
         </div>
     </div>
 
+    <!-- Feed Container -->
     <div class="container">
-        <div class="card" style="border-top: 4px solid var(--primary);">
-            <input id="p_title" placeholder="Story Title...">
+        <!-- Create Post Card -->
+        <div class="card" style="border-top: 5px solid var(--primary);">
+            <h4 style="margin:0 0 15px 0">Write a New Story</h4>
+            <input type="text" id="p_title" placeholder="Title of your story...">
             <select id="p_category">
                 <option value="General">General</option>
                 <option value="Love Story">Love Story</option>
                 <option value="Inspiration">Inspiration</option>
                 <option value="Horror">Horror</option>
                 <option value="Sad">Sad</option>
+                <option value="Action">Action</option>
             </select>
-            <textarea id="p_content" rows="4" placeholder="Write your heart out..."></textarea>
-            <input type="file" id="p_file" accept="image/*" style="font-size:12px; margin-bottom:10px">
-            <button onclick="handlePost()">Post Story</button>
+            <textarea id="p_content" rows="4" placeholder="Once upon a time..."></textarea>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px">
+                <label style="cursor:pointer; font-size:14px; color:var(--primary-dark); font-weight:600">
+                    <i class="fas fa-image"></i> Add Image
+                    <input type="file" id="p_file" accept="image/*" style="display:none" onchange="previewFile()">
+                </label>
+                <button onclick="publishPost()" style="width:150px">Publish Story</button>
+            </div>
+            <div id="file_status" style="font-size:11px; color:#666; margin-top:5px"></div>
         </div>
-        <div id="postFeed"></div>
+
+        <!-- Stories Feed -->
+        <div id="postFeed">
+            <!-- Posts load here -->
+        </div>
     </div>
 </div>
 
+<!-- Profile Modal -->
 <div id="profileModal" class="modal">
-    <button class="secondary" onclick="closeModal('profileModal')" style="width:auto; color:#000">← Back</button>
-    <div id="profileContent" style="max-width:700px; margin:40px auto"></div>
+    <span class="close-modal" onclick="closeModal()">&times;</span>
+    <div class="modal-content" id="modalData"></div>
 </div>
 
+<!-- Firebase SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -197,123 +286,201 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
-    let currentUser = null;
-    let allPosts = [];
+    let currentSessionUser = null;
+    let allPostsData = [];
+
+    // --- AUTHENTICATION ---
+    window.handleAuth = async (type) => {
+        const u = document.getElementById('u_name').value.trim();
+        const p = document.getElementById('u_pass').value;
+        if(!u || !p) return alert("Please fill all fields");
+
+        try {
+            if(type === 'signup') {
+                const res = await createUserWithEmailAndPassword(auth, u + "@storyhub.com", p);
+                await updateProfile(res.user, { displayName: u });
+            } else {
+                await signInWithEmailAndPassword(auth, u + "@storyhub.com", p);
+            }
+        } catch(e) { alert("Auth Error: " + e.message); }
+    };
 
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            currentUser = user;
+        if(user) {
+            currentSessionUser = user;
             document.body.className = "logged-in";
-            document.getElementById("loggedOutUI").style.display = "none";
-            document.getElementById("bg-alphabets").style.display = "block";
-            document.getElementById("navUser").innerHTML = `<span style="font-size:14px; font-weight:600">@${user.displayName}</span> <button id="logoutBtn" style="width:auto; padding:5px 12px; background:#f0f0f0; color:#333; margin-left:10px">Logout</button>`;
-            document.getElementById("logoutBtn").onclick = () => signOut(auth).then(() => location.reload());
-            fetchPosts();
+            document.getElementById('loggedOutUI').style.display = 'none';
+            document.getElementById('navRight').innerHTML = `
+                <div style="display:flex; align-items:center; gap:15px">
+                    <img src="https://ui-avatars.com/api/?name=${user.displayName}&background=random" style="width:35px; border-radius:50%">
+                    <span style="font-weight:700">@${user.displayName}</span>
+                    <button onclick="logout()" style="width:auto; padding:8px 15px; font-size:12px; background:rgba(255,255,255,0.2)">Logout</button>
+                </div>
+            `;
+            loadStories();
         } else {
             document.body.className = "logged-out";
+            document.getElementById('loggedOutUI').style.display = 'flex';
         }
     });
 
-    window.appLogin = async () => {
-        const u = document.getElementById("u_name").value.trim();
-        const p = document.getElementById("u_pass").value;
-        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch(e) { alert("Error!"); }
+    window.logout = () => signOut(auth).then(() => location.reload());
+
+    // --- POSTING STORIES ---
+    window.publishPost = async () => {
+        const title = document.getElementById('p_title').value;
+        const content = document.getElementById('p_content').value;
+        const cat = document.getElementById('p_category').value;
+        const file = document.getElementById('p_file').files[0];
+
+        if(!content) return alert("Story can't be empty!");
+
+        const newPost = {
+            userId: currentSessionUser.uid,
+            userName: currentSessionUser.displayName,
+            title: title || "Untitled Story",
+            content: content,
+            category: cat,
+            timestamp: Date.now()
+        };
+
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                newPost.image = e.target.result;
+                finalizePost(newPost);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            finalizePost(newPost);
+        }
     };
 
-    window.appSignup = async () => {
-        const u = document.getElementById("u_name").value.trim();
-        const p = document.getElementById("u_pass").value;
-        try {
-            const res = await createUserWithEmailAndPassword(auth, u + "@storyhub.com", p);
-            await updateProfile(res.user, { displayName: u });
-            location.reload();
-        } catch(e) { alert("Error!"); }
+    async function finalizePost(post) {
+        await push(ref(db, 'posts'), post);
+        document.getElementById('p_title').value = '';
+        document.getElementById('p_content').value = '';
+        document.getElementById('p_file').value = '';
+        document.getElementById('file_status').innerText = '';
+        alert("Story Published!");
+    }
+
+    window.previewFile = () => {
+        const name = document.getElementById('p_file').files[0].name;
+        document.getElementById('file_status').innerText = "Selected: " + name;
     };
 
-    function fetchPosts() {
-        onValue(ref(db, 'posts'), (snap) => {
-            const data = snap.val();
-            allPosts = data ? Object.keys(data).map(k => ({...data[k], id: k})).reverse() : [];
+    // --- LOADING FEED & SIDEBAR ---
+    function loadStories() {
+        onValue(ref(db, 'posts'), (snapshot) => {
+            const data = snapshot.val();
+            allPostsData = data ? Object.keys(data).map(key => ({...data[key], id: key})).reverse() : [];
             renderFeed();
-            updateSidebarStats();
+            renderSidebar();
         });
     }
 
     function renderFeed() {
-        let html = "";
-        allPosts.forEach(p => {
-            const likes = p.likes ? Object.keys(p.likes).length : 0;
-            const isLiked = p.likes && p.likes[currentUser.uid] ? "liked" : "";
-            html += `<div class="card">
-                <div class="post-header" onclick="openProfile('${p.user}')">
-                    <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="feed-avatar">
-                    <strong>@${p.user}</strong>
+        const feed = document.getElementById('postFeed');
+        feed.innerHTML = allPostsData.map(post => {
+            const likeCount = post.likes ? Object.keys(post.likes).length : 0;
+            const isLiked = post.likes && post.likes[currentSessionUser.uid] ? 'liked' : '';
+            
+            return `
+                <div class="card">
+                    <div class="post-header">
+                        <img src="https://ui-avatars.com/api/?name=${post.userName}&background=random" class="avatar" onclick="viewProfile('${post.userName}')">
+                        <div class="post-info">
+                            <h4 onclick="viewProfile('${post.userName}')" style="cursor:pointer">@${post.userName}</h4>
+                            <span>${new Date(post.timestamp).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                    <div class="category-tag">${post.category}</div>
+                    <div class="post-title">${post.title}</div>
+                    <div class="post-content">${post.content}</div>
+                    ${post.image ? `<img src="${post.image}" class="post-img">` : ''}
+                    <div class="post-actions">
+                        <div class="action-btn ${isLiked}" onclick="toggleLike('${post.id}')">
+                            <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${likeCount}
+                        </div>
+                        <div class="action-btn">
+                            <i class="far fa-comment"></i> 0
+                        </div>
+                        <div class="action-btn" onclick="alert('Link copied!')">
+                            <i class="far fa-share-square"></i> Share
+                        </div>
+                    </div>
                 </div>
-                <div class="category-badge">${p.category || 'General'}</div>
-                <h3 style="margin:5px 0">${p.title}</h3>
-                <p style="white-space:pre-wrap">${p.content}</p>
-                ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
-                <div class="post-actions">
-                    <button class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">❤️ ${likes}</button>
-                    <button class="action-btn">💬 ${p.comments ? Object.keys(p.comments).length : 0}</button>
-                </div>
-            </div>`;
-        });
-        document.getElementById("postFeed").innerHTML = html || "No stories yet.";
+            `;
+        }).join('');
     }
 
-    window.toggleLike = (id) => {
-        const post = allPosts.find(p => p.id === id);
-        const path = `posts/${id}/likes/${currentUser.uid}`;
-        if(post.likes && post.likes[currentUser.uid]) remove(ref(db, path));
-        else set(ref(db, path), true);
-    };
-
-    window.handlePost = async () => {
-        const t = document.getElementById("p_title").value;
-        const c = document.getElementById("p_content").value;
-        const cat = document.getElementById("p_category").value;
-        const file = document.getElementById("p_file").files[0];
-        if(!c) return;
-
-        const postData = { user: currentUser.displayName, uid: currentUser.uid, title: t, content: c, category: cat, time: Date.now() };
-        if(file) {
-            const reader = new FileReader();
-            reader.onload = () => { postData.image = reader.result; push(ref(db, 'posts'), postData); };
-            reader.readAsDataURL(file);
+    window.toggleLike = (postId) => {
+        const post = allPostsData.find(p => p.id === postId);
+        const likeRef = ref(db, `posts/${postId}/likes/${currentSessionUser.uid}`);
+        if(post.likes && post.likes[currentSessionUser.uid]) {
+            remove(likeRef);
         } else {
-            await push(ref(db, 'posts'), postData);
+            set(likeRef, true);
         }
-        document.getElementById("p_title").value = "";
-        document.getElementById("p_content").value = "";
     };
 
-    function updateSidebarStats() {
+    function renderSidebar() {
+        // Top Writers Logic
         const writers = {};
         const cats = {};
-        allPosts.forEach(p => {
-            writers[p.user] = (writers[p.user] || 0) + 1;
-            cats[p.category || 'General'] = (cats[p.category || 'General'] || 0) + 1;
+        allPostsData.forEach(p => {
+            writers[p.userName] = (writers[p.userName] || 0) + 1;
+            cats[p.category] = (cats[p.category] || 0) + 1;
         });
 
-        // Update Writers
-        document.getElementById("writersList").innerHTML = Object.entries(writers).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([n, c]) => 
-            `<div style="display:flex; justify-content:space-between; font-size:13px"><span>@${n}</span><b>${c}</b></div>`
-        ).join("");
+        const topWritersHtml = Object.entries(writers)
+            .sort((a,b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([name, count]) => `
+                <div class="stat-item" onclick="viewProfile('${name}')">
+                    <div style="display:flex; align-items:center; gap:10px">
+                        <img src="https://ui-avatars.com/api/?name=${name}&background=random" style="width:25px; border-radius:50%">
+                        <span>@${name}</span>
+                    </div>
+                    <span class="stat-count">${count} stories</span>
+                </div>
+            `).join('');
+        document.getElementById('topWritersList').innerHTML = topWritersHtml || "<p style='font-size:12px; opacity:0.5'>No writers yet</p>";
 
-        // Update Categories (Dynamically)
-        document.getElementById("categoriesList").innerHTML = Object.entries(cats).map(([n, c]) => 
-            `<div style="display:flex; justify-content:space-between; font-size:13px; color:#666"><span># ${n}</span><b>${c}</b></div>`
-        ).join("");
+        // Category Stats Logic
+        const catHtml = Object.entries(cats).map(([name, count]) => `
+            <div class="stat-item">
+                <span># ${name}</span>
+                <span class="stat-count">${count}</span>
+            </div>
+        `).join('');
+        document.getElementById('categoryStats').innerHTML = catHtml || "<p style='font-size:12px; opacity:0.5'>No categories</p>";
     }
 
-    window.openProfile = (u) => {
-        const uposts = allPosts.filter(p => p.user === u);
-        document.getElementById("profileModal").style.display = "block";
-        document.getElementById("profileContent").innerHTML = `<div style="text-align:center"><h2>@${u}</h2><p>${uposts.length} Stories</p></div>` + uposts.map(p => `<div class="card"><h4>${p.title}</h4><p>${p.content.substring(0,100)}...</p></div>`).join("");
+    // --- PROFILE MODAL ---
+    window.viewProfile = (userName) => {
+        const userPosts = allPostsData.filter(p => p.userName === userName);
+        const modal = document.getElementById('profileModal');
+        const content = document.getElementById('modalData');
+        
+        content.innerHTML = `
+            <div class="card" style="text-align:center; padding:50px">
+                <img src="https://ui-avatars.com/api/?name=${userName}&size=100&background=random" style="border-radius:50%; border:5px solid var(--primary)">
+                <h1 style="margin:15px 0 5px 0">@${userName}</h1>
+                <p style="opacity:0.6">${userPosts.length} Stories Published</p>
+                <hr style="margin:30px 0; opacity:0.1">
+                <div style="text-align:left">
+                    <h3>Recent Stories by ${userName}</h3>
+                    ${userPosts.map(p => `<div style="padding:10px; border-bottom:1px solid #eee"><strong>${p.title}</strong> - ${p.category}</div>`).join('')}
+                </div>
+            </div>
+        `;
+        modal.style.display = 'block';
     };
 
-    window.closeModal = (id) => document.getElementById(id).style.display = "none";
+    window.closeModal = () => document.getElementById('profileModal').style.display = 'none';
+
 </script>
 </body>
 </html>
