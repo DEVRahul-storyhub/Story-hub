@@ -21,6 +21,7 @@
             background-size: cover;
             min-height: 100vh;
             color: white;
+            overflow: hidden; /* Home page fixed */
         }
 
         body.logged-in {
@@ -41,9 +42,9 @@
         }
         .nav-brand { font-size: 1.5rem; font-weight: 800; color: #fff; cursor: pointer; letter-spacing: -1px; }
 
-        /* --- HERO SECTION --- */
+        /* --- HERO SECTION (Original Restored) --- */
         #loggedOutUI {
-            min-height: calc(100vh - 65px);
+            height: calc(100vh - 65px);
             display: flex; flex-direction: column; justify-content: center;
             padding: 0 5%;
         }
@@ -57,11 +58,11 @@
             backdrop-filter: blur(20px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
         }
 
-        /* --- MAIN FEED LAYOUT (SCROLLABLE SIDEBAR) --- */
+        /* --- MAIN FEED LAYOUT --- */
         .main-wrapper { display: none; max-width: 1100px; margin: 30px auto; gap: 25px; padding: 0 20px; }
         body.logged-in .main-wrapper { display: flex; }
         
-        /* Sidebar ab scroll hoga feed ke sath */
+        /* Sidebar scrolls with feed now */
         .sidebar { width: 280px; height: auto; } 
         .container { flex: 1; max-width: 680px; }
 
@@ -111,7 +112,8 @@
             .main-wrapper { flex-direction: column; }
             .sidebar { width: 100%; order: 2; }
             .container { width: 100%; order: 1; }
-            .hero-title { font-size: 3rem; }
+            .hero-title { font-size: 3.5rem; }
+            body.logged-out { overflow-y: auto; }
         }
     </style>
 </head>
@@ -122,11 +124,12 @@
     <div id="navUser"></div>
 </nav>
 
+<!-- ORIGINAL HOME PAGE DESIGN -->
 <div id="loggedOutUI">
     <div class="hero-container">
         <div class="hero-text">
             <h1 class="hero-title">Your Stories,<br>Your World.</h1>
-            <p class="hero-subtitle">The ultimate platform for writers and dreamers.</p>
+            <p class="hero-subtitle">The ultimate platform for writers and dreamers. Join the community and start your journey today.</p>
         </div>
         <div class="auth-card">
             <h3 style="margin-top:0; color: white;">Welcome Back</h3>
@@ -138,7 +141,9 @@
     </div>
 </div>
 
+<!-- APP UI -->
 <div class="main-wrapper">
+    <!-- Sidebar: Now scrolls with the feed -->
     <div class="sidebar">
         <div class="card">
             <h4 style="margin:0 0 15px 0; color:var(--primary); font-size: 1.2rem;">Top Storytellers ✍️</h4>
@@ -151,6 +156,7 @@
         </div>
     </div>
 
+    <!-- Feed -->
     <div class="container">
         <div class="card" style="border-left: 5px solid var(--primary);">
             <h3 style="margin-top:0">Write a Story</h3>
@@ -171,6 +177,7 @@
     </div>
 </div>
 
+<!-- MODAL WINDOW -->
 <div id="appModal" class="modal">
     <div style="max-width: 900px; margin: auto;">
         <button onclick="closeModal()" style="width:auto; padding:10px 25px; background:rgba(0,0,0,0.1); margin-bottom:30px; border:none; border-radius:8px; cursor:pointer">← Back to Home</button>
@@ -199,6 +206,7 @@
     let currentUser = null;
     let allPosts = [];
 
+    // --- AUTH ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUser = user;
@@ -233,6 +241,7 @@
 
     window.logout = () => signOut(auth).then(() => location.reload());
 
+    // --- DATA ---
     function loadStories() {
         onValue(ref(db, 'posts'), (snap) => {
             const data = snap.val();
@@ -281,6 +290,7 @@
         `).join("");
     }
 
+    // --- MODAL LOGIC ---
     window.viewUserStories = (username) => {
         const userStories = allPosts.filter(p => p.user === username);
         const html = `
@@ -334,6 +344,7 @@
         openModal(html);
     };
 
+    // --- UTILS ---
     window.handlePost = async () => {
         const t = document.getElementById("p_title").value;
         const c = document.getElementById("p_content").value;
@@ -342,21 +353,11 @@
 
         if(!t || !c) return alert("Title and Content are required!");
 
-        const postObj = { 
-            user: currentUser.displayName, 
-            uid: currentUser.uid, 
-            title: t, 
-            content: c, 
-            category: cat, 
-            time: Date.now() 
-        };
+        const postObj = { user: currentUser.displayName, uid: currentUser.uid, title: t, content: c, category: cat, time: Date.now() };
 
         if(file) {
             const reader = new FileReader();
-            reader.onload = () => {
-                postObj.image = reader.result;
-                push(ref(db, 'posts'), postObj);
-            };
+            reader.onload = () => { postObj.image = reader.result; push(ref(db, 'posts'), postObj); };
             reader.readAsDataURL(file);
         } else {
             await push(ref(db, 'posts'), postObj);
