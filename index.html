@@ -8,8 +8,10 @@
         :root { 
             --primary: #a855f7; 
             --dark-bg: #0f0720; 
-            --accent: #1e113a;
             --text-light: #f3f4f6;
+            /* Added for glass effect like image_b64934.jpg */
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.15);
         }
         
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Segoe UI', sans-serif; }
@@ -22,29 +24,22 @@
             overflow: hidden;
         }
 
-        /* --- LOGGED IN DESIGN --- */
+        /* --- LOGGED IN DESIGN (Strictly using your image) --- */
         body.logged-in {
             background: url('image_b88f4e.png') no-repeat center center fixed !important;
             background-size: cover !important; 
-            color: #262626;
+            color: white; /* Changed to white for better visibility on dark image */
             overflow-y: auto;
         }
-
-        #bg-alphabets {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: -1; display: none;
-        }
-        .letter { position: absolute; color: rgba(0, 0, 0, 0.08); font-weight: bold; font-size: 1.8rem; }
 
         .navbar { 
             display: flex; justify-content: space-between; align-items: center; 
             padding: 0 5%; height: 60px; position: sticky; top:0; z-index: 1000;
             background: rgba(15, 7, 32, 0.6); backdrop-filter: blur(10px);
+            color: white;
         }
-        body.logged-in .navbar { background: rgba(255, 255, 255, 0.9); color: #262626; border-bottom: 1px solid #ddd; }
 
         .nav-brand { font-size: 1.3rem; font-weight: 800; color: #fff; cursor: pointer; }
-        body.logged-in .nav-brand { color: #262626; }
 
         #loggedOutUI {
             height: calc(100vh - 60px);
@@ -52,21 +47,13 @@
             padding: 0 5%;
         }
         .hero-container { display: flex; align-items: center; justify-content: space-between; flex-grow: 1; gap: 30px; margin-top: -60px; }
-        
-        .hero-text { flex: 1; }
         .hero-title { font-size: 4.5rem; font-weight: 700; color: #fff; line-height: 1; margin: 0; }
         .hero-subtitle { color: #ccc; font-size: 1.3rem; margin: 15px 0; }
         
         .hero-disclaimer { 
-            font-size: 0.9rem; 
-            color: rgba(255,255,255,0.6); 
-            max-width: 550px; 
-            line-height: 1.5;
-            border-left: 3px solid var(--primary);
-            padding-left: 20px;
-            background: rgba(255,255,255,0.03);
-            padding: 15px;
-            border-radius: 0 10px 10px 0;
+            font-size: 0.9rem; color: rgba(255,255,255,0.6); max-width: 550px; 
+            line-height: 1.5; border-left: 3px solid var(--primary);
+            background: rgba(255,255,255,0.03); padding: 15px; border-radius: 0 10px 10px 0;
         }
 
         .auth-card { 
@@ -81,25 +68,36 @@
         .sidebar { width: 260px; position: sticky; top: 80px; height: fit-content; }
         .container { flex: 1; max-width: 620px; }
 
-        .card { background: white; padding: 20px; border-radius: 18px; border: 1px solid #eee; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+        /* Transparent Cards for Logged In state */
+        .card { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(10px);
+            padding: 20px; border-radius: 18px; 
+            border: 1px solid var(--glass-border); 
+            margin-bottom: 20px; 
+            color: white;
+        }
         
-        input, textarea, select { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ddd; border-radius: 12px; font-size: 14px; box-sizing: border-box; }
-        body.logged-out input { background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.2); }
+        input, textarea, select { 
+            width: 100%; padding: 14px; margin: 10px 0; 
+            border: 1px solid var(--glass-border); 
+            border-radius: 12px; font-size: 14px; box-sizing: border-box;
+            background: rgba(0,0,0,0.2); color: white;
+        }
         
         button { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 600; background: var(--primary); color: white; cursor: pointer; transition: 0.3s; }
         button.secondary { background: rgba(255,255,255,0.1); color: #fff; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1); }
-        body.logged-in button.secondary { background: #f0f0f0; color: #333; }
 
         .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; cursor: pointer; }
-        .feed-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #f0f0f0; }
+        .feed-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary); }
         .post-img { width: calc(100% + 40px); margin: 15px -20px; display: block; max-height: 450px; object-fit: cover; }
-        .category-badge { display: inline-block; background: #f3e8ff; color: #7e22ce; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
+        .category-badge { display: inline-block; background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
         
-        .post-actions { display: flex; gap: 20px; border-top: 1px solid #f0f0f0; padding-top: 12px; margin-top: 12px; }
-        .action-btn { background: none; color: #666; width: auto; padding: 6px 12px; display: flex; align-items: center; gap: 6px; font-size: 14px; }
+        .post-actions { display: flex; gap: 20px; border-top: 1px solid var(--glass-border); padding-top: 12px; margin-top: 12px; }
+        .action-btn { background: none; color: #ccc; width: auto; padding: 6px 12px; display: flex; align-items: center; gap: 6px; font-size: 14px; }
         .action-btn.liked { color: #ef4444; font-weight: bold; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; overflow-y: auto; padding: 30px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0720; z-index: 2000; overflow-y: auto; padding: 30px; color: white; }
 
         @media (max-width: 850px) {
             body.logged-out { overflow-y: auto; }
@@ -109,8 +107,6 @@
     </style>
 </head>
 <body class="logged-out">
-
-<div id="bg-alphabets"></div>
 
 <nav class="navbar">
     <div class="nav-brand" onclick="location.reload()">StoryHub - Likho Dil ki Baat 📝</div>
@@ -142,15 +138,13 @@
 
 <div class="main-wrapper">
     <div class="sidebar">
-        <!-- TOP WRITERS BOX -->
         <div class="card">
-            <h4 style="margin:0 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Top Writers ✍️</h4>
+            <h4 style="margin:0 0 15px 0; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">Top Writers ✍️</h4>
             <div id="writersList" style="line-height: 2;"></div>
         </div>
 
-        <!-- CATEGORY BOX (WAPAS ADD KIYA) -->
         <div class="card">
-            <h4 style="margin:0 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Categories 📚</h4>
+            <h4 style="margin:0 0 15px 0; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">Categories 📚</h4>
             <div id="categoriesList" style="line-height: 2;"></div>
         </div>
     </div>
@@ -164,7 +158,7 @@
                 <option value="Inspiration">Inspiration</option>
                 <option value="Horror">Horror</option>
                 <option value="Sad">Sad</option>
-		<option value="Adult/Sex">Adult/Sex</option>
+                <option value="Adult/Sex">Adult/Sex</option>
             </select>
             <textarea id="p_content" rows="4" placeholder="Write your heart out..."></textarea>
             <input type="file" id="p_file" accept="image/*" style="font-size:12px; margin-bottom:10px">
@@ -175,7 +169,7 @@
 </div>
 
 <div id="profileModal" class="modal">
-    <button class="secondary" onclick="closeModal('profileModal')" style="width:auto; color:#000">← Back</button>
+    <button class="secondary" onclick="closeModal('profileModal')" style="width:auto; color:#fff">← Back</button>
     <div id="profileContent" style="max-width:700px; margin:40px auto"></div>
 </div>
 
@@ -206,8 +200,7 @@
             currentUser = user;
             document.body.className = "logged-in";
             document.getElementById("loggedOutUI").style.display = "none";
-            document.getElementById("bg-alphabets").style.display = "block";
-            document.getElementById("navUser").innerHTML = `<span style="font-size:14px; font-weight:600">@${user.displayName}</span> <button id="logoutBtn" style="width:auto; padding:5px 12px; background:#f0f0f0; color:#333; margin-left:10px">Logout</button>`;
+            document.getElementById("navUser").innerHTML = `<span style="font-size:14px; font-weight:600">@${user.displayName}</span> <button id="logoutBtn" style="width:auto; padding:5px 12px; background:rgba(255,255,255,0.1); color:#fff; margin-left:10px; border:1px solid rgba(255,255,255,0.2)">Logout</button>`;
             document.getElementById("logoutBtn").onclick = () => signOut(auth).then(() => location.reload());
             fetchPosts();
         } else {
@@ -218,17 +211,18 @@
     window.appLogin = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
-        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch(e) { alert("Error!"); }
+        try { await signInWithEmailAndPassword(auth, u + "@storyhub.com", p); } catch(e) { alert("Invalid Credentials!"); }
     };
 
     window.appSignup = async () => {
         const u = document.getElementById("u_name").value.trim();
         const p = document.getElementById("u_pass").value;
+        if(!u || !p) return alert("Fill all fields");
         try {
             const res = await createUserWithEmailAndPassword(auth, u + "@storyhub.com", p);
             await updateProfile(res.user, { displayName: u });
             location.reload();
-        } catch(e) { alert("Error!"); }
+        } catch(e) { alert("Signup Error!"); }
     };
 
     function fetchPosts() {
@@ -252,7 +246,7 @@
                 </div>
                 <div class="category-badge">${p.category || 'General'}</div>
                 <h3 style="margin:5px 0">${p.title}</h3>
-                <p style="white-space:pre-wrap">${p.content}</p>
+                <p style="white-space:pre-wrap; opacity:0.9">${p.content}</p>
                 ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
                 <div class="post-actions">
                     <button class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">❤️ ${likes}</button>
@@ -297,14 +291,12 @@
             cats[p.category || 'General'] = (cats[p.category || 'General'] || 0) + 1;
         });
 
-        // Update Writers
         document.getElementById("writersList").innerHTML = Object.entries(writers).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([n, c]) => 
             `<div style="display:flex; justify-content:space-between; font-size:13px"><span>@${n}</span><b>${c}</b></div>`
         ).join("");
 
-        // Update Categories (Dynamically)
         document.getElementById("categoriesList").innerHTML = Object.entries(cats).map(([n, c]) => 
-            `<div style="display:flex; justify-content:space-between; font-size:13px; color:#666"><span># ${n}</span><b>${c}</b></div>`
+            `<div style="display:flex; justify-content:space-between; font-size:13px; opacity:0.8"><span># ${n}</span><b>${c}</b></div>`
         ).join("");
     }
 
