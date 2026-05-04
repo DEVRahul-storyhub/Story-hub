@@ -25,14 +25,14 @@
             color: white;
         }
 
-        /* Yahan "image_b88f4e.png" ko background mein add kiya gaya hai */
+        /* Sahi Background Image aur Fixed Properties */
         body.logged-in {
             background: url('image_b88f4e.png') no-repeat center center fixed !important;
             background-size: cover !important;
             color: #262626;
         }
 
-        /* Floating Letters Container */
+        /* Fixed Alphabets (Static - No Animation) */
         #bg-alphabets {
             position: fixed;
             top: 0;
@@ -46,22 +46,16 @@
 
         .letter {
             position: absolute;
-            color: rgba(0, 0, 0, 0.07); /* Light shade for the letters */
+            color: rgba(0, 0, 0, 0.05); /* Subtle look */
             font-weight: bold;
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             user-select: none;
-            animation: floatAnim 20s linear infinite;
-        }
-
-        @keyframes floatAnim {
-            from { transform: translateY(100vh) rotate(0deg); }
-            to { transform: translateY(-10vh) rotate(360deg); }
         }
 
         #authBox h2, #authBox p { color: #262626 !important; }
 
         .navbar { 
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
             padding: 0 20px; display: flex; justify-content: space-between; 
             align-items: center; border-bottom: 1px solid var(--border); 
             position: sticky; top: 0; z-index: 100; height: 60px; 
@@ -104,9 +98,9 @@
         .category-item:hover { color: var(--primary); }
 
         .card { 
-            background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 12px; 
+            background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 12px; 
             border: 1px solid var(--border); margin-bottom: 20px; color: #262626;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
 
         input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; color: #262626; }
@@ -141,7 +135,7 @@
 </head>
 <body class="logged-out">
 
-<!-- Container for floating letters -->
+<!-- Alphabet Container -->
 <div id="bg-alphabets"></div>
 
 <div class="navbar">
@@ -203,6 +197,7 @@
     </div>
 </div>
 
+<!-- FIREBASE & LOGIC (POORA CODE) -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -226,18 +221,17 @@
     let allPosts = [];
     let currentFilter = null;
 
-    // Logic for Floating Letters
+    // Fixed Alphabets Logic
     function initAlphabetBackground() {
         const container = document.getElementById('bg-alphabets');
         container.innerHTML = '';
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZअआइकखग📝✍️📖🖋️📜";
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ📝✍️अआइकख";
         for (let i = 0; i < 40; i++) {
             const span = document.createElement('span');
             span.className = 'letter';
             span.innerText = chars[Math.floor(Math.random() * chars.length)];
             span.style.left = Math.random() * 95 + "vw";
-            span.style.top = Math.random() * 100 + "vh";
-            span.style.animationDelay = (Math.random() * 10) + "s";
+            span.style.top = Math.random() * 95 + "vh";
             span.style.transform = `rotate(${Math.random() * 360}deg)`;
             container.appendChild(span);
         }
@@ -280,12 +274,7 @@
             document.getElementById("postBox").style.display = "none";
             document.getElementById("sidebarArea").style.display = "none";
             document.getElementById("authBox").style.display = "block";
-            
-            document.getElementById("postFeed").innerHTML = `
-                <div class="disclaimer-box">
-                    <h1>StoryHub - Likho Dil ki Baat</h1>
-                    <p>Please login to see stories!</p>
-                </div>`;
+            document.getElementById("postFeed").innerHTML = `<div class="disclaimer-box"><h1>StoryHub</h1><p>Please login to see stories!</p></div>`;
         }
     });
 
@@ -347,7 +336,6 @@
                     commentsHtml += `<div class="comment-item"><div><span class="comment-user">${c.user}</span><span>${c.text}</span></div></div>`;
                 });
             }
-            
             const likeCount = p.likes ? Object.keys(p.likes).length : 0;
             const isLiked = p.likes && p.likes[currentUser.uid] ? "liked" : "";
 
@@ -360,35 +348,28 @@
                 <div class="category-badge" onclick="applyFilter('${p.category}')">${p.category || 'General'}</div>
                 <h3 style="margin: 5px 0; cursor:pointer;" onclick="viewPost('${p.id}')">${p.title}</h3>
                 <p style="white-space:pre-wrap;">${p.content}</p>
-                ${p.image ? `<img src="${p.image}" class="post-img" style="cursor:pointer;" onclick="viewPost('${p.id}')">` : ""}
-                
+                ${p.image ? `<img src="${p.image}" class="post-img" onclick="viewPost('${p.id}')">` : ""}
                 <div class="post-actions">
-                    <button class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">
-                        ${isLiked ? '❤️' : '🤍'} <span>${likeCount}</span>
-                    </button>
+                    <button class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">${isLiked ? '❤️' : '🤍'} <span>${likeCount}</span></button>
                     <button class="action-btn">💬 <span>${p.comments ? Object.keys(p.comments).length : 0}</span></button>
                 </div>
-
                 <div class="comment-box">
                     <div class="comment-list">${commentsHtml}</div>
                     <div style="display:flex;gap:5px;margin-top:10px;">
-                        <input id="in-${p.id}" placeholder="Add a comment..." style="margin:0;padding:8px">
+                        <input id="in-${p.id}" placeholder="Add comment..." style="margin:0;padding:8px">
                         <button onclick="postComment('${p.id}')" style="padding:8px 15px">Post</button>
                     </div>
                 </div>
             </div>`;
         });
-        document.getElementById("postFeed").innerHTML = html || (currentFilter ? `No stories in ${currentFilter}.` : "No stories found.");
+        document.getElementById("postFeed").innerHTML = html || "No stories found.";
     };
 
     window.toggleLike = async (postId) => {
         const post = allPosts.find(p => p.id === postId);
         const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-        if (post.likes && post.likes[currentUser.uid]) {
-            await remove(likeRef);
-        } else {
-            await set(likeRef, true);
-        }
+        if (post.likes && post.likes[currentUser.uid]) await remove(likeRef);
+        else await set(likeRef, true);
     };
 
     window.postComment = async (postId) => {
@@ -426,14 +407,7 @@
         document.getElementById("profileContent").innerHTML = `<div style="text-align:center;padding:20px"><img src="https://ui-avatars.com/api/?name=${u}&size=80&background=random" style="border-radius:50%"><h2>${u}</h2><p>${ups.length} Stories</p></div><div class="profile-grid">${grid}</div>`;
     };
 
-    window.viewPost = (id) => { 
-        closeModal('profileModal'); 
-        clearFilter(); 
-        setTimeout(() => {
-            const el = document.getElementById(id);
-            if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'});
-        }, 300); 
-    };
+    window.viewPost = (id) => { closeModal('profileModal'); clearFilter(); setTimeout(() => { const el = document.getElementById(id); if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 300); };
     window.closeModal = (id) => document.getElementById(id).style.display = "none";
 </script>
 </body>
