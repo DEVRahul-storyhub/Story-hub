@@ -8,227 +8,175 @@
     <style>
         :root { 
             --primary: #a855f7; 
-            --glass: rgba(255, 255, 255, 0.12);
+            --glass-card: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.2);
-            --text-main: #ffffff;
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body, html { min-height: 100vh; width: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
-        body, html { 
-            min-height: 100vh; width: 100%; 
-            font-family: 'Inter', 'Segoe UI', sans-serif; 
-            color: var(--text-main);
-        }
-
-        /* --- BACKGROUND LOGIC --- */
+        /* --- BACKGROUNDS --- */
         body.logged-out {
             background: linear-gradient(rgba(15, 7, 32, 0.8), rgba(15, 7, 32, 0.9)), 
-                        url('https://images.unsplash.com/photo-1516410529446-2c777cb7366d?auto=format&fit=crop&q=80&w=2000');
-            background-size: cover; background-attachment: fixed;
+                        url('https://images.unsplash.com/photo-1516410529446-2c777cb7366d?auto=format&fit=crop&q=80&w=2000') no-repeat center center fixed;
+            background-size: cover;
             overflow: hidden;
+            color: white;
         }
 
         body.logged-in {
             background: url('image_b662a6.png') no-repeat center center fixed !important;
             background-size: cover !important; 
             overflow-y: auto;
+            color: white;
         }
 
         /* Navbar */
         .navbar { 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 5%; height: 75px; position: sticky; top: 0; z-index: 1000;
-            background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(15px);
+            padding: 0 5%; height: 60px; position: sticky; top: 0; z-index: 1000;
+            background: rgba(15, 7, 32, 0.6); backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--glass-border);
         }
-
-        .nav-brand { font-size: 1.6rem; font-weight: 800; display: flex; align-items: center; gap: 12px; }
-        .nav-brand i { color: var(--primary); }
+        .nav-brand { font-size: 1.3rem; font-weight: 800; cursor: pointer; }
 
         /* Logged Out Hero */
         #loggedOutUI {
-            height: calc(100vh - 75px);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 8%;
+            height: calc(100vh - 60px);
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 0 5%;
         }
-        .hero-title { font-size: 5rem; font-weight: 900; line-height: 1.1; margin-bottom: 20px; }
+        .hero-container { display: flex; align-items: center; justify-content: space-between; flex-grow: 1; gap: 30px; margin-top: -60px; }
+        .hero-title { font-size: 4.5rem; font-weight: 700; line-height: 1; margin: 0; }
+        .hero-subtitle { color: #ccc; font-size: 1.3rem; margin: 15px 0; }
         
-        .auth-card { 
-            width: 420px; background: rgba(255, 255, 255, 0.1); 
-            padding: 40px; border-radius: 32px; border: 1px solid var(--glass-border);
-            backdrop-filter: blur(25px); box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        .hero-disclaimer { 
+            font-size: 0.9rem; color: rgba(255,255,255,0.6); max-width: 550px; 
+            line-height: 1.5; border-left: 3px solid var(--primary);
+            background: rgba(255,255,255,0.03); padding: 15px; border-radius: 0 10px 10px 0;
         }
 
-        /* Main Interface (Login ke baad) */
+        .auth-card { 
+            width: 380px; background: rgba(255, 255, 255, 0.1); 
+            padding: 30px; border-radius: 24px; border: 1px solid var(--glass-border);
+            backdrop-filter: blur(15px);
+        }
+
+        /* Logged In Interface (The 400+ line structure) */
         .main-wrapper { 
-            display: none; max-width: 1300px; margin: 30px auto; 
-            gap: 25px; padding: 0 20px; align-items: flex-start;
+            display: none; max-width: 1200px; margin: 20px auto; 
+            gap: 20px; padding: 0 15px; align-items: flex-start;
         }
         body.logged-in .main-wrapper { display: flex; }
 
-        .sidebar { width: 320px; position: sticky; top: 105px; display: flex; flex-direction: column; gap: 20px; }
-        .feed-container { flex: 1; max-width: 680px; }
-        .activity-bar { width: 300px; position: sticky; top: 105px; }
+        .sidebar { width: 300px; position: sticky; top: 80px; display: flex; flex-direction: column; gap: 20px; }
+        .container { flex: 1; max-width: 650px; }
 
-        /* Glass Cards (Matching Watermarked Image) */
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.1); 
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px; padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        /* UI Cards (Glass Effect for image_b662a6.png) */
+        .card { 
+            background: var(--glass-card); backdrop-filter: blur(12px);
+            padding: 20px; border-radius: 18px; border: 1px solid var(--glass-border);
+            margin-bottom: 20px;
         }
 
-        .card-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-
-        /* Inputs */
         input, textarea, select { 
-            width: 100%; padding: 16px; margin: 10px 0; border: 1px solid var(--glass-border); 
-            border-radius: 14px; background: rgba(255, 255, 255, 0.08);
-            color: white; outline: none; font-size: 15px;
+            width: 100%; padding: 14px; margin: 10px 0; border: 1px solid var(--glass-border); 
+            border-radius: 12px; font-size: 14px; background: rgba(255,255,255,0.1); color: white;
         }
-        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.4); }
-        option { background: #1e113a; color: white; }
+        ::placeholder { color: rgba(255,255,255,0.5); }
+        option { background: #1a0b2e; color: white; }
 
         button { 
-            width: 100%; padding: 16px; border: none; border-radius: 14px; 
-            font-weight: 700; background: var(--primary); color: white; 
-            cursor: pointer; transition: 0.3s; font-size: 16px;
+            width: 100%; padding: 14px; border: none; border-radius: 12px; 
+            font-weight: 600; background: var(--primary); color: white; cursor: pointer;
         }
-        button:hover { background: #9333ea; transform: scale(1.02); }
+        button.secondary { background: rgba(255,255,255,0.1); margin-top: 10px; }
 
-        /* Post Items */
-        .post-card { background: rgba(255,255,255,0.15); }
-        .user-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
-        .user-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--primary); }
-        
-        .tag { 
-            display: inline-block; padding: 5px 14px; border-radius: 20px; 
-            font-size: 11px; font-weight: 800; text-transform: uppercase;
-            background: var(--primary); color: white; margin-bottom: 10px;
-        }
+        /* Posts */
+        .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary); }
+        .post-img { width: calc(100% + 40px); margin: 15px -20px; display: block; max-height: 450px; object-fit: cover; }
+        .cat-badge { display: inline-block; background: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; margin-bottom: 5px; }
 
-        .post-image { 
-            width: calc(100% + 50px); margin: 20px -25px; 
-            max-height: 500px; object-fit: cover; border-top: 1px solid var(--glass-border);
-            border-bottom: 1px solid var(--glass-border);
-        }
+        .actions { display: flex; gap: 20px; border-top: 1px solid var(--glass-border); padding-top: 12px; }
+        .action-btn { background: none; color: white; width: auto; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .action-btn.liked { color: #ff4b4b; }
 
-        .actions { display: flex; gap: 30px; border-top: 1px solid var(--glass-border); padding-top: 15px; }
-        .action-btn { cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; opacity: 0.8; }
-        .action-btn:hover { opacity: 1; color: var(--primary); }
-        .action-btn.liked { color: #ff4b4b; opacity: 1; }
+        /* Sidebar Lists */
+        .list-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+        .badge { background: var(--primary); padding: 2px 8px; border-radius: 10px; font-size: 10px; }
 
-        /* Sidebar Stats */
-        .stat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .stat-row:last-child { border: none; }
-        .badge { background: var(--primary); padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
-
-        /* Profile Modal */
-        #profileModal { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); z-index: 2000;
-        }
-
-        @media (max-width: 1000px) {
-            .sidebar, .activity-bar { display: none; }
-            #loggedOutUI { flex-direction: column; text-align: center; padding-top: 50px; }
-            .hero-title { font-size: 3rem; }
+        @media (max-width: 850px) {
+            .hero-container { flex-direction: column; text-align: center; margin-top: 0; }
+            .sidebar { display: none; }
         }
     </style>
 </head>
 <body class="logged-out">
 
 <nav class="navbar">
-    <div class="nav-brand" onclick="location.reload()"><i class="fas fa-feather-alt"></i> StoryHub</div>
-    <div id="navUserArea"></div>
+    <div class="nav-brand" onclick="location.reload()">StoryHub - Likho Dil ki Baat 📝</div>
+    <div id="navUser"></div>
 </nav>
 
 <!-- LOGGED OUT UI -->
 <div id="loggedOutUI">
-    <div class="hero-left">
-        <h1 class="hero-title">Escape<br>Into Stories</h1>
-        <p style="font-size: 1.2rem; opacity: 0.8; max-width: 500px;">Every soul has a story. Share yours with the world in a place built for writers.</p>
-        <div style="margin-top: 40px; padding: 20px; background: rgba(255,255,255,0.05); border-left: 4px solid var(--primary); border-radius: 0 15px 15px 0;">
-            <small style="opacity: 0.6; text-transform: uppercase; letter-spacing: 1px;">Community Disclaimer</small>
-            <p style="font-size: 13px; margin-top: 5px;">We don't own your stories. You do. Be respectful, be creative, and keep the magic alive.</p>
+    <div class="hero-container">
+        <div class="hero-text">
+            <h1 class="hero-title">Escape<br>Into Stories</h1>
+            <p class="hero-subtitle">Read and write stories that touch the heart.</p>
+            <div class="hero-disclaimer">
+                <b>Community Disclaimer:</b> All stories and content on StoryHub are user-generated. We do not own or verify the accuracy of the tales shared. Please maintain community guidelines.
+            </div>
+        </div>
+        <div class="auth-card">
+            <h3 style="margin-bottom: 20px;">Start Your Journey</h3>
+            <input id="u_name" placeholder="Username">
+            <input id="u_pass" type="password" placeholder="Password">
+            <button onclick="appLogin()">Login</button>
+            <button class="secondary" onclick="appSignup()">Create Account</button>
         </div>
     </div>
-    <div class="auth-card">
-        <h2 style="margin-bottom: 25px;">Join the Journey</h2>
-        <input type="text" id="auth_user" placeholder="Choose Username">
-        <input type="password" id="auth_pass" placeholder="Password">
-        <button onclick="handleAuth('login')">Login</button>
-        <button style="background:transparent; border:1px solid var(--primary); margin-top:10px" onclick="handleAuth('signup')">Create New Account</button>
+    <div style="padding-bottom: 25px; display:flex; gap:40px; border-top:1px solid rgba(255,255,255,0.1); padding-top:25px">
+        <div><h3 style="margin:0; color:var(--primary)">10K+</h3><p style="margin:0; font-size:12px; color:#aaa">Stories</p></div>
+        <div><h3 style="margin:0; color:var(--primary)">25K+</h3><p style="margin:0; font-size:12px; color:#aaa">Readers</p></div>
     </div>
 </div>
 
 <!-- LOGGED IN UI -->
 <div class="main-wrapper">
-    <!-- Left Sidebar -->
     <div class="sidebar">
-        <div class="glass-card">
-            <div class="card-header"><i class="fas fa-crown"></i> Top Writers</div>
-            <div id="topWritersList"></div>
+        <div class="card">
+            <h4 style="margin-bottom:15px; border-bottom:1px solid var(--glass-border); padding-bottom:10px;">Top Writers ✍️</h4>
+            <div id="writersList"></div>
         </div>
-        <div class="glass-card">
-            <div class="card-header"><i class="fas fa-layer-group"></i> Categories</div>
-            <div id="categoryList"></div>
+        <div class="card">
+            <h4 style="margin-bottom:15px; border-bottom:1px solid var(--glass-border); padding-bottom:10px;">Categories 📚</h4>
+            <div id="categoriesList"></div>
         </div>
     </div>
 
-    <!-- Center Feed -->
-    <div class="feed-container">
-        <div class="glass-card">
-            <h3 style="margin-bottom: 15px;">Create Post</h3>
-            <input type="text" id="post_title" placeholder="Give it a title...">
-            <textarea id="post_content" rows="4" placeholder="What's on your mind?"></textarea>
-            <div style="display:flex; gap:10px;">
-                <select id="post_cat" style="flex:1">
-                    <option value="General">General</option>
-                    <option value="Love Story">Love Story</option>
-                    <option value="Action">Action</option>
-                    <option value="Inspiration">Inspiration</option>
-                    <option value="Horror">Horror</option>
-                    <option value="Sad">Sad</option>
-                </select>
-                <label style="flex:1; cursor:pointer; background:rgba(255,255,255,0.1); border-radius:14px; display:flex; align-items:center; justify-content:center; border:1px solid var(--glass-border)">
-                    <i class="fas fa-image" style="margin-right:10px"></i> Image
-                    <input type="file" id="post_file" accept="image/*" style="display:none">
-                </label>
-            </div>
-            <button onclick="uploadStory()" style="margin-top:15px">Post Story</button>
+    <div class="container">
+        <div class="card" style="border-top: 4px solid var(--primary);">
+            <input id="p_title" placeholder="Story Title...">
+            <select id="p_category">
+                <option value="General">General</option>
+                <option value="Love Story">Love Story</option>
+                <option value="Inspiration">Inspiration</option>
+                <option value="Horror">Horror</option>
+                <option value="Sad">Sad</option>
+            </select>
+            <textarea id="p_content" rows="4" placeholder="Write your heart out..."></textarea>
+            <input type="file" id="p_file" accept="image/*" style="font-size:12px;">
+            <button onclick="handlePost()">Post Story</button>
         </div>
-        <div id="storyFeed"></div>
-    </div>
-
-    <!-- Right Sidebar -->
-    <div class="activity-bar">
-        <div class="glass-card">
-            <div class="card-header"><i class="fas fa-bolt"></i> Recent Activity</div>
-            <div id="recentActivity" style="font-size: 13px; opacity: 0.8;">
-                No recent activity to show.
-            </div>
-        </div>
-        <div class="glass-card" style="background: var(--primary); color: white;">
-            <h4>Writing Prompt</h4>
-            <p style="font-size: 13px; margin-top: 10px;">"The moon was brighter than usual, and that's when I saw the door..."</p>
-        </div>
-    </div>
-</div>
-
-<!-- Modal -->
-<div id="profileModal" onclick="this.style.display='none'">
-    <div style="max-width: 600px; margin: 100px auto; pointer-events: none;">
-        <div class="glass-card" id="profileContent" style="pointer-events: auto;"></div>
+        <div id="postFeed"></div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -245,166 +193,121 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
-    let user = null;
+    let currentUser = null;
     let allPosts = [];
 
-    // --- Auth Logic ---
-    window.handleAuth = async (type) => {
-        const u = document.getElementById('auth_user').value.trim();
-        const p = document.getElementById('auth_pass').value;
-        if(!u || !p) return alert("Fill credentials!");
-
-        try {
-            if(type === 'signup') {
-                const res = await createUserWithEmailAndPassword(auth, u + "@story.com", p);
-                await updateProfile(res.user, { displayName: u });
-                location.reload(); 
-            } else {
-                await signInWithEmailAndPassword(auth, u + "@story.com", p);
-            }
-        } catch(e) { alert(e.message); }
-    };
-
-    onAuthStateChanged(auth, (currUser) => {
-        if(currUser) {
-            user = currUser;
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
             document.body.className = "logged-in";
-            document.getElementById('loggedOutUI').style.display = 'none';
+            document.getElementById("loggedOutUI").style.display = "none";
             
-            // Fix for undefined name
-            const displayName = currUser.displayName || currUser.email.split('@')[0];
-            
-            document.getElementById('navUserArea').innerHTML = `
-                <div style="display:flex; align-items:center; gap:15px">
-                    <span style="font-weight:600">@${displayName}</span>
-                    <img src="https://ui-avatars.com/api/?name=${displayName}&background=a855f7&color=fff" style="width:38px; border-radius:50%; border:2px solid white">
-                    <button onclick="auth.signOut()" style="width:auto; padding:8px 15px; background:rgba(255,255,255,0.1); font-size:12px">Logout</button>
+            const name = user.displayName || user.email.split('@')[0];
+            document.getElementById("navUser").innerHTML = `
+                <div style="display:flex; align-items:center; gap:10px">
+                    <span>@${name}</span>
+                    <button onclick="location.reload()" style="width:auto; padding:5px 10px; font-size:12px; background:rgba(255,255,255,0.1)">Logout</button>
                 </div>
             `;
-            initApp();
+            fetchPosts();
         } else {
             document.body.className = "logged-out";
         }
     });
 
-    window.auth = auth; // Exposed for logout
+    window.appLogin = async () => {
+        const u = document.getElementById("u_name").value.trim();
+        const p = document.getElementById("u_pass").value;
+        try { await signInWithEmailAndPassword(auth, u + "@story.com", p); } catch(e) { alert("Error!"); }
+    };
 
-    // --- Core App Logic ---
-    function initApp() {
+    window.appSignup = async () => {
+        const u = document.getElementById("u_name").value.trim();
+        const p = document.getElementById("u_pass").value;
+        try {
+            const res = await createUserWithEmailAndPassword(auth, u + "@story.com", p);
+            await updateProfile(res.user, { displayName: u });
+            location.reload();
+        } catch(e) { alert("Error!"); }
+    };
+
+    function fetchPosts() {
         onValue(ref(db, 'posts'), (snap) => {
             const data = snap.val();
             allPosts = data ? Object.keys(data).map(k => ({...data[k], id: k})).reverse() : [];
-            renderAll();
+            renderFeed();
         });
     }
 
-    window.uploadStory = () => {
-        const title = document.getElementById('post_title').value;
-        const text = document.getElementById('post_content').value;
-        const cat = document.getElementById('post_cat').value;
-        const file = document.getElementById('post_file').files[0];
-
-        if(!text) return;
-
-        const postObj = {
-            uid: user.uid,
-            author: user.displayName || user.email.split('@')[0],
-            title: title || "A Silent Tale",
-            content: text,
-            category: cat,
-            time: Date.now()
-        };
-
-        if(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                postObj.img = e.target.result;
-                push(ref(db, 'posts'), postObj);
-            };
-            reader.readAsDataURL(file);
-        } else {
-            push(ref(db, 'posts'), postObj);
-        }
-        
-        document.getElementById('post_title').value = '';
-        document.getElementById('post_content').value = '';
-    };
-
-    function renderAll() {
-        const feed = document.getElementById('storyFeed');
+    function renderFeed() {
+        const feed = document.getElementById("postFeed");
         feed.innerHTML = allPosts.map(p => {
             const likes = p.likes ? Object.keys(p.likes).length : 0;
-            const hasLiked = p.likes && p.likes[user.uid] ? 'liked' : '';
+            const isLiked = p.likes && p.likes[currentUser.uid] ? "liked" : "";
             return `
-                <div class="glass-card post-card">
-                    <div class="user-meta">
-                        <img src="https://ui-avatars.com/api/?name=${p.author}&background=random" class="user-avatar">
-                        <div>
-                            <div style="font-weight:700; cursor:pointer" onclick="showProfile('${p.author}')">@${p.author}</div>
-                            <div style="font-size:11px; opacity:0.6">${new Date(p.time).toLocaleDateString()}</div>
-                        </div>
+                <div class="card">
+                    <div class="post-header">
+                        <img src="https://ui-avatars.com/api/?name=${p.user}&background=random" class="avatar">
+                        <strong>@${p.user}</strong>
                     </div>
-                    <div class="tag">${p.category}</div>
-                    <h2 style="margin-bottom:10px">${p.title}</h2>
-                    <p class="post-content">${p.content}</p>
-                    ${p.img ? `<img src="${p.img}" class="post-image">` : ''}
+                    <div class="cat-badge">${p.category}</div>
+                    <h3 style="margin-bottom:10px">${p.title}</h3>
+                    <p style="white-space:pre-wrap; font-size:15px; opacity:0.9">${p.content}</p>
+                    ${p.image ? `<img src="${p.image}" class="post-img">` : ""}
                     <div class="actions">
-                        <div class="action-btn ${hasLiked}" onclick="handleLike('${p.id}')">
-                            <i class="fa${hasLiked?'s':'r'} fa-heart"></i> ${likes} Like
+                        <div class="action-btn ${isLiked}" onclick="toggleLike('${p.id}')">
+                            <i class="fa${isLiked?'s':'r'} fa-heart"></i> ${likes}
                         </div>
                         <div class="action-btn"><i class="far fa-comment"></i> Comment</div>
-                        <div class="action-btn"><i class="fas fa-share-alt"></i> Share</div>
                     </div>
                 </div>
             `;
-        }).join('');
-
-        updateSidebar();
+        }).join("");
+        updateStats();
     }
 
-    window.handleLike = (id) => {
+    window.toggleLike = (id) => {
         const post = allPosts.find(p => p.id === id);
-        const path = `posts/${id}/likes/${user.uid}`;
-        if(post.likes && post.likes[user.uid]) remove(ref(db, path));
+        const path = `posts/${id}/likes/${currentUser.uid}`;
+        if(post.likes && post.likes[currentUser.uid]) remove(ref(db, path));
         else set(ref(db, path), true);
     };
 
-    function updateSidebar() {
+    window.handlePost = () => {
+        const t = document.getElementById("p_title").value;
+        const c = document.getElementById("p_content").value;
+        const cat = document.getElementById("p_category").value;
+        const file = document.getElementById("p_file").files[0];
+        if(!c) return;
+
+        const postData = { user: currentUser.displayName, title: t, content: c, category: cat, time: Date.now() };
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = () => { postData.image = reader.result; push(ref(db, 'posts'), postData); };
+            reader.readAsDataURL(file);
+        } else {
+            push(ref(db, 'posts'), postData);
+        }
+        document.getElementById("p_title").value = "";
+        document.getElementById("p_content").value = "";
+    };
+
+    function updateStats() {
         const writers = {};
         const cats = {};
         allPosts.forEach(p => {
-            writers[p.author] = (writers[p.author] || 0) + 1;
+            writers[p.user] = (writers[p.user] || 0) + 1;
             cats[p.category] = (cats[p.category] || 0) + 1;
         });
 
-        document.getElementById('topWritersList').innerHTML = Object.entries(writers)
-            .sort((a,b) => b[1]-a[1]).slice(0,5).map(([name, count]) => `
-                <div class="stat-row" onclick="showProfile('${name}')" style="cursor:pointer">
-                    <span>@${name}</span> <span class="badge">${count} stories</span>
-                </div>
-            `).join('');
+        document.getElementById("writersList").innerHTML = Object.entries(writers).map(([n, c]) => 
+            `<div class="list-item"><span>@${n}</span><span class="badge">${c} stories</span></div>`
+        ).join("");
 
-        document.getElementById('categoryList').innerHTML = Object.entries(cats).map(([name, count]) => `
-            <div class="stat-row">
-                <span># ${name}</span> <span class="badge" style="background:rgba(255,255,255,0.1)">${count}</span>
-            </div>
-        `).join('');
+        document.getElementById("categoriesList").innerHTML = Object.entries(cats).map(([n, c]) => 
+            `<div class="list-item"><span># ${n}</span><span class="badge" style="background:rgba(255,255,255,0.1)">${c}</span></div>`
+        ).join("");
     }
-
-    window.showProfile = (name) => {
-        const uposts = allPosts.filter(p => p.author === name);
-        document.getElementById('profileModal').style.display = 'block';
-        document.getElementById('profileContent').innerHTML = `
-            <div style="text-align:center">
-                <img src="https://ui-avatars.com/api/?name=${name}&background=random&size=100" style="border-radius:50%; margin-bottom:15px">
-                <h2>@${name}</h2>
-                <p style="opacity:0.6">${uposts.length} Stories Published</p>
-                <div style="margin-top:20px; text-align:left; max-height:300px; overflow-y:auto">
-                    ${uposts.map(p => `<div style="padding:10px; border-bottom:1px solid rgba(255,255,255,0.1)">${p.title}</div>`).join('')}
-                </div>
-            </div>
-        `;
-    };
 </script>
 </body>
 </html>
