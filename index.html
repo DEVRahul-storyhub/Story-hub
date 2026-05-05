@@ -95,7 +95,7 @@
             background: rgba(255,255,255,0.1); color: #fff; outline: none; box-sizing: border-box;
         }
         body.logged-in input, body.logged-in textarea, body.logged-in select {
-            background: rgba(255,255,255,0.6); color: #000; border-color: rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.6); color: #000; border-color: rgba(0,0,0,0.1);
         }
         
         button { 
@@ -104,7 +104,7 @@
             cursor: pointer; transition: 0.3s;
         }
 
-        /* --- GRID VIEW CSS (NEW) --- */
+        /* --- GRID VIEW CSS --- */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -135,6 +135,9 @@
         .feed-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--primary); }
         .post-img { width: calc(100% + 50px); margin: 20px -25px; display: block; max-height: 500px; object-fit: cover; }
         .category-badge { display: inline-block; background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;}
+
+        /* NEW: Styles for Like & Comments */
+        .comment-item { background: #f0f2f5; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #ddd; }
 
         @media (max-width: 1000px) {
             .hero-container { flex-direction: column; align-items: center; text-align: center; }
@@ -216,7 +219,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -272,12 +275,20 @@
             allPosts = data ? Object.keys(data).map(k => ({...data[k], id: k})).reverse() : [];
             renderMainFeed();
             updateSidebarStats();
+            
+            // Re-render modal if it's open to show live updates for likes/comments
+            const modal = document.getElementById("appModal");
+            if (modal.style.display === "block" && window.currentOpenStoryId) {
+                viewFullStory(window.currentOpenStoryId);
+            }
         });
     }
 
     function renderMainFeed() {
         const feed = document.getElementById("postFeed");
-        feed.innerHTML = allPosts.map(p => `
+        feed.innerHTML = allPosts.map(p => {
+            const likes = p.likes ? Object.keys(p.likes).length : 0;
+            return `
             <div class="card">
                 <div class="post-header" onclick="viewUserStories('${p.user}')">
                     <img src="https://ui-avatars.com/api/?name=${p.user}&background=a855f7&color=fff" class="feed-avatar">
@@ -287,9 +298,12 @@
                 <h2 style="margin:10px 0; cursor:pointer" onclick="viewFullStory('${p.id}')">${p.title}</h2>
                 <p>${p.content.substring(0, 180)}...</p>
                 ${p.image ? `<img src="${p.image}" class="post-img">` : ''}
-                <button onclick="viewFullStory('${p.id}')" style="width:auto; margin-top:15px">Read Full Story</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px">
+                    <button onclick="viewFullStory('${p.id}')" style="width:auto">Read Full Story</button>
+                    <span style="font-size:14px; color:#666">❤️ ${likes} Likes</span>
+                </div>
             </div>
-        `).join("");
+        `}).join("");
     }
 
     function updateSidebarStats() {
@@ -312,7 +326,6 @@
         `).join("");
     }
 
-    // --- GRID VIEW LOGIC ---
     window.viewUserStories = (username) => {
         const userPosts = allPosts.filter(p => p.user === username);
         const html = `
@@ -351,8 +364,16 @@
         openModal(html);
     };
 
+    // --- MODIFIED: viewFullStory with Like and Comment ---
     window.viewFullStory = (id) => {
+        window.currentOpenStoryId = id;
         const p = allPosts.find(item => item.id === id);
+        if(!p) return;
+
+        const likeCount = p.likes ? Object.keys(p.likes).length : 0;
+        const isLiked = p.likes && p.likes[currentUser.uid];
+        const comments = p.comments ? Object.values(p.comments).reverse() : [];
+
         const html = `
             <div style="background:white; padding:30px; border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.1)">
                 <span class="category-badge">${p.category}</span>
@@ -361,9 +382,55 @@
                 <hr style="opacity:0.1; margin:20px 0">
                 ${p.image ? `<img src="${p.image}" style="width:100%; border-radius:15px; margin-bottom:20px">` : ''}
                 <div style="font-size:1.2rem; line-height:1.7; white-space:pre-wrap">${p.content}</div>
+                
+                <div style="margin-top:30px; display:flex; gap:20px; align-items:center; border-top:1px solid #eee; padding-top:20px">
+                    <button onclick="handleLike('${p.id}')" style="width:auto; background:${isLiked ? '#e91e63' : '#eee'}; color:${isLiked ? '#fff' : '#000'}">
+                        ${isLiked ? '❤️ Liked' : '🤍 Like'} (${likeCount})
+                    </button>
+                </div>
+
+                <div style="margin-top:40px">
+                    <h3>Comments</h3>
+                    <div style="display:flex; gap:10px; margin-bottom:25px">
+                        <input id="c_text" placeholder="Add a comment..." style="margin:0; background:#f9f9f9; color:#000; border:1px solid #ddd">
+                        <button onclick="handleComment('${p.id}')" style="width:auto">Post</button>
+                    </div>
+                    <div id="commentsDisplay">
+                        ${comments.map(c => `
+                            <div class="comment-item">
+                                <strong style="color:var(--primary)">@${c.user}</strong>
+                                <p style="margin:5px 0; font-size:14px">${c.text}</p>
+                            </div>
+                        `).join("")}
+                        ${comments.length === 0 ? '<p style="color:#888">No comments yet. Start the conversation!</p>' : ''}
+                    </div>
+                </div>
             </div>
         `;
         openModal(html);
+    };
+
+    // --- NEW: LIKE HANDLER ---
+    window.handleLike = (postId) => {
+        const post = allPosts.find(p => p.id === postId);
+        const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+        if(post.likes && post.likes[currentUser.uid]) {
+            remove(likeRef);
+        } else {
+            set(likeRef, true);
+        }
+    };
+
+    // --- NEW: COMMENT HANDLER ---
+    window.handleComment = (postId) => {
+        const text = document.getElementById("c_text").value;
+        if(!text.trim()) return;
+        push(ref(db, `posts/${postId}/comments`), {
+            user: currentUser.displayName,
+            text: text,
+            time: Date.now()
+        });
+        document.getElementById("c_text").value = "";
     };
 
     window.handlePost = async () => {
@@ -391,6 +458,7 @@
     }
 
     window.closeModal = () => {
+        window.currentOpenStoryId = null;
         document.getElementById("appModal").style.display = "none";
         document.body.style.overflow = "auto";
     };
