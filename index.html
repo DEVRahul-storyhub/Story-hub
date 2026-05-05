@@ -40,6 +40,27 @@
         }
         .nav-brand { font-size: 1.5rem; font-weight: 800; color: #fff; cursor: pointer; letter-spacing: -1px; }
 
+        /* --- New User Menu CSS --- */
+        .user-menu { position: relative; display: inline-flex; align-items: center; }
+        .dots-btn { 
+            background: none !important; border: none !important; color: white !important; 
+            font-size: 24px !important; cursor: pointer; padding: 0 10px !important; 
+            font-weight: bold; width: auto !important;
+        }
+        .dropdown-content {
+            display: none; position: absolute; top: 100%; right: 0; 
+            background: white; min-width: 180px; border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 2001; overflow: hidden;
+            margin-top: 10px;
+        }
+        .dropdown-content button {
+            width: 100% !important; padding: 12px 16px !important; text-align: left !important;
+            background: none !important; color: black !important; border-radius: 0 !important; 
+            font-size: 14px !important; font-weight: 500 !important; margin: 0 !important;
+        }
+        .dropdown-content button:hover { background: #f1f1f1 !important; color: var(--primary) !important; }
+        .show { display: block !important; }
+
         #loggedOutUI {
             min-height: calc(100vh - 65px);
             display: flex; flex-direction: column; justify-content: center;
@@ -211,7 +232,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onValue, set, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCzq2CZZhYFAh0hO-WoSb15yQGMb_9ECK8",
@@ -234,13 +255,52 @@
             currentUser = user;
             document.body.className = "logged-in";
             document.getElementById("loggedOutUI").style.display = "none";
-            document.getElementById("navUser").innerHTML = `<span style="font-weight:bold; margin-right:15px; color:white">@${user.displayName}</span><button onclick="logout()" style="width:auto; padding:5px 15px; font-size:12px; background:rgba(255,0,0,0.7); color:white; border:none; border-radius:5px; cursor:pointer">Logout</button>`;
+            // --- Updated UI with Dropdown ---
+            document.getElementById("navUser").innerHTML = `
+                <div class="user-menu">
+                    <span style="font-weight:bold; color:white; margin-right:5px">@${user.displayName}</span>
+                    <button class="dots-btn" onclick="toggleMenu()">⋮</button>
+                    <div id="userDropdown" class="dropdown-content">
+                        <button onclick="promptChangePassword()">🔑 Change Password</button>
+                        <button onclick="logout()" style="color: red !important;">🚪 Logout</button>
+                    </div>
+                </div>`;
             loadStories();
         } else {
             document.body.className = "logged-out";
             document.getElementById("loggedOutUI").style.display = "flex";
         }
     });
+
+    // --- Dropdown Logic ---
+    window.toggleMenu = () => {
+        document.getElementById("userDropdown").classList.toggle("show");
+    };
+
+    window.onclick = (event) => {
+        if (!event.target.matches('.dots-btn')) {
+            const dropdowns = document.getElementsByClassName("dropdown-content");
+            for (let i = 0; i < dropdowns.length; i++) {
+                if (dropdowns[i].classList.contains('show')) {
+                    dropdowns[i].classList.remove('show');
+                }
+            }
+        }
+    };
+
+    window.promptChangePassword = async () => {
+        const newPass = prompt("Enter your new password:");
+        if (newPass && newPass.length >= 6) {
+            try {
+                await updatePassword(auth.currentUser, newPass);
+                alert("Password updated successfully! ✅");
+            } catch (error) {
+                alert("Error: " + error.message + " (You might need to re-login first for security)");
+            }
+        } else if (newPass) {
+            alert("Password should be at least 6 characters.");
+        }
+    };
 
     window.appLogin = () => {
         const u = document.getElementById("u_name").value;
@@ -267,7 +327,6 @@
             renderMainFeed();
             updateSidebarStats();
             
-            // Story khuli hui hai to modal update karein
             if (document.getElementById("appModal").style.display === "block" && window.currentOpenStoryId) {
                 viewFullStory(window.currentOpenStoryId);
             }
@@ -403,7 +462,6 @@
         document.body.style.overflow = "hidden";
     };
 
-    // --- SIMPLIFIED & STABLE LIKE HANDLER ---
     window.handleLike = (postId) => {
         if (!currentUser) return alert("Login first");
         const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
