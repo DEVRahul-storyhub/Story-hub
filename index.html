@@ -14,7 +14,6 @@
         
         body, html { margin: 0; padding: 0; width: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
-        /* --- BACKGROUNDS --- */
         body.logged-out {
             background: linear-gradient(rgba(15, 7, 32, 0.9), rgba(15, 7, 32, 0.95)), 
                         url('https://images.unsplash.com/photo-1516410529446-2c777cb7366d?auto=format&fit=crop&q=80&w=2000') no-repeat center center fixed;
@@ -32,7 +31,6 @@
             min-height: 100vh;
         }
 
-        /* --- NAVBAR --- */
         .navbar { 
             display: flex; justify-content: space-between; align-items: center; 
             padding: 0 5%; height: 65px; position: sticky; top:0; z-index: 1000;
@@ -42,7 +40,6 @@
         }
         .nav-brand { font-size: 1.5rem; font-weight: 800; color: #fff; cursor: pointer; letter-spacing: -1px; }
 
-        /* --- HERO SECTION --- */
         #loggedOutUI {
             min-height: calc(100vh - 65px);
             display: flex; flex-direction: column; justify-content: center;
@@ -68,7 +65,6 @@
         .stat-box h3 { font-size: 2rem; margin: 0; color: var(--primary); font-weight: 800; }
         .stat-box p { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #888; margin: 5px 0 0 0; }
 
-        /* --- MAIN FEED LAYOUT --- */
         .main-wrapper { display: none; max-width: 1100px; margin: 30px auto; gap: 25px; padding: 0 20px; }
         body.logged-in .main-wrapper { display: flex; }
         
@@ -104,7 +100,6 @@
             cursor: pointer; transition: 0.3s;
         }
 
-        /* --- GRID VIEW CSS --- */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -128,7 +123,6 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.05);
         }
 
-        /* --- MODAL --- */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f8f9fa; z-index: 2000; overflow-y: auto; padding: 40px; color: black; }
 
         .post-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; cursor: pointer; color: #000; }
@@ -136,9 +130,8 @@
         .post-img { width: calc(100% + 50px); margin: 20px -25px; display: block; max-height: 500px; object-fit: cover; }
         .category-badge { display: inline-block; background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;}
 
-        /* Styles for Like & Comments */
         .comment-item { background: #f0f2f5; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #ddd; position: relative; }
-        .delete-btn { position: absolute; right: 10px; top: 10px; background: none; color: #ff4d4d; border: none; font-size: 12px; cursor: pointer; width: auto; padding: 0; }
+        .delete-btn { position: absolute; right: 10px; top: 10px; background: none !important; color: #ff4d4d !important; border: none; font-size: 12px; cursor: pointer; width: auto !important; padding: 0 !important; }
 
         @media (max-width: 1000px) {
             .hero-container { flex-direction: column; align-items: center; text-align: center; }
@@ -277,11 +270,7 @@
             renderMainFeed();
             updateSidebarStats();
             
-            // Refreshes modal only if it's already open to reflect real-time likes/comments
-            const modal = document.getElementById("appModal");
-            if (modal.style.display === "block" && window.currentOpenStoryId) {
-                viewFullStory(window.currentOpenStoryId);
-            }
+            // CRITICAL: We don't call viewFullStory here to prevent flicker
         });
     }
 
@@ -384,8 +373,8 @@
                 <div style="font-size:1.2rem; line-height:1.7; white-space:pre-wrap">${p.content}</div>
                 
                 <div style="margin-top:30px; display:flex; gap:20px; align-items:center; border-top:1px solid #eee; padding-top:20px">
-                    <button onclick="handleLike('${p.id}')" id="likeBtn" style="width:auto; background:${isLiked ? '#e91e63' : '#eee'}; color:${isLiked ? '#fff' : '#000'}">
-                        ${isLiked ? '❤️ Liked' : '🤍 Like'} (${likeCount})
+                    <button onclick="handleLike('${p.id}', this)" id="likeBtn" style="width:auto; background:${isLiked ? '#e91e63' : '#eee'}; color:${isLiked ? '#fff' : '#000'}">
+                        ${isLiked ? '❤️ Liked' : '🤍 Like'} <span id="l_cnt">${likeCount}</span>
                     </button>
                 </div>
 
@@ -397,14 +386,14 @@
                     </div>
                     <div id="commentsDisplay">
                         ${comments.map(c => `
-                            <div class="comment-item">
+                            <div class="comment-item" id="comm_${c.cid}">
                                 <strong style="color:var(--primary)">@${c.user}</strong>
                                 <p style="margin:5px 0; font-size:14px">${c.text}</p>
                                 ${currentUser && (c.uid === currentUser.uid || p.uid === currentUser.uid) ? 
                                     `<button class="delete-btn" onclick="deleteComment('${p.id}', '${c.cid}')">Delete</button>` : ''}
                             </div>
                         `).join("")}
-                        ${comments.length === 0 ? '<p style="color:#888">No comments yet. Start the conversation!</p>' : ''}
+                        ${comments.length === 0 ? '<p id="noComm" style="color:#888">No comments yet.</p>' : ''}
                     </div>
                 </div>
             </div>
@@ -412,40 +401,51 @@
         openModal(html);
     };
 
-    // --- FIX: Improved Like Handler using get() for fresh state ---
-    window.handleLike = async (postId) => {
-        if (!currentUser) return alert("Please login to like");
+    // --- RE-ENGINEERED LIKE HANDLER (STABLE) ---
+    window.handleLike = async (postId, btn) => {
+        if (!currentUser) return alert("Login first");
         const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
         
-        try {
-            const snapshot = await get(likeRef);
-            if (snapshot.exists()) {
-                await remove(likeRef);
-            } else {
-                await set(likeRef, true);
-            }
-        } catch (error) {
-            console.error("Like action failed:", error);
+        // Instant UI feedback logic
+        const snap = await get(likeRef);
+        let countEl = document.getElementById("l_cnt");
+        let currentCount = parseInt(countEl.innerText);
+
+        if (snap.exists()) {
+            // Already liked, so unlike it
+            await remove(likeRef);
+            btn.style.background = "#eee";
+            btn.style.color = "#000";
+            btn.innerHTML = `🤍 Like <span id="l_cnt">${currentCount - 1}</span>`;
+        } else {
+            // Not liked, so like it
+            await set(likeRef, true);
+            btn.style.background = "#e91e63";
+            btn.style.color = "#fff";
+            btn.innerHTML = `❤️ Liked <span id="l_cnt">${currentCount + 1}</span>`;
         }
     };
 
-    window.handleComment = (postId) => {
-        if (!currentUser) return alert("Please login to comment");
-        const text = document.getElementById("c_text").value;
-        if(!text.trim()) return;
+    window.handleComment = async (postId) => {
+        if (!currentUser) return alert("Login first");
+        const txt = document.getElementById("c_text").value;
+        if(!txt.trim()) return;
         
-        push(ref(db, `posts/${postId}/comments`), {
-            user: currentUser.displayName,
-            uid: currentUser.uid,
-            text: text,
-            time: Date.now()
-        });
+        const commRef = push(ref(db, `posts/${postId}/comments`));
+        const newComm = { user: currentUser.displayName, uid: currentUser.uid, text: txt, time: Date.now() };
+        await set(commRef, newComm);
+        
         document.getElementById("c_text").value = "";
+        // Refresh full view locally to show new comment without flicker
+        viewFullStory(postId); 
     };
 
-    window.deleteComment = (postId, commentId) => {
-        if(confirm("Are you sure you want to delete this comment?")) {
-            remove(ref(db, `posts/${postId}/comments/${commentId}`));
+    window.deleteComment = async (postId, commentId) => {
+        if(confirm("Delete this comment?")) {
+            await remove(ref(db, `posts/${postId}/comments/${commentId}`));
+            // Remove from UI instantly
+            const el = document.getElementById(`comm_${commentId}`);
+            if(el) el.remove();
         }
     };
 
