@@ -220,7 +220,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, set, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -268,12 +268,7 @@
         } catch(e) { alert("Signup Failed"); }
     };
 
-    window.logout = () => {
-        signOut(auth).then(() => {
-            currentUser = null;
-            location.reload();
-        });
-    };
+    window.logout = () => signOut(auth).then(() => location.reload());
 
     function loadStories() {
         onValue(ref(db, 'posts'), (snap) => {
@@ -282,7 +277,7 @@
             renderMainFeed();
             updateSidebarStats();
             
-            // Fixed modal refresh logic for live updates
+            // Refreshes modal only if it's already open to reflect real-time likes/comments
             const modal = document.getElementById("appModal");
             if (modal.style.display === "block" && window.currentOpenStoryId) {
                 viewFullStory(window.currentOpenStoryId);
@@ -377,8 +372,6 @@
 
         const likeCount = p.likes ? Object.keys(p.likes).length : 0;
         const isLiked = currentUser && p.likes && p.likes[currentUser.uid];
-        
-        // Handling comments with ID for deletion
         const comments = p.comments ? Object.keys(p.comments).map(k => ({...p.comments[k], cid: k})).reverse() : [];
 
         const html = `
@@ -391,7 +384,7 @@
                 <div style="font-size:1.2rem; line-height:1.7; white-space:pre-wrap">${p.content}</div>
                 
                 <div style="margin-top:30px; display:flex; gap:20px; align-items:center; border-top:1px solid #eee; padding-top:20px">
-                    <button onclick="handleLike('${p.id}')" style="width:auto; background:${isLiked ? '#e91e63' : '#eee'}; color:${isLiked ? '#fff' : '#000'}">
+                    <button onclick="handleLike('${p.id}')" id="likeBtn" style="width:auto; background:${isLiked ? '#e91e63' : '#eee'}; color:${isLiked ? '#fff' : '#000'}">
                         ${isLiked ? '❤️ Liked' : '🤍 Like'} (${likeCount})
                     </button>
                 </div>
@@ -419,15 +412,20 @@
         openModal(html);
     };
 
-    window.handleLike = (postId) => {
+    // --- FIX: Improved Like Handler using get() for fresh state ---
+    window.handleLike = async (postId) => {
         if (!currentUser) return alert("Please login to like");
-        const post = allPosts.find(p => p.id === postId);
         const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
         
-        if(post.likes && post.likes[currentUser.uid]) {
-            remove(likeRef);
-        } else {
-            set(likeRef, true);
+        try {
+            const snapshot = await get(likeRef);
+            if (snapshot.exists()) {
+                await remove(likeRef);
+            } else {
+                await set(likeRef, true);
+            }
+        } catch (error) {
+            console.error("Like action failed:", error);
         }
     };
 
@@ -445,7 +443,6 @@
         document.getElementById("c_text").value = "";
     };
 
-    // --- NEW: DELETE COMMENT LOGIC ---
     window.deleteComment = (postId, commentId) => {
         if(confirm("Are you sure you want to delete this comment?")) {
             remove(ref(db, `posts/${postId}/comments/${commentId}`));
