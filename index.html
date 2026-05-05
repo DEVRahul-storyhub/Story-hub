@@ -136,8 +136,9 @@
         .post-img { width: calc(100% + 50px); margin: 20px -25px; display: block; max-height: 500px; object-fit: cover; }
         .category-badge { display: inline-block; background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;}
 
-        /* NEW: Styles for Like & Comments */
-        .comment-item { background: #f0f2f5; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #ddd; }
+        /* Styles for Like & Comments */
+        .comment-item { background: #f0f2f5; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #ddd; position: relative; }
+        .delete-btn { position: absolute; right: 10px; top: 10px; background: none; color: #ff4d4d; border: none; font-size: 12px; cursor: pointer; width: auto; padding: 0; }
 
         @media (max-width: 1000px) {
             .hero-container { flex-direction: column; align-items: center; text-align: center; }
@@ -267,7 +268,12 @@
         } catch(e) { alert("Signup Failed"); }
     };
 
-    window.logout = () => signOut(auth).then(() => location.reload());
+    window.logout = () => {
+        signOut(auth).then(() => {
+            currentUser = null;
+            location.reload();
+        });
+    };
 
     function loadStories() {
         onValue(ref(db, 'posts'), (snap) => {
@@ -276,7 +282,7 @@
             renderMainFeed();
             updateSidebarStats();
             
-            // Re-render modal if it's open to show live updates for likes/comments
+            // Fixed modal refresh logic for live updates
             const modal = document.getElementById("appModal");
             if (modal.style.display === "block" && window.currentOpenStoryId) {
                 viewFullStory(window.currentOpenStoryId);
@@ -364,15 +370,16 @@
         openModal(html);
     };
 
-    // --- MODIFIED: viewFullStory with Like and Comment ---
     window.viewFullStory = (id) => {
         window.currentOpenStoryId = id;
         const p = allPosts.find(item => item.id === id);
         if(!p) return;
 
         const likeCount = p.likes ? Object.keys(p.likes).length : 0;
-        const isLiked = p.likes && p.likes[currentUser.uid];
-        const comments = p.comments ? Object.values(p.comments).reverse() : [];
+        const isLiked = currentUser && p.likes && p.likes[currentUser.uid];
+        
+        // Handling comments with ID for deletion
+        const comments = p.comments ? Object.keys(p.comments).map(k => ({...p.comments[k], cid: k})).reverse() : [];
 
         const html = `
             <div style="background:white; padding:30px; border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.1)">
@@ -400,6 +407,8 @@
                             <div class="comment-item">
                                 <strong style="color:var(--primary)">@${c.user}</strong>
                                 <p style="margin:5px 0; font-size:14px">${c.text}</p>
+                                ${currentUser && (c.uid === currentUser.uid || p.uid === currentUser.uid) ? 
+                                    `<button class="delete-btn" onclick="deleteComment('${p.id}', '${c.cid}')">Delete</button>` : ''}
                             </div>
                         `).join("")}
                         ${comments.length === 0 ? '<p style="color:#888">No comments yet. Start the conversation!</p>' : ''}
@@ -410,10 +419,11 @@
         openModal(html);
     };
 
-    // --- NEW: LIKE HANDLER ---
     window.handleLike = (postId) => {
+        if (!currentUser) return alert("Please login to like");
         const post = allPosts.find(p => p.id === postId);
         const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+        
         if(post.likes && post.likes[currentUser.uid]) {
             remove(likeRef);
         } else {
@@ -421,16 +431,25 @@
         }
     };
 
-    // --- NEW: COMMENT HANDLER ---
     window.handleComment = (postId) => {
+        if (!currentUser) return alert("Please login to comment");
         const text = document.getElementById("c_text").value;
         if(!text.trim()) return;
+        
         push(ref(db, `posts/${postId}/comments`), {
             user: currentUser.displayName,
+            uid: currentUser.uid,
             text: text,
             time: Date.now()
         });
         document.getElementById("c_text").value = "";
+    };
+
+    // --- NEW: DELETE COMMENT LOGIC ---
+    window.deleteComment = (postId, commentId) => {
+        if(confirm("Are you sure you want to delete this comment?")) {
+            remove(ref(db, `posts/${postId}/comments/${commentId}`));
+        }
     };
 
     window.handlePost = async () => {
