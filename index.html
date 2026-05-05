@@ -40,7 +40,7 @@
         }
         .nav-brand { font-size: 1.5rem; font-weight: 800; color: #fff; cursor: pointer; letter-spacing: -1px; }
 
-        /* --- New User Menu CSS --- */
+        /* User Menu & Dropdown CSS */
         .user-menu { position: relative; display: inline-flex; align-items: center; }
         .dots-btn { 
             background: none !important; border: none !important; color: white !important; 
@@ -232,7 +232,17 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onValue, set, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { 
+        getAuth, 
+        createUserWithEmailAndPassword, 
+        signInWithEmailAndPassword, 
+        onAuthStateChanged, 
+        signOut, 
+        updateProfile, 
+        updatePassword,
+        EmailAuthProvider, 
+        reauthenticateWithCredential 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCzq2CZZhYFAh0hO-WoSb15yQGMb_9ECK8",
@@ -255,7 +265,8 @@
             currentUser = user;
             document.body.className = "logged-in";
             document.getElementById("loggedOutUI").style.display = "none";
-            // --- Updated UI with Dropdown ---
+            
+            // UI with Dots Menu
             document.getElementById("navUser").innerHTML = `
                 <div class="user-menu">
                     <span style="font-weight:bold; color:white; margin-right:5px">@${user.displayName}</span>
@@ -272,7 +283,6 @@
         }
     });
 
-    // --- Dropdown Logic ---
     window.toggleMenu = () => {
         document.getElementById("userDropdown").classList.toggle("show");
     };
@@ -288,17 +298,46 @@
         }
     };
 
+    // --- Updated Secure Password Change Logic ---
     window.promptChangePassword = async () => {
-        const newPass = prompt("Enter your new password:");
-        if (newPass && newPass.length >= 6) {
-            try {
-                await updatePassword(auth.currentUser, newPass);
-                alert("Password updated successfully! ✅");
-            } catch (error) {
-                alert("Error: " + error.message + " (You might need to re-login first for security)");
+        const oldPass = prompt("Enter your CURRENT password:");
+        if (!oldPass) return;
+
+        const newPass = prompt("Enter your NEW password (at least 6 characters):");
+        if (!newPass) return;
+
+        const confirmPass = prompt("RE-ENTER your new password to confirm:");
+        if (!confirmPass) return;
+
+        if (newPass !== confirmPass) {
+            alert("Confirm password doesn't match! ❌");
+            return;
+        }
+
+        if (newPass.length < 6) {
+            alert("Password must be at least 6 characters! ❌");
+            return;
+        }
+
+        try {
+            // Re-authenticate user first
+            const credential = EmailAuthProvider.credential(currentUser.email, oldPass);
+            await reauthenticateWithCredential(auth.currentUser, credential);
+
+            // Change password
+            await updatePassword(auth.currentUser, newPass);
+            
+            alert("Password updated successfully! ✅");
+            if(document.getElementById("userDropdown")) {
+                document.getElementById("userDropdown").classList.remove("show");
             }
-        } else if (newPass) {
-            alert("Password should be at least 6 characters.");
+        } catch (error) {
+            console.error(error);
+            if (error.code === 'auth/wrong-password') {
+                alert("Current password is incorrect! ❌");
+            } else {
+                alert("Error: " + error.message);
+            }
         }
     };
 
