@@ -117,11 +117,6 @@
             display: flex;
             flex-direction: column;
         }
-        .grid-post-card:hover {
-            transform: translateY(-5px);
-            background: rgba(0,0,0,0.08);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f8f9fa; z-index: 2000; overflow-y: auto; padding: 40px; color: black; }
 
@@ -270,7 +265,10 @@
             renderMainFeed();
             updateSidebarStats();
             
-            // CRITICAL: We don't call viewFullStory here to prevent flicker
+            // Story khuli hui hai to modal update karein
+            if (document.getElementById("appModal").style.display === "block" && window.currentOpenStoryId) {
+                viewFullStory(window.currentOpenStoryId);
+            }
         });
     }
 
@@ -359,8 +357,9 @@
         const p = allPosts.find(item => item.id === id);
         if(!p) return;
 
-        const likeCount = p.likes ? Object.keys(p.likes).length : 0;
-        const isLiked = currentUser && p.likes && p.likes[currentUser.uid];
+        const likes = p.likes || {};
+        const likeCount = Object.keys(likes).length;
+        const isLiked = currentUser && likes[currentUser.uid];
         const comments = p.comments ? Object.keys(p.comments).map(k => ({...p.comments[k], cid: k})).reverse() : [];
 
         const html = `
@@ -373,8 +372,8 @@
                 <div style="font-size:1.2rem; line-height:1.7; white-space:pre-wrap">${p.content}</div>
                 
                 <div style="margin-top:30px; display:flex; gap:20px; align-items:center; border-top:1px solid #eee; padding-top:20px">
-                    <button onclick="handleLike('${p.id}', this)" id="likeBtn" style="width:auto; background:${isLiked ? '#e91e63' : '#eee'}; color:${isLiked ? '#fff' : '#000'}">
-                        ${isLiked ? '❤️ Liked' : '🤍 Like'} <span id="l_cnt">${likeCount}</span>
+                    <button onclick="handleLike('${p.id}')" style="width:auto; background:${isLiked ? '#e91e63' : '#eee'}; color:${isLiked ? '#fff' : '#000'}">
+                        ${isLiked ? '❤️ Liked' : '🤍 Like'} (${likeCount})
                     </button>
                 </div>
 
@@ -386,66 +385,53 @@
                     </div>
                     <div id="commentsDisplay">
                         ${comments.map(c => `
-                            <div class="comment-item" id="comm_${c.cid}">
+                            <div class="comment-item">
                                 <strong style="color:var(--primary)">@${c.user}</strong>
                                 <p style="margin:5px 0; font-size:14px">${c.text}</p>
                                 ${currentUser && (c.uid === currentUser.uid || p.uid === currentUser.uid) ? 
                                     `<button class="delete-btn" onclick="deleteComment('${p.id}', '${c.cid}')">Delete</button>` : ''}
                             </div>
                         `).join("")}
-                        ${comments.length === 0 ? '<p id="noComm" style="color:#888">No comments yet.</p>' : ''}
                     </div>
                 </div>
             </div>
         `;
-        openModal(html);
+        document.getElementById("modalBody").innerHTML = html;
+        document.getElementById("appModal").style.display = "block";
+        document.body.style.overflow = "hidden";
     };
 
-    // --- RE-ENGINEERED LIKE HANDLER (STABLE) ---
-    window.handleLike = async (postId, btn) => {
+    // --- SIMPLIFIED & STABLE LIKE HANDLER ---
+    window.handleLike = (postId) => {
         if (!currentUser) return alert("Login first");
         const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
         
-        // Instant UI feedback logic
-        const snap = await get(likeRef);
-        let countEl = document.getElementById("l_cnt");
-        let currentCount = parseInt(countEl.innerText);
-
-        if (snap.exists()) {
-            // Already liked, so unlike it
-            await remove(likeRef);
-            btn.style.background = "#eee";
-            btn.style.color = "#000";
-            btn.innerHTML = `🤍 Like <span id="l_cnt">${currentCount - 1}</span>`;
-        } else {
-            // Not liked, so like it
-            await set(likeRef, true);
-            btn.style.background = "#e91e63";
-            btn.style.color = "#fff";
-            btn.innerHTML = `❤️ Liked <span id="l_cnt">${currentCount + 1}</span>`;
-        }
+        get(likeRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                remove(likeRef);
+            } else {
+                set(likeRef, true);
+            }
+        });
     };
 
-    window.handleComment = async (postId) => {
+    window.handleComment = (postId) => {
         if (!currentUser) return alert("Login first");
         const txt = document.getElementById("c_text").value;
         if(!txt.trim()) return;
         
-        const commRef = push(ref(db, `posts/${postId}/comments`));
-        const newComm = { user: currentUser.displayName, uid: currentUser.uid, text: txt, time: Date.now() };
-        await set(commRef, newComm);
-        
+        push(ref(db, `posts/${postId}/comments`), {
+            user: currentUser.displayName,
+            uid: currentUser.uid,
+            text: txt,
+            time: Date.now()
+        });
         document.getElementById("c_text").value = "";
-        // Refresh full view locally to show new comment without flicker
-        viewFullStory(postId); 
     };
 
-    window.deleteComment = async (postId, commentId) => {
+    window.deleteComment = (postId, commentId) => {
         if(confirm("Delete this comment?")) {
-            await remove(ref(db, `posts/${postId}/comments/${commentId}`));
-            // Remove from UI instantly
-            const el = document.getElementById(`comm_${commentId}`);
-            if(el) el.remove();
+            remove(ref(db, `posts/${postId}/comments/${commentId}`));
         }
     };
 
